@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Android/AivaCRM/app/src/main/res/drawable/aiva_crm_logo.xml" value="0.202" />
+        <entry key="..\:/Android/AivaCRM/app/src/main/res/drawable/ic_final__1_.xml" value="0.202" />
+        <entry key="..\:/Android/AivaCRM/app/src/main/res/drawable/ic_launcher_background.xml" value="0.202" />
+        <entry key="..\:/Android/AivaCRM/app/src/main/res/drawable/shape_round_corner.xml" value="0.1" />
+        <entry key="..\:/Android/AivaCRM/app/src/main/res/layout/activity_daily_tasks.xml" value="0.29793510324483774" />
+        <entry key="..\:/Android/AivaCRM/app/src/main/res/layout/activity_todays_tasks.xml" value="0.2128623188405797" />
+        <entry key="..\:/Android/AivaCRM/app/src/main/res/layout/fragment_todays_tasks.xml" value="0.2128623188405797" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>
