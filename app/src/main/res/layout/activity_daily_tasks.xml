@@ -24,18 +24,37 @@
                 android:layout_height="match_parent"
 >
 
-
-                <ImageView
-                    android:layout_width="150dp"
-                    android:layout_height="75dp"
-                    android:layout_marginStart="16dp"
-                    android:scaleX="2.3"
-                    android:scaleY="2.5"
-                    android:src="@drawable/ic_final__1_"
+                <TextView
+                    android:id="@+id/monthYearTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:layout_marginEnd="143dp"
+                    android:layout_weight="2"
+                    android:textAlignment="center"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+                    android:textColor="@color/grey_60"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/pickDate"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <Button
+                    android:id="@+id/pickDate"
+                    android:layout_width="72dp"
+                    android:layout_height="60dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/ic_baseline_calendar_today_24"
+                    android:gravity="right"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/menuButton"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.0" />
+
+                <Button
+                    android:id="@+id/menuButton"
                     android:layout_width="72dp"
                     android:layout_height="60dp"
                     android:layout_marginEnd="16dp"
@@ -120,15 +139,7 @@
 
         </com.google.android.material.tabs.TabLayout>
 
-        <TextView
-            android:id="@+id/monthYearTV"
-            android:layout_width="match_parent"
-            android:layout_height="32dp"
-            android:layout_weight="2"
-            android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-            android:textColor="@color/grey_60"
-            android:textStyle="bold" />
+
 
     </com.google.android.material.appbar.AppBarLayout>
 
