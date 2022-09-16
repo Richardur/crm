@@ -28,7 +28,6 @@
                     android:id="@+id/monthYearTV"
                     android:layout_width="wrap_content"
                     android:layout_height="32dp"
-                    android:layout_marginEnd="143dp"
                     android:layout_weight="2"
                     android:textAlignment="center"
                     android:textAppearance="@style/TextAppearance.AppCompat.Headline"
