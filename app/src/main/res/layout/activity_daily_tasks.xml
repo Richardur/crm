@@ -19,37 +19,35 @@
             android:layout_height="match_parent"
             android:layout_marginTop="20dp"
             >
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+>
 
-            <ImageView
-                android:layout_width="150dp"
-                android:layout_height="75dp"
-                android:scaleX="2.3"
-                android:scaleY="2.5"
-                android:src="@drawable/ic_final__1_"
-                android:layout_marginBottom="20dp"
-                android:layout_marginStart="10dp"/>
 
-            <TextView
-                android:id="@+id/monthYearTV"
-                android:layout_width="0dp"
-                android:layout_height="32dp"
-                android:layout_marginTop="10dp"
-                android:layout_weight="2"
-                android:text="AIVA CRM"
-                android:textAlignment="center"
-                android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-                android:textColor="@color/grey_60"
-                android:textStyle="bold" />
+                <ImageView
+                    android:layout_width="150dp"
+                    android:layout_height="75dp"
+                    android:layout_marginStart="16dp"
+                    android:scaleX="2.3"
+                    android:scaleY="2.5"
+                    android:src="@drawable/ic_final__1_"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-        <Button
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:background="@drawable/ic_baseline_menu_24"
-            android:textStyle="bold"
-            android:textSize="20sp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="10dp"
-            />
+                <Button
+                    android:layout_width="72dp"
+                    android:layout_height="60dp"
+                    android:layout_marginEnd="16dp"
+                    android:background="@drawable/ic_baseline_menu_24"
+                    android:gravity="right"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.466" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </LinearLayout>
 
         <com.google.android.material.tabs.TabLayout
@@ -121,6 +119,16 @@
                 android:text="@string/day7" />
 
         </com.google.android.material.tabs.TabLayout>
+
+        <TextView
+            android:id="@+id/monthYearTV"
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            android:layout_weight="2"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+            android:textColor="@color/grey_60"
+            android:textStyle="bold" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
