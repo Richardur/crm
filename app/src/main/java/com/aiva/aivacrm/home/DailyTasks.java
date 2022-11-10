@@ -1,6 +1,8 @@
 package com.aiva.aivacrm.home;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
@@ -18,12 +20,22 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import adapter.AdapterTasks;
+import adapter.ItemAnimation;
+import model.Task;
+
 public class DailyTasks extends AppCompatActivity {
 
     private TextView monthYearText;
     private LocalDate selectedDate;
     private TabLayout weekdays;
     private Button pickDate;
+
+    List<Task> items = new ArrayList<>();
+    List<Integer> date = new ArrayList<>(); //date list
+    private RecyclerView recyclerView;
+    private AdapterTasks mAdapter;
+    private int animation_type = ItemAnimation.FADE_IN;
 
 
     @Override
@@ -33,6 +45,12 @@ public class DailyTasks extends AppCompatActivity {
 
         initComponents();
         selectedDate = LocalDate.now();
+        //convert selected date to list (y,m,d)
+
+        date.add(selectedDate.getYear());
+        date.add(selectedDate.getMonthValue());
+        date.add(selectedDate.getDayOfMonth());
+
         setMonthView();
         setTabDate(selectedDate);
 
@@ -55,6 +73,22 @@ public class DailyTasks extends AppCompatActivity {
         pickDate = findViewById(R.id.pickDate);
         monthYearText = findViewById(R.id.monthYearTV);
         weekdays = findViewById(R.id.tab_layout);
+
+        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setHasFixedSize(true);
+        animation_type = ItemAnimation.FADE_IN;
+
+
+        setAdapter(date);
+    }
+
+    private void setAdapter(List<Integer> a) {
+
+
+        mAdapter = new AdapterTasks(this, items, animation_type, a);
+        recyclerView.setAdapter(mAdapter);
+
     }
 
     private void setMonthView()

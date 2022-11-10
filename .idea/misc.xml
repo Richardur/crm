@@ -4,12 +4,15 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Android/AivaCRM/app/src/main/res/drawable/aiva_crm_logo.xml" value="0.202" />
+        <entry key="..\:/Android/AivaCRM/app/src/main/res/drawable/bg_multi_selection.xml" value="0.129" />
+        <entry key="..\:/Android/AivaCRM/app/src/main/res/drawable/ic_check_box.xml" value="0.129" />
         <entry key="..\:/Android/AivaCRM/app/src/main/res/drawable/ic_final__1_.xml" value="0.202" />
         <entry key="..\:/Android/AivaCRM/app/src/main/res/drawable/ic_launcher_background.xml" value="0.202" />
         <entry key="..\:/Android/AivaCRM/app/src/main/res/drawable/shape_round_corner.xml" value="0.1" />
         <entry key="..\:/Android/AivaCRM/app/src/main/res/layout/activity_daily_tasks.xml" value="0.2" />
         <entry key="..\:/Android/AivaCRM/app/src/main/res/layout/activity_todays_tasks.xml" value="0.2128623188405797" />
         <entry key="..\:/Android/AivaCRM/app/src/main/res/layout/fragment_todays_tasks.xml" value="0.2128623188405797" />
+        <entry key="..\:/Android/AivaCRM/app/src/main/res/layout/item_task.xml" value="0.264" />
       </map>
     </option>
   </component>

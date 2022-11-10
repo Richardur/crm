@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.balysv.materialripple.MaterialRippleLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/RippleStyleBlack"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/lyt_parent"
+        android:layout_width="match_parent"
+        android:layout_height="93dp"
+        android:background="@drawable/bg_multi_selection"
+        android:clickable="true"
+        android:orientation="horizontal"
+        android:paddingTop="@dimen/spacing_large"
+        android:paddingBottom="@dimen/spacing_large">
+
+        <View
+            android:layout_width="@dimen/spacing_large"
+            android:layout_height="0dp" />
+
+        <RelativeLayout
+            android:layout_width="60dp"
+            android:layout_height="64dp"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:id="@+id/lyt_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/laikas"
+                    android:layout_marginTop="6sp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:textColor="?attr/colorPrimary"
+                    android:textColorHint="@color/colorPrimary"
+                    android:textSize="24sp" />
+
+            </RelativeLayout>
+
+        </RelativeLayout>
+
+        <View
+            android:layout_width="@dimen/spacing_smlarge"
+            android:layout_height="0dp" />
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:id="@+id/linlay"
+                android:layout_width="241dp"
+                android:layout_height="700dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/klientas"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:text="Klientas"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    android:textColor="@color/grey_90"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/darbas"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_small"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:text="Darbas"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textColor="@color/grey_90"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/komentaras"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:text="test"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textColor="#757575" />
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/atlikta"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="0dp"
+                android:layout_toEndOf="@id/linlay"
+                android:contentDescription="OK"
+                android:visibility="visible"
+                app:srcCompat="@drawable/ic_check_box"
+                tools:srcCompat="@drawable/ic_check_box" />
+
+        </RelativeLayout>
+
+        <View
+            android:layout_width="@dimen/spacing_large"
+            android:layout_height="0dp" />
+
+    </LinearLayout>
+
+</com.balysv.materialripple.MaterialRippleLayout>
