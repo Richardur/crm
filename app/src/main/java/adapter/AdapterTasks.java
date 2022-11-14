@@ -12,6 +12,7 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.aiva.aivacrm.R;
+import com.aiva.aivacrm.home.TasksTab;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
@@ -31,9 +32,12 @@ public class AdapterTasks extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private int animation_type = 0;
     public int elements = 0;
 
-    public AdapterTasks(Context context, List<Task> items, int animation_type, List<Integer> a) {
-        ctx = context;
-        date=a;
+    Timestamp t1, t2;
+
+    public AdapterTasks(TasksTab context, List<Task> items, int animation_type, Timestamp a, Timestamp b) {
+
+        t1=a;
+        t2=b;
         this.animation_type = animation_type;
     }
 
@@ -75,10 +79,6 @@ public class AdapterTasks extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         if (holder instanceof OriginalViewHolder) {
             OriginalViewHolder view = (OriginalViewHolder) holder;
-            String str1 = Integer.toString(date.get(0))+"-"+Integer.toString(date.get(1))+"-"+Integer.toString(date.get(2))+" 00:00:00";
-            String str2 = Integer.toString(date.get(0))+"-"+Integer.toString(date.get(1))+"-"+Integer.toString((date.get(2)+2))+" 00:00:00";
-            Timestamp t1 = Timestamp.valueOf(str1);
-            Timestamp t2 = Timestamp.valueOf(str2);
             Task t = items.get(position);
             //if(t.AtlikData.after(t1)) {
                 for (Action action : actions) {

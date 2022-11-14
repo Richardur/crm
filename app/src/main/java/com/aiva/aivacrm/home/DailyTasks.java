@@ -1,10 +1,14 @@
 package com.aiva.aivacrm.home;
 
+import static data.GetTasks.getTasksData;
+
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.DatePickerDialog;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -12,8 +16,10 @@ import android.widget.DatePicker;
 import android.widget.TextView;
 import android.content.DialogInterface;
 import com.aiva.aivacrm.R;
+import com.aiva.aivacrm.databinding.ActivityDailyTasksBinding;
 import com.google.android.material.tabs.TabLayout;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -24,24 +30,29 @@ import adapter.AdapterTasks;
 import adapter.ItemAnimation;
 import model.Task;
 
+
+
+
 public class DailyTasks extends AppCompatActivity {
 
     private TextView monthYearText;
     private LocalDate selectedDate;
     private TabLayout weekdays;
     private Button pickDate;
+    Fragment fragment;
 
-    List<Task> items = new ArrayList<>();
     List<Integer> date = new ArrayList<>(); //date list
-    private RecyclerView recyclerView;
-    private AdapterTasks mAdapter;
-    private int animation_type = ItemAnimation.FADE_IN;
+    String t1, t2; //date strings
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_daily_tasks);
+
+
+
 
         initComponents();
         selectedDate = LocalDate.now();
@@ -50,9 +61,16 @@ public class DailyTasks extends AppCompatActivity {
         date.add(selectedDate.getYear());
         date.add(selectedDate.getMonthValue());
         date.add(selectedDate.getDayOfMonth());
+        getTimestamps();
 
         setMonthView();
         setTabDate(selectedDate);
+
+
+        fragment = TasksTab.newInstance(t1,t2);
+
+
+        getSupportFragmentManager().beginTransaction().replace(R.id.tabFragment, fragment).commit();
 
         //pick date
         pickDate.setOnClickListener(new View.OnClickListener() {
@@ -70,26 +88,20 @@ public class DailyTasks extends AppCompatActivity {
     }
 
     private void initComponents(){
+
+
+
         pickDate = findViewById(R.id.pickDate);
         monthYearText = findViewById(R.id.monthYearTV);
         weekdays = findViewById(R.id.tab_layout);
 
-        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setHasFixedSize(true);
-        animation_type = ItemAnimation.FADE_IN;
 
 
-        setAdapter(date);
+
+        //setAdapter(date);
     }
 
-    private void setAdapter(List<Integer> a) {
 
-
-        mAdapter = new AdapterTasks(this, items, animation_type, a);
-        recyclerView.setAdapter(mAdapter);
-
-    }
 
     private void setMonthView()
     {
@@ -102,6 +114,7 @@ public class DailyTasks extends AppCompatActivity {
         return date.format(formatter);
     }
 
+    // TODO: refresh fragment and selected date on tab click
     private void setTabDate(LocalDate date){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM dd");
 
@@ -155,12 +168,32 @@ public class DailyTasks extends AppCompatActivity {
                         selectedDate = LocalDate.of(year, monthOfYear + 1, dayOfMonth);
                         setMonthView();
                         setTabDate(selectedDate);
+                        getTimestamps();
+                        //detach current fragment
+                        getSupportFragmentManager().beginTransaction().detach(fragment).commit();
+                        fragment = TasksTab.newInstance(t1,t2);
+                        getSupportFragmentManager().beginTransaction().replace(R.id.tabFragment, fragment).commit();
+
                     }
                 }, mYear, mMonth, mDay);
         datePickerDialog.show();
 
 
+
+
     }
+
+    private void getTimestamps(){
+        List<Integer> date = new ArrayList<>(); //date list
+        date.add(selectedDate.getYear());
+        date.add(selectedDate.getMonthValue());
+        date.add(selectedDate.getDayOfMonth());
+
+        t1 = Integer.toString(date.get(0))+"-"+Integer.toString(date.get(1))+"-"+Integer.toString(date.get(2))+" 00:00:00";
+        t2 = Integer.toString(date.get(0))+"-"+Integer.toString(date.get(1))+"-"+Integer.toString((date.get(2)+1))+" 00:00:00";
+
+    }
+
 
 
 
