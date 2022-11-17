@@ -123,6 +123,8 @@ public class AdapterTasks extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     }
 
     public static void setItems(List<Task> data) {
+
+
         items.clear();
         items.addAll(data);
     }
@@ -143,5 +145,6 @@ public class AdapterTasks extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         return a;
     }
+
 
 }

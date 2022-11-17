@@ -105,6 +105,17 @@ public class TasksTab extends Fragment {
                             }
                         }
 
+                        //sort items2 based on hours
+                        for(int i=0;i<items2.size();i++){
+                            for(int j=i+1;j<items2.size();j++){
+                                if(items2.get(i).AtlikData.after(items2.get(j).AtlikData)){
+                                    Task temp = items2.get(i);
+                                    items2.set(i,items2.get(j));
+                                    items2.set(j,temp);
+                                }
+                            }
+                        }
+
                         AdapterTasks.setItems(items2);
                         setAdapter(view2);// add this method to the adapter
                     }

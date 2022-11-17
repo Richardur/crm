@@ -114,7 +114,6 @@ public class DailyTasks extends AppCompatActivity {
         return date.format(formatter);
     }
 
-    // TODO: refresh fragment and selected date on tab click
     private void setTabDate(LocalDate date){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM dd");
 
@@ -147,7 +146,35 @@ public class DailyTasks extends AppCompatActivity {
         }
         dayOfWeek = selectedDate.getDayOfWeek().getValue();
         weekdays.getTabAt(dayOfWeek-1).select();
+        //on tab clicked change selected date
+        weekdays.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                int prevDayOfWeek = selectedDate.getDayOfWeek().getValue();
+                int selDayOfWeek =  tab.getPosition() + 1;
+                if (selDayOfWeek > prevDayOfWeek) {
+                    selectedDate = selectedDate.plusDays(selDayOfWeek - prevDayOfWeek);
+                } else if (selDayOfWeek < prevDayOfWeek) {
+                    selectedDate = selectedDate.minusDays(prevDayOfWeek - selDayOfWeek);
+                }
+                setMonthView();
+                getTimestamps();
+                getSupportFragmentManager().beginTransaction().detach(fragment).commit();
+                fragment = TasksTab.newInstance(t1,t2);
+                getSupportFragmentManager().beginTransaction().replace(R.id.tabFragment, fragment).commit();
+            }
 
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
 
     }
     //on click of PickDate create a calendar popup  to pick date and set the date    to the selected date   and set the month view and tab date
