@@ -1,7 +1,9 @@
 package com.aiva.aivacrm.home;
 
+import static data.GetTasks.getCustomersData;
 import static data.GetTasks.getTasksData;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -20,6 +22,7 @@ import java.util.List;
 
 import adapter.AdapterTasks;
 import adapter.ItemAnimation;
+import model.Customer;
 import model.Task;
 
 /**
@@ -83,7 +86,7 @@ public class TasksTab extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setHasFixedSize(true);
-        mAdapter = new AdapterTasks(this, items, animation_type, t1, t2);
+        mAdapter = new AdapterTasks(getContext(), this, items, animation_type, t1, t2);
         recyclerView.setAdapter(mAdapter);
 
     }
@@ -121,9 +124,35 @@ public class TasksTab extends Fragment {
                     }
                 }
         );
+        getCustomersData(
+                new OnCustomersRetrieved() {
+                    @Override
+                    public void getResult(List<Customer> result) {
+                        // The code in here runs much later in the future - the adapter
+                        // will already have been set up, but will be empty.
+                        List<Customer> items2 = new ArrayList<>();
+                        for(Customer c:result){
+                            items2.add(c);
+                        }
+                        AdapterTasks.setCustomers(items2);
+                        //setAdapter(view2);// add this method to the adapter
+                    }
+                }
+        );
+
+
     }
 
     public interface OnTasksRetrieved {
         void getResult(List<Task> result);
+    }
+    public interface OnCustomersRetrieved {
+        void getResult(List<Customer> result);
+    }
+
+    public void onTaskSelected(Task task) {
+        Intent intent = new Intent(getContext(), TaskInfo.class);
+        startActivity(intent);
+
     }
 }
