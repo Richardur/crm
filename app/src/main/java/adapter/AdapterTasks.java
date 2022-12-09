@@ -116,7 +116,11 @@ public class AdapterTasks extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 Intent intent = new Intent(ctx, TaskInfo.class);
                 intent.putExtra("CustomerId", items.get(position).KlientasID);
                 intent.putExtra("TaskId", items.get(position).ID);
-                intent.putExtra("TaskDate", items.get(position).AtlikData);
+
+                String taskDate = items.get(position).AtlikData.toString();
+                taskDate = taskDate.substring(0, taskDate.length()- 5);
+
+                intent.putExtra("TaskDate", taskDate);
                 intent.putExtra("TaskComment", items.get(position).Komentaras);
                 intent.putExtra("TaskAction", items.get(position).VeiksmoID);
                 intent.putExtra("TaskCustomer", items.get(position).KlientasPav);
@@ -129,6 +133,7 @@ public class AdapterTasks extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 intent.putExtra("RepSurname", items.get(position).at_p);
                 intent.putExtra("RepEmail", items.get(position).at_e);
                 intent.putExtra("RepPhone", items.get(position).at_t);
+                intent.putExtra("AddressId", items.get(position).adrId);
 
                 ctx.startActivity(intent);
             }
@@ -195,6 +200,7 @@ public class AdapterTasks extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             for(Customer c: customers){
                 if(t.KlientasID==c.id){
                     t.KlientasPav=c.username;
+                    t.adrId=c.adrid;
                     t.at_v=c.at_v;
                     t.at_p=c.at_p;
                     t.at_e=c.at_e;

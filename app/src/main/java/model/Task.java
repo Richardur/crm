@@ -24,7 +24,7 @@ public class Task {
     public Date hour;
     public Date minute;
     public String KlientasPav;
-
+    public int adrId;
     public String at_v, at_p, at_e, at_t;
 
 

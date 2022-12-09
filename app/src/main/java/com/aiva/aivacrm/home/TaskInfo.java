@@ -1,5 +1,7 @@
 package com.aiva.aivacrm.home;
 
+import static data.GetTasks.getAddressesData;
+
 import android.os.Bundle;
 
 import com.aiva.aivacrm.databinding.ActivityTaskInfoBinding;
@@ -10,24 +12,33 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 import com.aiva.aivacrm.R;
 
 import java.security.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+
+import adapter.AdapterTasks;
+import model.Address;
+import model.Customer;
 
 public class TaskInfo extends AppCompatActivity {
 
     private ActivityTaskInfoBinding binding;
 
-    int CustomerId, TaskId, VeiksmoID;
+    int CustomerId, TaskId, VeiksmoID, AddressId;
     String TaskComment, TaskCustomer, TaskDuration, TaskDate, TaskDoneDate, TaskStartedDate;
     int Atlikta, Pradeta;
     String RepName, RepSurname, RepPhone, RepEmail;
 
     TextView customer, action, dueDate, comment, status;
     TextView phone, email, website, address, subject;
+
+    List<Address> items = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +65,7 @@ public class TaskInfo extends AppCompatActivity {
 
         getIncomingIntent();
         setTaskInfo();
+        scheduleCall();
 
 
     }
@@ -105,12 +117,17 @@ public class TaskInfo extends AppCompatActivity {
         if (getIntent().hasExtra("RepEmail")) {
             RepEmail = getIntent().getStringExtra("RepEmail");
         }
+        if (getIntent().hasExtra("AddressId")) {
+            AddressId = getIntent().getIntExtra("AddressId", 0);
+        }
+
     }
 
     public void setTaskInfo() {
+        //TODO: set action and status
         customer.setText(TaskCustomer);
         //action.setText(VeiksmoID);
-        //dueDate.setText(TaskDate);
+        dueDate.setText(TaskDate);
         comment.setText(TaskComment);
         //status.setText(Atlikta);
 
@@ -120,4 +137,28 @@ public class TaskInfo extends AppCompatActivity {
         subject.setText(subjectText);
     }
 
+    public void scheduleCall(){
+        getAddressesData(
+                new onAddressesRetrieved() {
+                    @Override
+                    public void getResult(List<Address> result) {
+                        // The code in here runs much later in the future - the adapter
+                        // will already have been set up, but will be empty.
+                        items = result;
+                        for (int i = 0; i < items.size(); i++) {
+                            if (items.get(i).adrid == AddressId) {
+                                website.setText(items.get(i).adrwww);
+                                String addressText = items.get(i).adrgat + " " + items.get(i).adrnam + ", " +
+                                        items.get(i).adrmiest + ", " + items.get(i).sal_kodas;
+                                address.setText(addressText);
+                            }
+                        }
+
+                    };
+    });
+    }
+
+    public interface onAddressesRetrieved {
+        void getResult(List<Address> result);
+    }
 }

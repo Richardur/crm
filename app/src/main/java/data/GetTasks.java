@@ -1,12 +1,14 @@
 package data;
 
 import com.aiva.aivacrm.home.DailyTasks;
+import com.aiva.aivacrm.home.TaskInfo;
 import com.aiva.aivacrm.home.TasksTab;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.util.List;
 
+import model.Address;
 import model.Customer;
 import model.Task;
 import network.TasksApi;
@@ -77,4 +79,34 @@ public class GetTasks {
             }
         });
     }
+    public static void getAddressesData(TaskInfo.onAddressesRetrieved callback) {
+        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
+
+        Gson gson = new GsonBuilder()
+                .setDateFormat("yyyy-MM-dd HH:mm:ss")
+                .create();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://10.0.2.2/BD/")
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .client(client)
+                .build();
+
+        TasksApi taskAPI = retrofit.create(TasksApi.class);
+        Call<List<Address>> call = taskAPI.getAllAddresses();
+
+        call.enqueue(new Callback<List<Address>>() {
+            @Override
+            public void onResponse(Call<List<Address>> call, Response<List<Address>> response) {
+                callback.getResult(response.body());
+            }
+
+            @Override
+            public void onFailure(Call<List<Address>> call, Throwable t) {
+            }
+        });
+    }
+
 }

@@ -2,6 +2,7 @@ package network;
 
 import java.util.List;
 
+import model.Address;
 import model.Customer;
 import model.Task;
 import retrofit2.Call;
@@ -17,7 +18,7 @@ public interface TasksApi {
     @GET("customers.php")
     Call<List<Customer>> getAllCustomers();
     @GET("addresses.php")
-
+    Call<List<Address>> getAllAddresses();
     @PUT("tasks.php")
     Call<Task> updateTask(@Body Task task);
 }
