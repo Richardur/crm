@@ -1,61 +1,48 @@
 package model;
 
-import java.sql.Date;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 
 public class Task {
+    private int ID;
+    private String workInPlanForCutomerName;
+    private String workInPlanName;
+    private String workInPlanNote;
+    private Timestamp workInPlanTerm; // Format: "hh:mm"
+    private Timestamp workInPlanDone;
 
-    public int ID;
-    public int ReakcijosHeader;
-    public int VeiksmoID;
-    public Timestamp PradData;
-    public Timestamp PradDataReal;
-    public short Pradeta;
-    public Timestamp AtlikData;
-    public Timestamp AtlikDataReal;
-    public short Atlikta;
-    public String Komentaras;
-    public int DarbID;
-    public int KlientasID;
-    public String Trukme;
-    public int day;
-    public Date hour;
-    public Date minute;
-    public String KlientasPav;
-    public int adrId;
-    public String at_v, at_p, at_e, at_t;
-
-
-    public Task(int ID, int ReakcijosHeader, int VeiksmoID,
-                Timestamp PradData, Timestamp PradDataReal,
-                short Pradeta, Timestamp AtlikData, Timestamp AtlikDataReal,
-                short Atlikta, String Komentaras, int DarbID, int KlientasID, String Trukme) {
-
+    public Task(int ID, String workInPlanForCutomerName, String workInPlanName,
+                String workInPlanNote, Timestamp workInPlanTerm, Timestamp workInPlanDone) {
         this.ID = ID;
-        this.ReakcijosHeader=ReakcijosHeader;
-        this.VeiksmoID=VeiksmoID;
-        this.PradData=PradData;
-        this.PradDataReal=PradDataReal;
-        this.Pradeta=Pradeta;
-        this.AtlikData=AtlikData;
-        this.AtlikDataReal=AtlikDataReal;
-        this.Atlikta=Atlikta;
-        this.Komentaras=Komentaras;
-        this.DarbID=DarbID;
-        this.KlientasID=KlientasID;
-        this.Trukme=Trukme;
-
-    }
-    public String getTime(Timestamp t){
-        long l = t.getTime();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(l);
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-        String dateString = sdf.format(calendar.getTime());
-        return dateString;
+        this.workInPlanForCutomerName = workInPlanForCutomerName;
+        this.workInPlanName = workInPlanName;
+        this.workInPlanNote = workInPlanNote;
+        this.workInPlanTerm = workInPlanTerm;
+        this.workInPlanDone = workInPlanDone;
     }
 
+    // Getter methods for all fields
 
+    public int getID() {
+        return ID;
+    }
+
+    public String getWorkInPlanForCutomerName() {
+        return workInPlanForCutomerName;
+    }
+
+    public String getWorkInPlanName() {
+        return workInPlanName;
+    }
+
+    public String getWorkInPlanNote() {
+        return workInPlanNote;
+    }
+
+    public Timestamp getWorkInPlanTerm() {
+        return workInPlanTerm;
+    }
+
+    public Timestamp isWorkInPlanDone() {
+        return workInPlanDone;
+    }
 }

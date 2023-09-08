@@ -73,7 +73,7 @@
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_call"
                     android:id="@+id/call_button"
-                    app:tint="@color/red_A200"
+                    app:tint="@color/yellow_A700"
 
                     />
 
@@ -84,7 +84,7 @@
                     android:background="?attr/selectableItemBackgroundBorderless"
                     app:srcCompat="@drawable/ic_email"
                     android:id="@+id/email_button"
-                    app:tint="@color/red_A200" />
+                    app:tint="@color/yellow_A700" />
 
                 <ImageButton
                     android:layout_width="?android:attr/actionBarSize"
@@ -92,8 +92,8 @@
                     android:layout_margin="@dimen/spacing_middle"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_navigation"
-                    android:id="@+id/navigation"
-                    app:tint="@color/red_A200"
+                    android:id="@+id/map_button"
+                    app:tint="@color/yellow_A700"
 
                     />
 
@@ -122,7 +122,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:paddingBottom="@dimen/spacing_large"
+                    android:paddingBottom="@dimen/spacing_small"
                     android:paddingTop="@dimen/spacing_large">
 
                     <LinearLayout
@@ -131,13 +131,14 @@
                         android:layout_weight="1"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:clickable="true"
-                        android:gravity="center"
+                        android:gravity="top|center"
                         android:orientation="vertical">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/status"
+                            android:id="@+id/status_title"
                             android:textAppearance="@style/TextAppearance.AppCompat.Title"
                             android:textColor="@color/purple_500" />
 
@@ -145,12 +146,25 @@
                             android:id="@+id/status"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/spacing_medium"
+                            android:layout_marginTop="@dimen/spacing_xsmall"
                             android:text="Not completed"
                             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                             android:textColor="@color/grey_60" />
 
+
+                        <CheckBox
+                            android:id="@+id/status_checkbox"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:scaleX="1.4"
+                            android:scaleY="1.4"
+                            android:buttonTint="@color/yellow_A700"/>
+
                     </LinearLayout>
+
+
+
+
 
 
 
@@ -160,21 +174,22 @@
                         android:layout_weight="1"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:clickable="true"
-                        android:gravity="center"
+                        android:gravity="top|center"
                         android:orientation="vertical">
 
                         <TextView
-                            android:id="@+id/textView12"
+                            android:id="@+id/due_date_title"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/due_date"
+                            android:clickable="true"
                             android:textAppearance="@style/TextAppearance.AppCompat.Title"
                             android:textColor="@color/purple_500" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/spacing_medium"
+                            android:layout_marginTop="@dimen/spacing_xsmall"
                             android:id="@+id/due_date"
                             android:text="2023-01-01 00:00"
                             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
@@ -203,9 +218,31 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/comment"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
                     android:textColor="@color/purple_500"
-                    android:textStyle="bold" />
+                     />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:id="@+id/comment_layout"
+                    app:boxBackgroundColor="@color/grey_50"
+                    >
+
+                    <androidx.appcompat.widget.AppCompatEditText
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_small"
+                        android:layout_marginLeft="@dimen/spacing_xlarge"
+                        android:layout_marginRight="@dimen/spacing_xlarge"
+                        android:id="@+id/edit_comment"
+                        android:paddingTop="@dimen/spacing_medium"
+                        android:paddingBottom="@dimen/spacing_medium"
+                        android:lineSpacingExtra="2dp"
+                        />
+
+                </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -249,14 +286,35 @@
                         android:textColor="@color/purple_500"
                         android:textStyle="bold" />
 
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        android:id="@+id/phone_layout"
+                        app:boxBackgroundColor="@color/grey_50"
+                        >
+
+                        <androidx.appcompat.widget.AppCompatEditText
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_small"
+                            android:inputType="phone"
+                            android:id="@+id/edit_phone"
+                            android:paddingTop="@dimen/spacing_medium"
+                            android:paddingBottom="@dimen/spacing_medium"
+                            />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
                     <TextView
                         android:id="@+id/phone"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_medium"
+                        android:layout_marginTop="@dimen/spacing_small"
                         android:text="+(370)67232876"
                         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                        android:textColor="@color/grey_60" />
+                        android:textColor="@color/grey_60"
+                        android:visibility="visible"/>
 
                 </LinearLayout>
 
@@ -274,11 +332,30 @@
                         android:textColor="@color/purple_500"
                         android:textStyle="bold" />
 
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        android:id="@+id/email_layout"
+                        app:boxBackgroundColor="@color/grey_50">
+
+
+                        <androidx.appcompat.widget.AppCompatEditText
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_small"
+                            android:inputType="textEmailAddress"
+                            android:id="@+id/edit_email"
+                            android:paddingTop="@dimen/spacing_medium"
+                            android:paddingBottom="@dimen/spacing_medium"
+                            />
+
+                    </com.google.android.material.textfield.TextInputLayout>
                     <TextView
                         android:id="@+id/email"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_medium"
+                        android:layout_marginTop="@dimen/spacing_small"
                         android:text="robert@aiva.lt"
                         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                         android:textColor="@color/grey_60" />
@@ -310,11 +387,29 @@
                         android:textColor="@color/purple_500"
                         android:textStyle="bold" />
 
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        android:id="@+id/website_layout"
+                        app:boxBackgroundColor="@color/grey_50">
+
+
+                    <androidx.appcompat.widget.AppCompatEditText
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_small"
+                        android:id="@+id/edit_website"
+                        android:inputType="textUri"
+                        android:paddingTop="@dimen/spacing_medium"
+                        android:paddingBottom="@dimen/spacing_medium"
+                        />
+                    </com.google.android.material.textfield.TextInputLayout>
                     <TextView
                         android:id="@+id/website"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_medium"
+                        android:layout_marginTop="@dimen/spacing_small"
                         android:text="www.aiva.lt"
                         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                         android:textColor="@color/grey_60" />
@@ -335,12 +430,31 @@
                         android:textColor="@color/purple_500"
                         android:textStyle="bold" />
 
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        android:id="@+id/address_layout"
+                        app:boxBackgroundColor="@color/grey_50">
+
+
+                        <androidx.appcompat.widget.AppCompatEditText
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_small"
+                            android:id="@+id/edit_address"
+                            android:paddingTop="@dimen/spacing_medium"
+                            android:paddingBottom="@dimen/spacing_medium"
+                            />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
                     <TextView
                         android:id="@+id/address"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_medium"
-                        android:text="160th St, Fresh Meadows, NY, 11365"
+                        android:layout_marginTop="@dimen/spacing_small"
+                        android:text="Aguonų g. 9, Vilnius, Lithuania"
                         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                         android:textColor="@color/grey_60" />
 
@@ -364,7 +478,7 @@
                 >
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:background="?attr/selectableItemBackgroundBorderless"
@@ -378,7 +492,7 @@
                         android:layout_height="wrap_content"
                         android:text="Order"
                         android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                        android:textColor="@color/red_A200" />
+                        android:textColor="@color/yellow_A700" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -401,18 +515,45 @@
     </androidx.core.widget.NestedScrollView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_edit"
+        android:id="@+id/edit_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end|right"
         android:layout_margin="@dimen/spacing_smlarge"
         android:clickable="true"
-        app:backgroundTint="@color/red_A200"
+        app:backgroundTint="@color/yellow_A700"
         app:fabSize="normal"
         app:srcCompat="@drawable/ic_edit"
         app:tint="@android:color/white"
         app:maxImageSize="36dp"/>
-       />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/save_button"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end|right"
+        android:layout_margin="@dimen/spacing_smlarge"
+        android:clickable="true"
+        app:backgroundTint="@color/green_500"
+        app:fabSize="normal"
+        app:srcCompat="@drawable/ic_done"
+        app:tint="@android:color/white"
+        app:maxImageSize="36dp"/>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/cancel_button"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|left"
+        android:layout_margin="@dimen/spacing_smlarge"
+        android:clickable="true"
+        app:backgroundTint="@color/red_500"
+        app:fabSize="normal"
+        app:srcCompat="@drawable/ic_close"
+        app:tint="@android:color/white"
+        app:maxImageSize="36dp"/>
+
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

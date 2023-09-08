@@ -111,6 +111,10 @@
     <string name="website">Website</string>
     <string name="comment">Comment</string>
     <string name="subject">Name Surname</string>
+    <string name="EDIT">EDIT</string>
+    <string name="CANCEL">CANCEL</string>
+    <string name="YES">YES</string>
+    <string name="NO">NO</string>
 
 
 </resources>
