@@ -1,4 +1,7 @@
 <resources>
+    <string name="username_hint">Username</string>
+    <string name="password_hint">Password</string>
+    <string name="login_button">Login</string>
     <string name="app_name">Aiva CRM</string>
     <string name="google_client_id">748734039678-5ur49jj50aiugu2stk4u2vrad446lbdq.apps.googleusercontent.com</string>
     <string name="day1">Monday</string>

@@ -29,12 +29,17 @@
             android:name=".home.DailyTasks"
             android:exported="true"
             android:theme="@style/Theme.AivaCRM.NoActionBar">
+
+        </activity>
+        <activity android:name=".home.LoginActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>
