@@ -15,14 +15,15 @@
 
         <View
             android:id="@+id/spacer"
-            android:layout_width="16dp"
+            android:layout_width="10dp"
             android:layout_height="0dp"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
 
         <RelativeLayout
             android:id="@+id/lyt_image"
-            android:layout_width="60dp"
+            android:layout_width="70dp"
             android:layout_height="64dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -38,26 +39,28 @@
                 <TextView
                     android:id="@+id/hours"
                     android:layout_width="wrap_content"
-                    android:layout_height="30dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
                     android:textColor="?attr/colorPrimary"
                     android:textColorHint="@color/colorPrimary"
-                    android:textSize="22sp" />
+                    android:textSize="@dimen/text_size_large" /> <!-- Use the 'text_size_large' dimension resource -->
 
                 <TextView
                     android:layout_width="wrap_content"
-                    android:layout_height="30dp"
+                    android:layout_height="wrap_content"
                     android:text=":"
                     android:textColor="?attr/colorPrimary"
                     android:textColorHint="@color/colorPrimary"
-                    android:textSize="22sp" />
+                    android:textSize="@dimen/text_size_large" /> <!-- Use the 'text_size_large' dimension resource -->
 
                 <TextView
                     android:id="@+id/minutes"
+                    android:layout_weight="1"
                     android:layout_width="wrap_content"
-                    android:layout_height="30dp"
+                    android:layout_height="wrap_content"
                     android:textColor="?attr/colorPrimary"
                     android:textColorHint="@color/colorPrimary"
-                    android:textSize="20sp" />
+                    android:textSize="@dimen/text_size_large" /> <!-- Use the 'text_size_medium' dimension resource -->
             </LinearLayout>
         </RelativeLayout>
 
@@ -69,9 +72,7 @@
             app:layout_constraintEnd_toStartOf="@id/atlikta"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintWidth_default="wrap"
-            app:layout_constraintHorizontal_bias="0"
-            android:layout_marginStart="16dp"> <!-- Add margin to create space -->
+            android:layout_marginStart="@dimen/spacing_medium"> <!-- Use the 'spacing_medium' dimension resource for margin -->
 
             <TextView
                 android:id="@+id/klientas"

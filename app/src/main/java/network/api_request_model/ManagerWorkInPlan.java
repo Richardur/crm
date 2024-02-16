@@ -35,7 +35,7 @@ public class ManagerWorkInPlan {
     private String workInPlanPriority;
 
     @SerializedName("workInPlanForCustomerID")
-    private Integer workInPlanForCustomerID;
+    private String workInPlanForCustomerID;
 
     @SerializedName("workInPlanForCutomerName")
     private String workInPlanForCutomerName;
@@ -143,11 +143,11 @@ public class ManagerWorkInPlan {
         this.workInPlanPriority = workInPlanPriority;
     }
 
-    public Integer getWorkInPlanForCustomerID() {
+    public String getWorkInPlanForCustomerID() {
         return workInPlanForCustomerID;
     }
 
-    public void setWorkInPlanForCustomerID(Integer workInPlanForCustomerID) {
+    public void setWorkInPlanForCustomerID(String workInPlanForCustomerID) {
         this.workInPlanForCustomerID = workInPlanForCustomerID;
     }
 

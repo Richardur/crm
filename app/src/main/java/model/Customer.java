@@ -1,39 +1,104 @@
 package model;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 
 public class Customer {
+    @SerializedName("customerID")
     private String customerID;
+
+    @SerializedName("customerName")
     private String customerName;
+
+    @SerializedName("customerShortName")
     private String customerShortName;
+
+    @SerializedName("customerCode")
     private String customerCode;
+
+    @SerializedName("customerVat")
     private String customerVat;
+
+    @SerializedName("customerType")
     private String customerType;
+
+    @SerializedName("customerActive")
     private String customerActive;
+
+    @SerializedName("customerCountryID")
     private String customerCountryID;
+
+    @SerializedName("customerCountryCode")
     private String customerCountryCode;
+
+    @SerializedName("customerCountryES")
     private String customerCountryES;
+
+    @SerializedName("customerCountryName")
     private String customerCountryName;
+
+    @SerializedName("customerRegionID")
     private String customerRegionID;
+
+    @SerializedName("customerRegionName")
     private String customerRegionName;
+
+    @SerializedName("customerRegionCountryID")
     private String customerRegionCountryID;
+
+    @SerializedName("customerRegionCountryName")
     private String customerRegionCountryName;
+
+    @SerializedName("customerAdressPostIndex")
     private String customerAdressPostIndex;
+
+    @SerializedName("customerAdressCity")
     private String customerAdressCity;
+
+    @SerializedName("customerAdressStreet")
     private String customerAdressStreet;
+
+    @SerializedName("customerAdressHouse")
     private String customerAdressHouse;
+
+    @SerializedName("customerContactPhone")
     private String customerContactPhone;
+
+    @SerializedName("customerContactMail")
     private String customerContactMail;
+
+    @SerializedName("customerWWW")
     private String customerWWW;
+
+    @SerializedName("customerManagerID")
     private String customerManagerID;
+
+    @SerializedName("customerManagerName")
     private String customerManagerName;
+
+    @SerializedName("customerMediatorID")
     private String customerMediatorID;
+
+    @SerializedName("customerMediatorName")
     private String customerMediatorName;
+
+    @SerializedName("customerProjectManagerID")
     private String customerProjectManagerID;
+
+    @SerializedName("customerProjectManagerName")
     private String customerProjectManagerName;
+
+    @SerializedName("customerPriceType")
     private String customerPriceType;
+
+    @SerializedName("customerDiscount")
     private String customerDiscount;
+
+    @SerializedName("customerBankInfo")
     private String customerBankInfo;
+
+    @SerializedName("customerImportanceDegree")
     private String customerImportanceDegree;
 
     public String getCustomerID() {

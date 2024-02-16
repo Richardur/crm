@@ -98,6 +98,9 @@ public class AdapterTasks extends RecyclerView.Adapter<AdapterTasks.ViewHolder> 
             String hoursString = String.valueOf(hours);
             int minutes = localDateTime.getMinute();
             String minutesString = String.valueOf(minutes);
+            if (minutesString.length() == 1) {
+                minutesString = "0" + minutesString;
+            }
 
             workInPlanTerm1.setText(hoursString);
             workInPlanTerm2.setText(minutesString);
@@ -117,6 +120,17 @@ public class AdapterTasks extends RecyclerView.Adapter<AdapterTasks.ViewHolder> 
             });
         }
     }
+    public void updateTasks(List<model.Task> newTaskList) {
+        // Clear the existing task list
+        taskList.clear();
+
+        // Add the new tasks to the task list
+        taskList.addAll(newTaskList);
+
+        // Notify the adapter that the data has changed
+        notifyDataSetChanged();
+    }
+
     public void setItems(List<model.Task> items) {
         setTaskList(items);
         notifyDataSetChanged(); // Notify the adapter that the data has changed

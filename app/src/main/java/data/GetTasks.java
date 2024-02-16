@@ -16,19 +16,16 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
-import java.util.Collections;
 import java.util.List;
-
-import model.Address;
 import model.Customer;
-import model.Task;
 import network.ApiGetRequest;
 import network.ApiService;
 import network.AuthResponse;
+import network.CustomerDeserializer;
+import network.CustomerEdit;
 import network.CustomerListResponse;
-import network.CustomerResponse;
-import network.TasksApi;
-import network.api_request_model.ApiResponse;
+import network.api_request_model.ApiResponseGetCustomer;
+import network.api_request_model.ApiResponseWorkPlan;
 import network.api_request_model.ManagerWorkInPlan;
 import network.api_request_model.ManagerWorkInPlanDeserializer;
 import okhttp3.OkHttpClient;
@@ -41,45 +38,16 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class GetTasks {
     static String apiKey3;
- /*   public static void getTasksData(TasksTab.OnTasksRetrieved callback) {
-        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
 
-        Gson gson = new GsonBuilder()
-                .setDateFormat("yyyy-MM-dd HH:mm:ss")
-                .create();
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://10.0.2.2/BD/")
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .client(client)
-                .build();
-
-        TasksApi taskAPI = retrofit.create(TasksApi.class);
-        Call<List<Task>> call = taskAPI.getAllTasks();
-
-        call.enqueue(new Callback<List<Task>>() {
-            @Override
-            public void onResponse(Call<List<Task>> call, Response<List<Task>> response) {
-                callback.getResult(response.body());
-            }
-
-            @Override
-            public void onFailure(Call<List<Task>> call, Throwable t) {
-            }
-        });
-    }
-    */
-
-   public static void getCustomer(String apiKey3, TaskInfo.OnCustomerRetrieved callback) {
+   public static void getCustomer(String apiKey3, String CustomerID, TaskInfo.OnCustomerRetrieved callback) {
        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
 
        Gson gson = new GsonBuilder()
                .setDateFormat("yyyy-MM-dd HH:mm:ss")
-               .registerTypeAdapter(ManagerWorkInPlan.class, new ManagerWorkInPlanDeserializer())
+               .registerTypeAdapter(Customer.class, new CustomerDeserializer())
+               .setLenient()
                .create();
 
        Retrofit retrofit = new Retrofit.Builder()
@@ -96,46 +64,58 @@ public class GetTasks {
            JSONArray whereArray = new JSONArray();
            JSONObject whereObject = new JSONObject();
            try {
-               whereObject.put("column", "OrderNo");
-           } catch (JSONException e) {
-               e.printStackTrace();
-           }
-           try {
+               whereObject.put("column", "CustomerID"); // Change to the correct column name
                whereObject.put("operator", "=");
+               whereObject.put("value", CustomerID); // Use the provided customerID
            } catch (JSONException e) {
                e.printStackTrace();
            }
-           try {
-               whereObject.put("value", "0307Z00430");
-           } catch (JSONException e) {
-               e.printStackTrace();
-           }
+
            whereArray.put(whereObject);
 
-           // Convert the JSON array to a string
-           String whereJsonString = whereArray.toString();
 
+           // Convert the JSON array to a string without URL encoding
+           String whereJsonString = "{\"customerID\":\"" + CustomerID + "\"}";
            // Use the whereJsonString in your API call
-           Call<Customer> call = apiService.getCustomer(userId, apiKey3, "*", "", "select", whereJsonString, "100", "");
+           Call<ApiResponseGetCustomer> call = apiService.getCustomer(userId, apiKey3, "*", "", "select", whereJsonString, "100", "");
 
 
-
-
-        call.enqueue(new Callback<Customer>() {
+        call.enqueue(new Callback<ApiResponseGetCustomer>() {
             @Override
-            public void onResponse(Call<Customer> call, Response<Customer> response) {
-                callback.getResult(response.body());
+            public void onResponse(Call<ApiResponseGetCustomer> call, Response<ApiResponseGetCustomer> response) {
+                ApiResponseGetCustomer customerResponse = response.body();
+                if (customerResponse != null && customerResponse.isSuccess()) {
+                    // Access the nested "data" object
+                    ApiResponseGetCustomer.Data data = customerResponse.getData();
+                    if (data != null) {
+                        // Access the "Customer" list
+                        List<Customer> customers = data.getCustomer();
+                        if (customers != null && !customers.isEmpty()) {
+                            // Access the first customer in the list (you may need to loop through the list if there are multiple)
+                            Customer customer = customers.get(0);
+                            if (customer != null) {
+                                // Now you can access the "customerName" field
+                                String customerName = customer.getCustomerName();
+                                Log.d("Customer log", "Customer Name: " + customerName);
+                            }
+                        }
+                    }
+                } else {
+                    Log.d("Customer log", "Customer Request Failed");
+                }
             }
 
             @Override
-            public void onFailure(Call<Customer> call, Throwable t) {
+            public void onFailure(Call<ApiResponseGetCustomer> call, Throwable t) {
+                Log.d("getCustomer", "Customer Request Failed");
+                Log.d("getCustomer", t.getMessage());
             }
         });
     } catch (Exception e) {
            e.printStackTrace();
        }}
 
-       /*public static void getAddressesData(TaskInfo.onAddressesRetrieved callback) {
+    public static void editCustomer(String apiKey3, CustomerEdit customerEdit, TaskInfo.OnCustomerEdited callback) {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
@@ -145,26 +125,59 @@ public class GetTasks {
                 .create();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://10.0.2.2/BD/")
+                .baseUrl("https://gamyba.online/api-aiva/v1/")
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .client(client)
                 .build();
 
-        TasksApi taskAPI = retrofit.create(TasksApi.class);
-        Call<List<Address>> call = taskAPI.getAllAddresses();
+        ApiService apiService = retrofit.create(ApiService.class);
 
-        call.enqueue(new Callback<List<Address>>() {
+        String userId = "24";
+        String apiKey = apiKey3; // Ensure you have the correct apiKey3 value
+        String language = "en"; // Replace with the appropriate language
+        String putType = "putTypeValue"; // Replace with the appropriate putType value
+        String limit = "100"; // Replace with the desired limit
+        String id = "customerId"; // Replace with the customer ID you want to edit
+
+        Call<ApiResponseWorkPlan> call = apiService.editCustomer(
+                apiKey,
+                userId,
+                language,
+                putType,
+                limit,
+                id,
+                customerEdit.getCustomerName(), // Replace with the appropriate customerEdit field values
+                customerEdit.getCustomerCode()
+        );
+
+        call.enqueue(new Callback<ApiResponseWorkPlan>() {
             @Override
-            public void onResponse(Call<List<Address>> call, Response<List<Address>> response) {
-                callback.getResult(response.body());
+            public void onResponse(Call<ApiResponseWorkPlan> call, Response<ApiResponseWorkPlan> response) {
+                if (response.isSuccessful()) {
+                    callback.onCustomerEdited(); // Notify that customer edit is successful
+                    Log.d("editCustomer", "Customer Edit Request Successful");
+                } else {
+                    // Handle unsuccessful response
+                    Log.e("editCustomer", "Customer Edit Request Failed: " + response.code());
+                    try {
+                        if (response.errorBody() != null) {
+                            // Log the error body if available
+                            Log.e("editCustomer", "Error Body: " + response.errorBody().string());
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
 
             @Override
-            public void onFailure(Call<List<Address>> call, Throwable t) {
+            public void onFailure(Call<ApiResponseWorkPlan> call, Throwable t) {
+                // Handle the network error
+                Log.e("editCustomer", "Customer Edit Request Failed: " + t.getMessage());
             }
         });
     }
-*/
+
     public static void connectApi(String login, String password, TasksTab.OnApiKeyRetrieved callback) {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -245,29 +258,29 @@ public class GetTasks {
                 ""
         );
 
-        Call<ApiResponse> call = apiService.getWorkPlanList("24", apiKey3, "*", "", "select", "[]", "100", "");
-        call.enqueue(new Callback<ApiResponse>() {
+        Call<ApiResponseWorkPlan> call = apiService.getWorkPlanList("24", apiKey3, "*", "", "select", "[]", "100", "");
+        call.enqueue(new Callback<ApiResponseWorkPlan>() {
             @Override
-            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+            public void onResponse(Call<ApiResponseWorkPlan> call, Response<ApiResponseWorkPlan> response) {
                 if (response.isSuccessful()) {
                     Log.d("getWorkPlan", "WorkPlan Request Successful");
-                    ApiResponse apiResponse = response.body();
-                    for (ManagerWorkInPlan managerWorkInPlan : apiResponse.getData().getManagerWorkInPlanList()) {
+                    ApiResponseWorkPlan apiResponseWorkPlan = response.body();
+                    for (ManagerWorkInPlan managerWorkInPlan : apiResponseWorkPlan.getData().getManagerWorkInPlanList()) {
                         Timestamp term = managerWorkInPlan.getWorkInPlanTerm();
-                        Log.d("WorkPlan term", term.toString());
+                        //Log.d("WorkPlan term", term.toString());
                     }
 
-                    callback.getResult(apiResponse);
+                    callback.getResult(apiResponseWorkPlan);
 
-                    if (apiResponse != null) {
-                        List<ManagerWorkInPlan> managerWorkInPlanList = apiResponse.getData().getManagerWorkInPlanList();
+                    if (apiResponseWorkPlan != null) {
+                        List<ManagerWorkInPlan> managerWorkInPlanList = apiResponseWorkPlan.getData().getManagerWorkInPlanList();
                         if (managerWorkInPlanList != null) {
                             // Loop through the list and log each ManagerWorkInPlan object
                             for (ManagerWorkInPlan managerWorkInPlan : managerWorkInPlanList) {
-                                Log.d("WorkPlan", managerWorkInPlan.toString());
+                               // Log.d("WorkPlan", managerWorkInPlan.toString());
                             }
                         } else {
-                            Log.e("WorkPlan", "ManagerWorkInPlanList is null");
+                            //Log.e("WorkPlan", "ManagerWorkInPlanList is null");
                         }
                     } else {
                         Log.e("WorkPlan", "ApiResponse is null");
@@ -288,7 +301,7 @@ public class GetTasks {
             }
 
             @Override
-            public void onFailure(Call<ApiResponse> call, Throwable t) {
+            public void onFailure(Call<ApiResponseWorkPlan> call, Throwable t) {
                 // Handle the case when the network request fails
                 Log.e("getWorkPlan", "WorkPlan Request Failed: " + t.getMessage());
             }
@@ -341,12 +354,14 @@ public class GetTasks {
                     }
                 } else {
                     // Handle unsuccessful response
-                    // You can check the response.errorBody() for more details
+                    System.out.println(response.errorBody());                    // You can check the response.errorBody() for more details
+
                 }
             }
             @Override
             public void onFailure(Call<CustomerListResponse> call, Throwable t) {
-                System.out.println("error");
+                // Handle the network error
+
             }
         });}
 

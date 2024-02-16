@@ -1,11 +1,12 @@
 package network;
 
-import model.Customer;
-import network.api_request_model.ApiResponse;
+import network.api_request_model.ApiResponseGetCustomer;
+import network.api_request_model.ApiResponseWorkPlan;
 import retrofit2.Call;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 
 public interface ApiService {
     @POST("login")
@@ -15,14 +16,14 @@ public interface ApiService {
 
     @POST("managerWorkInPlan")
     @FormUrlEncoded
-    Call<ApiResponse> getWorkPlanList(@Field("userId") String userId,
-                                                  @Field("apiKey") String apiKey,
-                                                  @Field("getInfoType") String getInfoType,
-                                                  @Field("language") String language,
-                                                  @Field("action") String action,
-                                                  @Field("where") String where,
-                                                  @Field("limit") String limit,
-                                                  @Field("orderBy") String orderBy);
+    Call<ApiResponseWorkPlan> getWorkPlanList(@Field("userId") String userId,
+                                              @Field("apiKey") String apiKey,
+                                              @Field("getInfoType") String getInfoType,
+                                              @Field("language") String language,
+                                              @Field("action") String action,
+                                              @Field("where") String where,
+                                              @Field("limit") String limit,
+                                              @Field("orderBy") String orderBy);
 
     @POST("customer")
     @FormUrlEncoded
@@ -36,7 +37,7 @@ public interface ApiService {
                                              @Field("orderBy") String orderBy);
     @POST("customer")
     @FormUrlEncoded
-    Call<Customer> getCustomer(@Field("userId") String userId,
+    Call<ApiResponseGetCustomer> getCustomer(@Field("userId") String userId,
                                @Field("apiKey") String apiKey,
                                @Field("getInfoType") String getInfoType,
                                @Field("language") String language,
@@ -44,5 +45,19 @@ public interface ApiService {
                                @Field("where") String where,
                                @Field("limit") String limit,
                                @Field("orderBy") String orderBy);
+
+
+    @PUT("customerReg")
+    @FormUrlEncoded
+    Call<ApiResponseWorkPlan> editCustomer(
+            @Field("apiKey") String apiKey,
+            @Field("userId") String userId,
+            @Field("language") String language,
+            @Field("putType") String putType,
+            @Field("limit") String limit,
+            @Field("id") String id,
+            @Field("customerName") String customerName, // Add other fields as needed
+            @Field("customerCode") String customerCode);
+
 
 }

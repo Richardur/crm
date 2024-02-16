@@ -3,7 +3,7 @@ package network.api_request_model;
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
-public class ApiResponse {
+public class ApiResponseWorkPlan {
     public void setSuccess(boolean success) {
         this.success = success;
     }

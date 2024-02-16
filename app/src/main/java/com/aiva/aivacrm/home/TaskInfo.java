@@ -4,7 +4,6 @@ import static data.GetTasks.connectApi;
 
 import static data.GetTasks.getCustomer;
 //import static data.GetTasks.testAPI;
-import network.ApiKeyCallback;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
@@ -13,9 +12,6 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import com.aiva.aivacrm.databinding.ActivityTaskInfoBinding;
-import com.google.android.material.appbar.CollapsingToolbarLayout;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,7 +19,6 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -34,17 +29,13 @@ import android.widget.TimePicker;
 import com.aiva.aivacrm.R;
 import com.google.android.material.textfield.TextInputLayout;
 
-import java.security.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import adapter.AdapterTasks;
 import model.Address;
 import model.Customer;
-import network.AuthResponse;
-import network.CustomerListResponse;
-import network.CustomerResponse;
+import network.api_request_model.ApiResponseGetCustomer;
 
 public class TaskInfo extends AppCompatActivity {
 
@@ -52,13 +43,14 @@ public class TaskInfo extends AppCompatActivity {
 
 
 
-    int CustomerId, TaskId, AddressId;
+    String TaskCustomerID;
+            int TaskId, AddressId;
     String TaskComment, TaskCustomer, TaskDuration, TaskDate, TaskDoneDate, TaskStartedDate;
     int Atlikta, Pradeta;
     String RepName, RepSurname, RepPhone, RepEmail;
-    String Veiksmas;
+    String TaskName;
 
-    TextView customer, action, dueDate, comment, status;
+    TextView customerTextView, action, dueDate, comment, status;
     TextView phone, email, website, address, subject;
     TextView dueDateTitle, statusTitle;
     TextInputLayout phoneLayout, emailLayout, websiteLayout, addressLayout, commentLayout;
@@ -78,7 +70,7 @@ public class TaskInfo extends AppCompatActivity {
         Toolbar toolbar = binding.toolbar;
         setSupportActionBar(toolbar);
 
-        customer = findViewById(R.id.client_name);
+        customerTextView = findViewById(R.id.client_name);
         action = findViewById(R.id.action);
         dueDateTitle = findViewById(R.id.due_date_title);
         dueDate = findViewById(R.id.due_date);
@@ -115,7 +107,7 @@ public class TaskInfo extends AppCompatActivity {
 
         getIncomingIntent();
         setTaskInfo();
-        //scheduleCall();
+        scheduleCall();
 
         //on clicking the call button, the phone app opens with the number of the client
         callButton.setOnClickListener(new View.OnClickListener() {
@@ -151,6 +143,7 @@ public class TaskInfo extends AppCompatActivity {
         statusCheckbox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                scheduleCall();
                 if (statusCheckbox.isChecked()) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(TaskInfo.this);
                     //set the alert dialog title and center it
@@ -232,9 +225,84 @@ public class TaskInfo extends AppCompatActivity {
                         editComment.setText(comment.getText().toString());
                         commentLayout.setVisibility(View.VISIBLE);
 
+                        // Show "Save" and "Cancel" buttons
                         editButton.setVisibility(View.GONE);
                         saveButton.setVisibility(View.VISIBLE);
                         cancelButton.setVisibility(View.VISIBLE);
+
+                        // Set click listeners for "Save" and "Cancel" buttons
+                        saveButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                // Handle saving edited data here
+                                String editedPhone = editPhone.getText().toString();
+                                String editedEmail = editEmail.getText().toString();
+                                String editedWebsite = editWebsite.getText().toString();
+                                String editedAddress = editAddress.getText().toString();
+                                String editedComment = editComment.getText().toString();
+
+                                // Update the TextView fields with edited data
+                                phone.setText(editedPhone);
+                                email.setText(editedEmail);
+                                website.setText(editedWebsite);
+                                address.setText(editedAddress);
+                                comment.setText(editedComment);
+
+                                // Hide EditText fields and "Save" and "Cancel" buttons
+                                phone.setVisibility(View.VISIBLE);
+                                phoneLayout.setVisibility(View.GONE);
+
+                                email.setVisibility(View.VISIBLE);
+                                emailLayout.setVisibility(View.GONE);
+
+                                website.setVisibility(View.VISIBLE);
+                                websiteLayout.setVisibility(View.GONE);
+
+                                address.setVisibility(View.VISIBLE);
+                                addressLayout.setVisibility(View.GONE);
+
+                                comment.setVisibility(View.VISIBLE);
+                                commentLayout.setVisibility(View.GONE);
+
+                                editButton.setVisibility(View.VISIBLE);
+                                saveButton.setVisibility(View.GONE);
+                                cancelButton.setVisibility(View.GONE);
+                            }
+                        });
+
+                        cancelButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                // Handle canceling the editing
+                                // Restore original data and hide EditText fields and buttons
+                                editPhone.setText(phone.getText().toString());
+                                editEmail.setText(email.getText().toString());
+                                editWebsite.setText(website.getText().toString());
+                                editAddress.setText(address.getText().toString());
+                                editComment.setText(comment.getText().toString());
+
+                                phone.setVisibility(View.VISIBLE);
+                                phoneLayout.setVisibility(View.GONE);
+
+                                email.setVisibility(View.VISIBLE);
+                                emailLayout.setVisibility(View.GONE);
+
+                                website.setVisibility(View.VISIBLE);
+                                websiteLayout.setVisibility(View.GONE);
+
+                                address.setVisibility(View.VISIBLE);
+                                addressLayout.setVisibility(View.GONE);
+
+                                comment.setVisibility(View.VISIBLE);
+                                commentLayout.setVisibility(View.GONE);
+
+                                editButton.setVisibility(View.VISIBLE);
+                                saveButton.setVisibility(View.GONE);
+                                cancelButton.setVisibility(View.GONE);
+                            }
+                        });
+                    }
+                });
 
 
                         //set duedatetitle color to yellow_A700
@@ -297,12 +365,13 @@ public class TaskInfo extends AppCompatActivity {
                                 }, year, month, day);
                                 datePickerDialog.show();
                             }
-                        });
 
 
 
-                    }
+
+
                 });
+
                 builder.setNegativeButton(R.string.NO, null);
                 builder.show();
 
@@ -325,14 +394,14 @@ public class TaskInfo extends AppCompatActivity {
 
     private void getIncomingIntent() {
 
-        if (getIntent().hasExtra("CustomerId")) {
-            CustomerId = getIntent().getIntExtra("CustomerId", 0);
+        if (getIntent().hasExtra("TaskCustomerID")) {
+            TaskCustomerID = getIntent().getStringExtra("TaskCustomerID");
         }
         if (getIntent().hasExtra("TaskId")) {
             TaskId = getIntent().getIntExtra("TaskId", 0);
         }
-        if (getIntent().hasExtra("Veiksmas")) {
-            Veiksmas = getIntent().getStringExtra("Veiksmas");
+        if (getIntent().hasExtra("TaskName")) {
+            TaskName = getIntent().getStringExtra("Veiksmas");
         }
         if (getIntent().hasExtra("TaskComment")) {
             TaskComment = getIntent().getStringExtra("TaskComment");
@@ -340,80 +409,109 @@ public class TaskInfo extends AppCompatActivity {
         if (getIntent().hasExtra("TaskCustomer")) {
             TaskCustomer = getIntent().getStringExtra("TaskCustomer");
         }
-        if (getIntent().hasExtra("TaskDuration")) {
-            TaskDuration = getIntent().getStringExtra("TaskDuration");
-        }
         if (getIntent().hasExtra("TaskDate")) {
             TaskDate = getIntent().getStringExtra("TaskDate");
         }
-        if (getIntent().hasExtra("TaskDoneDate")) {
-            TaskDoneDate = getIntent().getStringExtra("TaskDoneDate");
-        }
-        if (getIntent().hasExtra("TaskStartedDate")) {
-            TaskStartedDate = getIntent().getStringExtra("TaskStartedDate");
-        }
-        if (getIntent().hasExtra("Atlikta")) {
-            Atlikta = getIntent().getIntExtra("Atlikta", 0);
-        }
-        if (getIntent().hasExtra("Pradeta")) {
-            Pradeta = getIntent().getIntExtra("Pradeta", 0);
-        }
-        if (getIntent().hasExtra("RepName")) {
-            RepName = getIntent().getStringExtra("RepName");
-        }
-        if (getIntent().hasExtra("RepSurname")) {
-            RepSurname = getIntent().getStringExtra("RepSurname");
-        }
-        if (getIntent().hasExtra("RepPhone")) {
-            RepPhone = getIntent().getStringExtra("RepPhone");
-        }
-        if (getIntent().hasExtra("RepEmail")) {
-            RepEmail = getIntent().getStringExtra("RepEmail");
-        }
-        if (getIntent().hasExtra("AddressId")) {
-            AddressId = getIntent().getIntExtra("AddressId", 0);
-        }
-
     }
 
     public void setTaskInfo() {
         //TODO: set action and status
-        customer.setText(TaskCustomer);
-        action.setText(Veiksmas);
+        customerTextView.setText(TaskCustomer);
+        action.setText(TaskName);
         dueDate.setText(TaskDate);
         comment.setText(TaskComment);
-        //status.setText(Atlikta);
+
 
         phone.setText(RepPhone);
         email.setText(RepEmail);
-        String subjectText = RepName + " " + RepSurname;
-        subject.setText("Robertas Šertvytis");
-    }
-    public interface OnApiKeyRetrieved {
-        void onApiKeyReceived(String apiKey);
-    }
-    public interface OnCustomerRetrieved {
-        void getResult(Customer customer);
+        //subject.setText("Test Test");
     }
 
-    /*public void scheduleCall() {
-        connectApi("ricardas", "0ff4b70dabd059fa7b86d631eb6005a0479845bc2d03f66338bb848a90c2867e", new ApiKeyCallback.OnApiKeyRetrieved() {
+    public interface OnCustomerRetrieved {
+        void getResult(ApiResponseGetCustomer customer);
+    }
+
+    public void scheduleCall() {
+        connectApi("ricardas", "0ff4b70dabd059fa7b86d631eb6005a0479845bc2d03f66338bb848a90c2867e", new TasksTab.OnApiKeyRetrieved() {
             @Override
             public void onApiKeyReceived(String apiKey) {
-                getCustomer(apiKey, new OnCustomerRetrieved() {
+                getCustomer(apiKey, TaskCustomerID, new OnCustomerRetrieved() {
                     @Override
-                    public void getResult(Customer customer) {
+                    public void getResult(ApiResponseGetCustomer customerResponse) {
+                        Log.d("Customer log", "Received customerResponse");
 
+                        if (customerResponse != null) {
+                            Log.d("Customer log", "Response is not null");
+
+                            if (customerResponse.isSuccess()) {
+                                Log.d("Customer log", "Customer Request Successful");
+                                ApiResponseGetCustomer.Data data = customerResponse.getData();
+
+                                if (data != null) {
+                                    List<Customer> customers = data.getCustomer();
+
+                                    if (customers != null && !customers.isEmpty()) {
+                                        for (Customer customer : customers) {
+                                            // Log the customer name
+                                            Log.d("Customer Name (from scheduleCall)", customer.getCustomerName());
+                                        }
+                                    } else {
+                                        Log.d("Customer log", "Customer list is empty");
+                                    }
+                                } else {
+                                    Log.d("Customer log", "Data is null");
+                                }
+                            } else {
+                                Log.d("Customer log", "Customer Request Failed");
+                            }
+                        } else {
+                            Log.d("Customer log", "Response is null");
+                        }
+
+                        setTaskInfo();
                     }
                 });
             }
-        } );
+        });
     }
-*/
-    public interface onAddressesRetrieved {
-        void getResult(List<Address> result);
+
+    //customerTextView.setText(customer.getCustomerContactMail());
+                        //log response body
+                       // Log.d("Customer log", customer.toString());
+                        //String subject = customer.getCustomerContactPerson(). + " " + customer.getSurname();
+                        /* String phone = customer.getPhone();
+                        String subject = customer.getName() + " " + customer.getSurname();
+                        String body = "Hello, " + customer.getName() + " " + customer.getSurname() + "!\n" +
+                                "We are calling you to remind about your appointment with us.\n" +
+                                "See you soon!";
+                        String date = "2020-12-12 12:12";
+                        String duration = "10";
+                        String status = "0";
+                        String comment = "Call reminder";
+                        String addressId = String.valueOf(customer.getAddressId());
+                        String customerId = String.valueOf(customer.getId());
+                        String repId = "1";
+                        String taskType = "1";
+                        String taskStatus = "0";
+                        String taskDate = "2020-12-12 12:12";
+                        String taskDoneDate = "2020-12-12 12:12";
+                        String taskStartedDate = "2020-12-12 12:12";
+                        String taskDuration = "10";
+                        String taskComment = "Call reminder";
+                        String taskCustomer = customer.getName() + " " + customer.getSurname();
+                        String taskAddress = customer.getAddress();
+                        String taskPhone = customer.getPhone();
+                        String taskEmail = customer.getEmail();
+                        String taskRepName = "Robertas";
+                        String taskRepSurname = "Šertvytis";
+                        String taskRepPhone = "860000000";
+                        String taskRepEmail = "
+                        */
+
+
+
+    public interface OnCustomerEdited {
+        void onCustomerEdited();
     }
-    public interface MyTasksRetrievedCallback {
-        void onTasksRetrieved(AuthResponse response);
-    }
+
 }

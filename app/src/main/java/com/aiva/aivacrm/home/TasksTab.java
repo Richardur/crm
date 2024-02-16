@@ -1,8 +1,6 @@
 package com.aiva.aivacrm.home;
 
 import static data.GetTasks.connectApi;
-import static data.GetTasks.getCustomerList;
-//import static data.GetTasks.getCustomersData;
 import static data.GetTasks.getWorkPlan;
 
 import android.content.Intent;
@@ -16,12 +14,18 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.aiva.aivacrm.R;
+import com.google.api.client.util.DateTime;
+import com.google.api.services.calendar.model.Event;
 
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -30,44 +34,44 @@ import java.util.List;
 
 import adapter.AdapterTasks;
 import adapter.ItemAnimation;
-
 import model.Task;
 import network.CustomerListResponse;
-import network.api_request_model.ApiResponse;
+import network.FetchCalendarEventsTask;
+import network.GoogleCalendarServiceSingleton;
+import network.UserSessionManager;
+import network.api_request_model.ApiResponseWorkPlan;
 import network.api_request_model.ManagerWorkInPlan;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link TasksTab#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class TasksTab extends Fragment {
 
-
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "time1";
     private static final String ARG_PARAM2 = "time2";
 
     private String time1;
     private String time2;
-    Timestamp t1, t2;
-    View view2;
+    private Timestamp t1, t2;
+    private View view2;
 
     private RecyclerView recyclerView;
     private AdapterTasks mAdapter;
-    List<model.Task> items = new ArrayList<>();
-    List<ManagerWorkInPlan> workPlan = new ArrayList<>();
+    private List<Task> itemsFromDB = new ArrayList<>();
+    private List<Task> itemsFromGoogleCalendar = new ArrayList<>();
+    private List<Task> adapterItems = new ArrayList<>();
+    private List<ManagerWorkInPlan> workPlan = new ArrayList<>();
     private int animation_type = ItemAnimation.FADE_IN;
+    private LocalDate selectedDate;
+    private GoogleCalendarServiceSingleton calendarServiceSingleton;
 
     public TasksTab() {
         // Required empty public constructor
     }
 
-    public static TasksTab newInstance(String param1, String param2) {
+    public static TasksTab newInstance(String param1, String param2, LocalDate selectedDate) {
         TasksTab fragment = new TasksTab();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
+        args.putSerializable("selectedDate", selectedDate);
         fragment.setArguments(args);
         return fragment;
     }
@@ -75,11 +79,11 @@ public class TasksTab extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        GoogleCalendarServiceSingleton.getInstance(getContext()); // Initialize without API key
         if (getArguments() != null) {
             time1 = getArguments().getString(ARG_PARAM1);
             time2 = getArguments().getString(ARG_PARAM2);
-
-            // Convert time1 and time2 to Timestamp objects
+            selectedDate = (LocalDate) getArguments().getSerializable("selectedDate");
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
             try {
                 Date date1 = dateFormat.parse(time1);
@@ -90,28 +94,24 @@ public class TasksTab extends Fragment {
                 e.printStackTrace();
             }
         }
-
-
+        // Initialize Google Calendar service through Singleton
+        calendarServiceSingleton = GoogleCalendarServiceSingleton.getInstance(this.getContext());
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_tasks, container, false);
         setAdapter(view);
-        view2= view;
+        view2 = view;
         scheduleCall();
         return view;
-
-
     }
 
     private void setAdapter(View view) {
-
         recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setHasFixedSize(true);
-        mAdapter = new AdapterTasks(getContext(), items, new AdapterTasks.OnTaskItemClickListener() {
+        mAdapter = new AdapterTasks(getContext(), itemsFromDB, new AdapterTasks.OnTaskItemClickListener() {
             @Override
             public void onTaskItemClick(Task task) {
                 Intent taskInfoIntent = new Intent(getContext(), TaskInfo.class);
@@ -120,292 +120,179 @@ public class TasksTab extends Fragment {
                 taskInfoIntent.putExtra("TaskDate", task.getWorkInPlanTerm().toString());
                 taskInfoIntent.putExtra("TaskCustomer", task.getWorkInPlanForCutomerName());
                 taskInfoIntent.putExtra("TaskComment", task.getWorkInPlanNote());
-                // Add more extras as needed to pass task information to TaskInfo activity.
+                taskInfoIntent.putExtra("TaskCustomerID", task.getWorkInPlanForCustomerID());
                 startActivity(taskInfoIntent);
             }
         });
+
         mAdapter.setOnTaskItemClickListener(new AdapterTasks.OnTaskItemClickListener() {
             @Override
-            public void onTaskItemClick(model.Task task) {
-                // Handle regular task item click here
-                // You can start the TaskInfo activity and pass relevant data to it
-                // Example:
+            public void onTaskItemClick(Task task) {
                 Intent taskInfoIntent = new Intent(getContext(), TaskInfo.class);
                 taskInfoIntent.putExtra("TaskId", task.getID());
                 taskInfoIntent.putExtra("TaskName", task.getWorkInPlanName());
                 taskInfoIntent.putExtra("TaskDate", task.getWorkInPlanTerm());
-                // Add more extras as needed to pass task information to TaskInfo activity.
+                taskInfoIntent.putExtra("TaskCustomer", task.getWorkInPlanForCutomerName());
+                taskInfoIntent.putExtra("TaskComment", task.getWorkInPlanNote());
+                taskInfoIntent.putExtra("TaskCustomerID", task.getWorkInPlanForCustomerID());
                 startActivity(taskInfoIntent);
             }
         });
+
         Log.d("TasksTab", "Setting adapter with OnTaskItemClickListener");
         recyclerView.setAdapter(mAdapter);
+    }
 
+
+    private List<Task> convertEventsToTasks(List<Event> events) {
+        List<Task> tasks = new ArrayList<>();
+        for (Event event : events) {
+            String taskName = event.getSummary();
+            DateTime startTime = event.getStart().getDateTime();
+            DateTime endTime = event.getEnd().getDateTime();
+            String taskDescription = event.getDescription();
+            int ID = 0; // Set an appropriate ID or leave it as 0
+            String workInPlanForCustomerName = "";
+            String workInPlanName = taskName;
+            String workInPlanNote = taskDescription;
+            Timestamp workInPlanTerm = new Timestamp(startTime.getValue());
+            Timestamp workInPlanDone = new Timestamp(endTime.getValue());
+
+            Task task = new Task(ID, workInPlanForCustomerName, workInPlanName, workInPlanNote, workInPlanTerm, workInPlanDone, "0");
+            tasks.add(task);
+        }
+        return tasks;
+    }
+
+    private void updateAdapter(List<Task> tasks) {
+        // Sort tasks based on workInPlanTerm
+        Collections.sort(tasks, new Comparator<Task>() {
+            @Override
+            public int compare(Task task1, Task task2) {
+                return task1.getWorkInPlanTerm().compareTo(task2.getWorkInPlanTerm());
+            }
+        });
+
+        mAdapter.setItems(tasks);
+        mAdapter.notifyDataSetChanged();
     }
 
     private void scheduleCall() {
+        LocalDateTime startOfDay = selectedDate.atStartOfDay();
+        LocalDateTime endOfDay = selectedDate.plusDays(1).atStartOfDay();
+
+        // Convert LocalDateTime to DateTime
+        DateTime startTime = new DateTime(startOfDay.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
+        DateTime endTime = new DateTime(endOfDay.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
+        if (UserSessionManager.userSignedIn) {
+            new FetchCalendarEventsTask(getContext(), startTime, endTime, calendarServiceSingleton,
+                    new FetchCalendarEventsTask.OnCalendarEventsFetchedListener() {
+                        @Override
+                        public void onCalendarEventsFetched(List<Event> events) {
+                            if (events != null) {
+                                // Convert events to tasks and update the adapter
+                                itemsFromGoogleCalendar = convertEventsToTasks(events);
+                                //if there are items from DB, combine the the two lists into adapterItems and sort them accordingly
+                                if (itemsFromDB != null) {
+                                    adapterItems = new ArrayList<>();
+                                    adapterItems.addAll(itemsFromDB);
+                                    adapterItems.addAll(itemsFromGoogleCalendar);
+                                    updateAdapter(adapterItems);
+                                } else {
+                                    updateAdapter(itemsFromGoogleCalendar);
+                                }
+
+                            } else {
+                                // Handle the case where fetching events failed
+                                Toast.makeText(getContext(), "Failed to fetch events from Google Calendar", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }).execute();
+        }
+
         connectApi("ricardas", "0ff4b70dabd059fa7b86d631eb6005a0479845bc2d03f66338bb848a90c2867e", new OnApiKeyRetrieved() {
             @Override
             public void onApiKeyReceived(String apiKey) {
-                // Create a CountDownLatch with a count of 2 (two network requests)
-                //CountDownLatch latch = new CountDownLatch(2);
-                // Variables to hold the results of the network requests
-                //List<ManagerWorkInPlan> managerWorkInPlanResult = new ArrayList<>();
-                //final CustomerListResponse[] customerListResponseResult = {null};
-
                 getWorkPlan(apiKey, new OnTasksRetrieved() {
                     @Override
-                    public void getResult(ApiResponse result) {
+                    public void getResult(ApiResponseWorkPlan result) {
                         workPlan = result.getData().getManagerWorkInPlanList();
-                        if (result != null) {
-                            // Log response status
-                            Log.d("API Response", "Success: " + result.isSuccess());
+                        if (result != null && result.isSuccess() && result.getData() != null && result.getData().getManagerWorkInPlanList() != null) {
+                            List<ManagerWorkInPlan> managerWorkInPlanList = result.getData().getManagerWorkInPlanList();
+                            List<Task> items2 = new ArrayList<>();
 
-                            // Log the data field, if not null
-                            if (result.getData() != null) {
-                                // Log managerWorkInPlanList size, if not null
-                                if (result.getData().getManagerWorkInPlanList() != null) {
-                                    int managerWorkInPlanListSize = result.getData().getManagerWorkInPlanList().size();
-                                    Log.d("API Response", "ManagerWorkInPlanList size: " + managerWorkInPlanListSize);
-                                } else {
-                                    Log.d("API Response", "ManagerWorkInPlanList is null");
-                                }
-                            } else {
-                                Log.d("API Response", "Data field is null");
+                            for (ManagerWorkInPlan managerWorkInPlan : managerWorkInPlanList) {
+                                int workInPlanID = managerWorkInPlan.getWorkInPlanID() != null ? managerWorkInPlan.getWorkInPlanID() : 0;
+                                String workInPlanForCustomerName = managerWorkInPlan.getWorkInPlanForCutomerName() != null ? managerWorkInPlan.getWorkInPlanForCutomerName() : "";
+                                String workInPlanName = managerWorkInPlan.getWorkInPlanName() != null ? managerWorkInPlan.getWorkInPlanName() : "";
+                                String workInPlanNote = managerWorkInPlan.getWorkInPlanNote() != null ? managerWorkInPlan.getWorkInPlanNote() : "";
+                                Timestamp workInPlanTerm = managerWorkInPlan.getWorkInPlanTerm() != null ? managerWorkInPlan.getWorkInPlanTerm() : t1;
+                                Timestamp workInPlanDone = managerWorkInPlan.getWorkInPlanDone() != null ? managerWorkInPlan.getWorkInPlanDone() : t1;
+                                String workInPlanForCustomerID = managerWorkInPlan.getWorkInPlanForCustomerID() != null ? managerWorkInPlan.getWorkInPlanForCustomerID() : "";
+
+                                Task task = new Task(workInPlanID, workInPlanForCustomerName, workInPlanName, workInPlanNote, workInPlanTerm, workInPlanDone, workInPlanForCustomerID);
+                                items2.add(task);
                             }
 
-                            // Log the entire API response
-                            Log.d("API Response", result.toString());
-                            // Check if the necessary data fields are not null
-                            if (result.isSuccess() && result.getData() != null && result.getData().getManagerWorkInPlanList() != null) {
-                                List<ManagerWorkInPlan> managerWorkInPlanList = result.getData().getManagerWorkInPlanList();
+                            List<Task> filteredItems = new ArrayList<>();
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            for (Task t : items2) {
+                                try {
+                                    String workInPlanTermStr = t.getWorkInPlanTerm().toString();
+                                    Date workInPlanTerm = dateFormat.parse(workInPlanTermStr);
+                                    Timestamp timestamp = new Timestamp(workInPlanTerm.getTime());
 
-                                List<model.Task> items2 = new ArrayList<>();
-
-                                // Loop through the list and log each ManagerWorkInPlan object
-                                for (ManagerWorkInPlan managerWorkInPlan : managerWorkInPlanList) {
-                                    Log.d("WorkPlan", managerWorkInPlan.toString());
-
-                                    // Initialize variables with default values or empty strings
-                                    int workInPlanID = 0;  // Change 0 to your desired default value
-                                    String workInPlanForCustomerName = "";  // Change "" to your desired default value
-                                    String workInPlanName = "";  // Change "" to your desired default value
-                                    String workInPlanNote = "";  // Change "" to your desired default value
-                                    Timestamp workInPlanTerm = t1;
-                                            // Change "" to your desired default value
-                                    Timestamp workInPlanDone = t1;  // Change 0 to your desired default value
-
-                                    // Check for null values before assigning
-                                    if (managerWorkInPlan.getWorkInPlanID() != null) {
-                                        workInPlanID = managerWorkInPlan.getWorkInPlanID();
+                                    if (timestamp.after(t1) && timestamp.before(t2)) {
+                                        filteredItems.add(t);
                                     }
-                                    if (managerWorkInPlan.getWorkInPlanForCutomerName() != null) {
-                                        workInPlanForCustomerName = managerWorkInPlan.getWorkInPlanForCutomerName();
-                                    }
-                                    if (managerWorkInPlan.getWorkInPlanName() != null) {
-                                        workInPlanName = managerWorkInPlan.getWorkInPlanName();
-                                    }
-                                    if (managerWorkInPlan.getWorkInPlanNote() != null) {
-                                        workInPlanNote = managerWorkInPlan.getWorkInPlanNote();
-                                    }
-                                    if (managerWorkInPlan.getWorkInPlanTerm() != null) {
-                                        workInPlanTerm = managerWorkInPlan.getWorkInPlanTerm();
-                                    }
-                                    if (managerWorkInPlan.getWorkInPlanDone() != null) {
-                                        workInPlanDone = managerWorkInPlan.getWorkInPlanDone();
-                                    }
-
-                                    // Create the model.Task object with the assigned values
-                                    model.Task task = new model.Task(workInPlanID, workInPlanForCustomerName, workInPlanName, workInPlanNote, workInPlanTerm, workInPlanDone);
-                                    items2.add(task);
-
-                                    Log.d("WorkPlan task", task.toString());
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
                                 }
-                                // Filter items based on date range
-                                List<model.Task> filteredItems = new ArrayList<>();
-                                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                                for (model.Task t : items2) {
-                                    try {
-                                        // Convert Timestamp to String
-                                        String workInPlanTermStr = t.getWorkInPlanTerm().toString();
+                            }
 
-                                        // Parse the String to a Date
-                                        Date workInPlanTerm = dateFormat.parse(workInPlanTermStr);
-
-                                        // Convert Date to Timestamp if needed
-                                        Timestamp timestamp = new Timestamp(workInPlanTerm.getTime());
-
-                                        if (timestamp.after(t1) && timestamp.before(t2)) {
-                                            filteredItems.add(t);
-                                        }
-                                    } catch (ParseException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                                // Log the count of filtered items
-                                Log.d("Filtered Items Count", String.valueOf(filteredItems.size()));
-
-
-
-                                // Sort filteredItems based on AtlikData
-                                Collections.sort(filteredItems, new Comparator<model.Task>() {
-                                    @Override
-                                    public int compare(model.Task task1, model.Task task2) {
-                                        return task1.getWorkInPlanTerm().compareTo(task2.getWorkInPlanTerm());
-                                    }
-                                });
-
-                                // Update the adapter with the filtered and sorted data
-                                items = filteredItems;
-                                mAdapter.setItems(items);
-                                mAdapter.notifyDataSetChanged();
-
-                                AdapterTasks adapterTasks = new AdapterTasks(getContext(), filteredItems, new AdapterTasks.OnTaskItemClickListener() {
-                                    @Override
-                                    public void onTaskItemClick(Task task) {
-
-                                    }
-                                });
-                                mAdapter = adapterTasks;
-                                setAdapter(view2);
+                            Log.d("Filtered Items Count", String.valueOf(filteredItems.size()));
+                            itemsFromDB = filteredItems;
+                            //if items from Google Calendar are not null, combine the the two lists into adapterItems and sort them accordingly
+                            if (itemsFromGoogleCalendar != null) {
+                                adapterItems = new ArrayList<>();
+                                adapterItems.addAll(itemsFromGoogleCalendar);
+                                adapterItems.addAll(itemsFromDB);
+                                updateAdapter(adapterItems);
                             } else {
-                                Log.e("WorkPlan", "No data found in response or response is not successful.");
+                            updateAdapter(itemsFromDB);
                             }
                         } else {
-                            Log.e("WorkPlan", "API response is null.");
+                            Log.e("WorkPlan", "No data found in response or response is not successful.");
                         }
-                        //latch.countDown();
                     }
                 });
-               /* getTasksData(
-                        new OnTasksRetrieved() {
-                            @Override
-                            public void getResult(List<Task> result) {
-                                // The code in here runs much later in the future - the adapter
-                                // will already have been set up, but will be empty.
-                                List<Task> items2 = new ArrayList<>();
 
-                                t1 = Timestamp.valueOf(time1);
-                                t2 = Timestamp.valueOf(time2);
-                                for (Task t : result) {
-                                    if (t.AtlikData.after(t1) && t.AtlikData.before(t2)) {
-                                        items2.add(t);
-                                    }
-                                }
-
-                                //sort items2 based on hours
-                                for (int i = 0; i < items2.size(); i++) {
-                                    for (int j = i + 1; j < items2.size(); j++) {
-                                        if (items2.get(i).AtlikData.after(items2.get(j).AtlikData)) {
-                                            Task temp = items2.get(i);
-                                            items2.set(i, items2.get(j));
-                                            items2.set(j, temp);
-                                        }
-                                    }
-                                }
-
-                                AdapterTasks.setItems(items2);
-                                setAdapter(view2);// add this method to the adapter
-                            }
-                        }
-
-
-                );*/
-                /*connectApi("ricardas", "0ff4b70dabd059fa7b86d631eb6005a0479845bc2d03f66338bb848a90c2867e", new OnApiKeyRetrieved() {
-                    @Override
-                    public void onApiKeyReceived(String apiKey) {
-                        // Create a CountDownLatch with a count of 1 (one network request)
-                        CountDownLatch latch = new CountDownLatch(1);
-
-                        // Get work plan data
-                        getWorkPlan(apiKey, new OnTasksRetrieved() {
-                            @Override
-                            public void getResult(ApiResponse result) {
-                                // Process the work plan data here
-                                if (result != null) {
-                                    // Check if the necessary data fields are not null
-                                    if (result.isSuccess() && result.getData() != null && result.getData().getManagerWorkInPlanList() != null) {
-                                        List<ManagerWorkInPlan> managerWorkInPlanList = result.getData().getManagerWorkInPlanList();
-                                        // Loop through the list and log each ManagerWorkInPlan object
-                                        for (ManagerWorkInPlan managerWorkInPlan : managerWorkInPlanList) {
-                                            Log.d("WorkPlan", managerWorkInPlan.toString());
-                                        }
-                                    } else {
-                                        Log.e("WorkPlan", "No data found in response or response is not successful.");
-                                    }
-                                } else {
-                                    Log.e("WorkPlan", "API response is null.");
-                                }
-
-                                // Process the merged data as needed here
-                                List<Task> items2 = new ArrayList<>();
-                                t1 = Timestamp.valueOf(time1);
-                                t2 = Timestamp.valueOf(time2);
-                                for (Task t : result) {
-                                    if (t.AtlikData.after(t1) && t.AtlikData.before(t2)) {
-                                        items2.add(t);
-                                    }
-                                }
-
-                                // Sort items2 based on hours if needed
-                                for (int i = 0; i < items2.size(); i++) {
-                                    for (int j = i + 1; j < items2.size(); j++) {
-                                        if (items2.get(i).AtlikData.after(items2.get(j).AtlikData)) {
-                                            Task temp = items2.get(i);
-                                            items2.set(i, items2.get(j));
-                                            items2.set(j, temp);
-                                        }
-                                    }
-                                }
-
-                                // Update the adapter with the merged data
-                                AdapterTasks.setItems(items2);
-                                setAdapter(view2);
-
-                                // Decrease the latch count
-                                latch.countDown();
-                            }
-                        });
-
-                        try {
-                            // Wait for the task to complete
-                            latch.await();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }); */
-                getCustomerList(apiKey, new OnCustomerListRetrieved() {
+                /* getCustomerList(apiKey, new OnCustomerListRetrieved() {
                     @Override
                     public void getResult(CustomerListResponse result) {
-                       // customerListResponseResult[0] = result;
-                        // Decrease the latch count
-                        //latch.countDown();
-                        //List<Customer> items2 = new ArrayList<>();
-                        //for (Customer c : result) {
-                       //     items2.add(c);
-                        //}
-                        //AdapterTasks.setCustomers(items2);
+                        // Handle customer list data
                     }
-                }
-                );
+                }); */
             }
         });
     }
 
-
-
     public interface OnTasksRetrieved {
-        void getResult(ApiResponse result);
+        void getResult(ApiResponseWorkPlan result);
     }
+
     public interface OnCustomerListRetrieved {
         void getResult(CustomerListResponse result);
     }
+
     public interface OnApiKeyRetrieved {
         void onApiKeyReceived(String apiKey);
     }
 
     public interface OnTaskItemClickListener {
-        void onTaskItemClick(model.Task task);
+        void onTaskItemClick(Task task);
     }
 }
+// Rest of your code remains unchanged
+
+

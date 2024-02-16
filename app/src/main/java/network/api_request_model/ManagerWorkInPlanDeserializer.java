@@ -53,6 +53,7 @@ public class ManagerWorkInPlanDeserializer implements JsonDeserializer<ManagerWo
         managerWorkInPlan.setWorkInPlanTerm(parseTimestamp(jsonObject.get("workInPlanTerm")));
         // Handle other fields...
         managerWorkInPlan.setWorkInPlanStart(parseTimestamp(jsonObject.get("workInPlanStart")));
+        managerWorkInPlan.setWorkInPlanForCustomerID(getStringValue(jsonObject,"workInPlanForCustomerID"));
         managerWorkInPlan.setWorkInPlanDone(parseTimestamp(jsonObject.get("workInPlanDone")));
         managerWorkInPlan.setWorkInPlanStarted(parseTimestamp(jsonObject.get("workInPlanStarted")));
         managerWorkInPlan.setWorkInPlanReviewed(parseTimestamp(jsonObject.get("workInPlanReviewed")));

@@ -1,46 +1,72 @@
 package com.aiva.aivacrm.home;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.TextView;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+
 import com.aiva.aivacrm.R;
-import com.aiva.aivacrm.home.TasksTab;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.material.tabs.TabLayout;
+import com.google.api.client.util.DateTime;
+import com.google.api.services.calendar.Calendar;
+import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.Event;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import adapter.AdapterTasks;
 import model.Task;
+import network.GoogleCalendarService;
+import network.GoogleCalendarServiceSingleton;
+import network.GoogleSignInHelper;
+import network.UserSessionManager;
+import com.google.android.gms.common.api.Scope;
+import com.google.api.services.calendar.CalendarScopes;
 
 public class DailyTasks extends AppCompatActivity {
 
     private TextView monthYearText;
     private LocalDate selectedDate;
     private Button pickDate;
-    private TasksTab tasksTab;
     private TabLayout weekdays;
     private Fragment fragment;
     private RecyclerView recyclerView;
     private AdapterTasks adapterTasks;
     private List<Task> taskList = new ArrayList<>();
     private String t1, t2;
+    private static final int RC_SIGN_IN = 123;
+    private GoogleCalendarServiceSingleton calendarServiceSingleton; // Google Calendar service
+    private GoogleSignInClient mGoogleSignInClient;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_daily_tasks);
+
+
+
 
         initComponents();
         selectedDate = LocalDate.now();
@@ -48,8 +74,33 @@ public class DailyTasks extends AppCompatActivity {
         setMonthView();
         setTabDate(selectedDate);
 
+        calendarServiceSingleton = new GoogleCalendarServiceSingleton(this);
 
-        fragment = TasksTab.newInstance(t1, t2);
+        Button signInButton = findViewById(R.id.sign_in_button);
+        signInButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GoogleSignInHelper signInHelper = new GoogleSignInHelper();
+                String clientId = signInHelper.getClientId(getResources());
+                Log.d(TAG, "Sign-in button clicked");
+
+                // Step 1: Initialize Google Sign-In Options
+                GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                       // .requestIdToken(clientId)  // Use the actual clientId here, not the string "clientId"
+                        .requestEmail()
+                        .requestScopes(new Scope("https://www.googleapis.com/auth/calendar"))
+                        .build();
+
+                mGoogleSignInClient = GoogleSignIn.getClient(DailyTasks.this, gso);
+
+                GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(DailyTasks.this);
+                //updateUI(account);
+                // Step 2: Start the Google Sign-In process
+                signInWithGoogle();
+            }
+        });
+
+        fragment = TasksTab.newInstance(t1, t2, selectedDate);
 
         getSupportFragmentManager().beginTransaction().replace(R.id.tabFragment, fragment).commit();
 
@@ -62,9 +113,101 @@ public class DailyTasks extends AppCompatActivity {
                 weekdays.getTabAt(dayOfWeek - 1).select();
             }
         });
+    }
+
+    // Handle Google Sign-In
+    private void signInWithGoogle() {
+        // Step 3: Start the Google Sign-In process
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
+
 
     }
 
+    // Handle Sign-In Result
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == RC_SIGN_IN) {
+            com.google.android.gms.tasks.Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            handleSignInResult(task);
+        }
+    }
+
+    private void handleSignInResult(com.google.android.gms.tasks.Task<GoogleSignInAccount> completedTask) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            // Signed in successfully, you can now use the account information.
+            UserSessionManager.userSignedIn = true;
+            // Fetch and display calendar events without setting the API key.
+            fetchAndDisplayCalendarEvents();
+        } catch (ApiException e) {
+            // Handle sign-in failure (e.g., user canceled, network error, etc.)
+            Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
+            // You may want to show an error message to the user.
+        }
+    }
+
+
+    // Fetch and display calendar events
+    private void fetchAndDisplayCalendarEvents() {
+        try {
+            // Fetch calendar events using the Google Calendar service
+            GoogleCalendarService calendarService = calendarServiceSingleton.getCalendarService();
+            if (calendarService.getIsInitialized() == false) {
+                Log.e(TAG, "Calendar service is not initialized");
+                return; // Return early if the service is not initialized
+            }
+            List<Event> events = null;
+            if (calendarService.getIsInitialized() == true){
+                Log.e(TAG, "Calendar service is initialized");
+                 events = calendarService.getCalendarEvents();
+            }
+
+
+            if (events != null) {
+                // Convert events to tasks and display them in your RecyclerView
+                List<Task> tasks = convertEventsToTasks(events);
+
+                // Update your RecyclerView adapter with the tasks
+                adapterTasks.updateTasks(tasks);
+            } else {
+                Log.e(TAG, "Failed to fetch calendar events: events list is null");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e(TAG, "Error fetching calendar events: " + e.getMessage(), e);
+
+            // Handle the error appropriately in your app
+            // Example: showToast("Error fetching calendar events. Please try again.");
+        }
+    }
+
+    // Convert Google Calendar events to Task objects
+    private List<Task> convertEventsToTasks(List<Event> events) {
+        List<Task> tasks = new ArrayList<>();
+        for (Event event : events) {
+            // Extract relevant information from the Google Calendar event
+            String taskName = event.getSummary();
+            DateTime startTime = event.getStart().getDateTime();
+            DateTime endTime = event.getEnd().getDateTime();
+            String taskDescription = event.getDescription();
+
+            // Transform the data to fit your Task constructor
+            int ID = 0; // Set an appropriate ID or leave it as 0
+            String workInPlanForCustomerName = ""; // Set the customer name if available
+            String workInPlanName = taskName;
+            String workInPlanNote = taskDescription;
+            Timestamp workInPlanTerm = new Timestamp(startTime.getValue()); // Convert DateTime to Timestamp
+            Timestamp workInPlanDone = new Timestamp(endTime.getValue()); // Convert DateTime to Timestamp
+
+            // Create a Task object and add it to the list
+            Task task = new Task(ID, workInPlanForCustomerName, workInPlanName, workInPlanNote, workInPlanTerm, workInPlanDone, "0");
+            tasks.add(task);
+        }
+        return tasks;
+    }
 
     private void initComponents() {
         pickDate = findViewById(R.id.pickDate);
@@ -124,7 +267,7 @@ public class DailyTasks extends AppCompatActivity {
                 setMonthView();
                 getTimestamps();
                 getSupportFragmentManager().beginTransaction().detach(fragment).commit();
-                fragment = TasksTab.newInstance(t1, t2);
+                fragment = TasksTab.newInstance(t1, t2, selectedDate);
                 getSupportFragmentManager().beginTransaction().replace(R.id.tabFragment, fragment).commit();
             }
 
@@ -156,7 +299,7 @@ public class DailyTasks extends AppCompatActivity {
                         setTabDate(selectedDate);
                         getTimestamps();
                         getSupportFragmentManager().beginTransaction().detach(fragment).commit();
-                        fragment = TasksTab.newInstance(t1, t2);
+                        fragment = TasksTab.newInstance(t1, t2, selectedDate);
                         getSupportFragmentManager().beginTransaction().replace(R.id.tabFragment, fragment).commit();
                     }
                 }, mYear, mMonth, mDay);

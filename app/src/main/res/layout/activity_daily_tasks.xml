@@ -48,7 +48,7 @@
 
 
                 <Button
-                    android:id="@+id/menuButton"
+                    android:id="@+id/sign_in_button"
                     android:layout_width="62dp"
                     android:layout_height="60dp"
                     android:layout_marginEnd="4dp"
