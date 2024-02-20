@@ -3,6 +3,7 @@ package com.aiva.aivacrm.home;
 import static data.GetTasks.connectApi;
 import static data.GetTasks.getWorkPlan;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -210,10 +211,11 @@ public class TasksTab extends Fragment {
                     }).execute();
         }
 
-        connectApi("ricardas", "0ff4b70dabd059fa7b86d631eb6005a0479845bc2d03f66338bb848a90c2867e", new OnApiKeyRetrieved() {
-            @Override
-            public void onApiKeyReceived(String apiKey) {
-                getWorkPlan(apiKey, new OnTasksRetrieved() {
+        //connectApi(UserSessionManager.getUsername(this), "0ff4b70dabd059fa7b86d631eb6005a0479845bc2d03f66338bb848a90c2867e", new OnApiKeyRetrieved() {
+            //@Override
+            //public void onApiKeyReceived(String apiKey) {
+        Context context = getContext();
+                getWorkPlan(context, new OnTasksRetrieved() {
                     @Override
                     public void getResult(ApiResponseWorkPlan result) {
                         workPlan = result.getData().getManagerWorkInPlanList();
@@ -274,8 +276,8 @@ public class TasksTab extends Fragment {
                     }
                 }); */
             }
-        });
-    }
+  //      });
+ //   }
 
     public interface OnTasksRetrieved {
         void getResult(ApiResponseWorkPlan result);

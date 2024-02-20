@@ -46,7 +46,9 @@ public class LoginActivity extends AppCompatActivity {
                     public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
                         if (response.isSuccessful() && response.body() != null ) {
                             String apiKey = hashPassword(response.body().getUserId() + username + response.body().getApiKey()).toLowerCase();
+                            UserSessionManager.saveUsername(LoginActivity.this, username);
                             UserSessionManager.saveApiKey(LoginActivity.this, apiKey);
+                            UserSessionManager.saveUserId(LoginActivity.this, response.body().getUserId());
 
                             startActivity(new Intent(LoginActivity.this, DailyTasks.class));
                             finish();

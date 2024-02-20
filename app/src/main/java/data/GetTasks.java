@@ -1,5 +1,6 @@
 package data;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.aiva.aivacrm.home.TaskInfo;
@@ -24,6 +25,7 @@ import network.AuthResponse;
 import network.CustomerDeserializer;
 import network.CustomerEdit;
 import network.CustomerListResponse;
+import network.UserSessionManager;
 import network.api_request_model.ApiResponseGetCustomer;
 import network.api_request_model.ApiResponseWorkPlan;
 import network.api_request_model.ManagerWorkInPlan;
@@ -227,7 +229,17 @@ public class GetTasks {
         });
 
     }
-    public static void getWorkPlan(String apiKey3, TasksTab.OnTasksRetrieved callback ) {
+    public static void getWorkPlan(Context context, TasksTab.OnTasksRetrieved callback ) {
+        String apiKey = UserSessionManager.getApiKey(context);
+        if (apiKey == null || apiKey.isEmpty()) {
+            Log.e("GetTasks", "API Key not found. Please login again.");
+            return;
+        }
+        String userId = UserSessionManager.getUserId(context);
+        if (userId == null || userId.isEmpty()) {
+            Log.e("GetTasks", "User ID not found. Please login again.");
+            return;
+        }
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
@@ -245,11 +257,10 @@ public class GetTasks {
 
         ApiService apiService = retrofit.create(ApiService.class);
 
-        String userId = "24";
 
         ApiGetRequest ApiGetRequest = new ApiGetRequest(
                 userId,
-                generateApiKey(userId, "ricardas", apiKey3),
+                apiKey,
                 "*",
                 "",
                 "select",
@@ -258,7 +269,7 @@ public class GetTasks {
                 ""
         );
 
-        Call<ApiResponseWorkPlan> call = apiService.getWorkPlanList("24", apiKey3, "*", "", "select", "[]", "100", "");
+        Call<ApiResponseWorkPlan> call = apiService.getWorkPlanList(userId, apiKey, "*", "", "select", "[]", "100", "");
         call.enqueue(new Callback<ApiResponseWorkPlan>() {
             @Override
             public void onResponse(Call<ApiResponseWorkPlan> call, Response<ApiResponseWorkPlan> response) {
