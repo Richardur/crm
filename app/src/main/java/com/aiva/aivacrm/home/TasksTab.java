@@ -1,6 +1,5 @@
 package com.aiva.aivacrm.home;
 
-import static data.GetTasks.connectApi;
 import static data.GetTasks.getWorkPlan;
 
 import android.content.Context;
@@ -40,8 +39,8 @@ import network.CustomerListResponse;
 import network.FetchCalendarEventsTask;
 import network.GoogleCalendarServiceSingleton;
 import network.UserSessionManager;
-import network.api_request_model.ApiResponseWorkPlan;
-import network.api_request_model.ManagerWorkInPlan;
+import network.api_request_model.ApiResponseReactionPlan;
+import network.api_request_model.ManagerReactionWorkInPlan;
 
 public class TasksTab extends Fragment {
 
@@ -58,7 +57,7 @@ public class TasksTab extends Fragment {
     private List<Task> itemsFromDB = new ArrayList<>();
     private List<Task> itemsFromGoogleCalendar = new ArrayList<>();
     private List<Task> adapterItems = new ArrayList<>();
-    private List<ManagerWorkInPlan> workPlan = new ArrayList<>();
+    private List<ManagerReactionWorkInPlan> workPlan = new ArrayList<>();
     private int animation_type = ItemAnimation.FADE_IN;
     private LocalDate selectedDate;
     private GoogleCalendarServiceSingleton calendarServiceSingleton;
@@ -217,20 +216,20 @@ public class TasksTab extends Fragment {
         Context context = getContext();
                 getWorkPlan(context, new OnTasksRetrieved() {
                     @Override
-                    public void getResult(ApiResponseWorkPlan result) {
-                        workPlan = result.getData().getManagerWorkInPlanList();
-                        if (result != null && result.isSuccess() && result.getData() != null && result.getData().getManagerWorkInPlanList() != null) {
-                            List<ManagerWorkInPlan> managerWorkInPlanList = result.getData().getManagerWorkInPlanList();
+                    public void getResult(ApiResponseReactionPlan result) {
+                        workPlan = result.getData().getManagerReactionWorkList();
+                        if (result != null && result.isSuccess() && result.getData() != null && result.getData().getManagerReactionWorkList() != null) {
+                            List<ManagerReactionWorkInPlan> managerReactionWorkInPlanList = result.getData().getManagerReactionWorkList();
                             List<Task> items2 = new ArrayList<>();
 
-                            for (ManagerWorkInPlan managerWorkInPlan : managerWorkInPlanList) {
-                                int workInPlanID = managerWorkInPlan.getWorkInPlanID() != null ? managerWorkInPlan.getWorkInPlanID() : 0;
-                                String workInPlanForCustomerName = managerWorkInPlan.getWorkInPlanForCutomerName() != null ? managerWorkInPlan.getWorkInPlanForCutomerName() : "";
-                                String workInPlanName = managerWorkInPlan.getWorkInPlanName() != null ? managerWorkInPlan.getWorkInPlanName() : "";
-                                String workInPlanNote = managerWorkInPlan.getWorkInPlanNote() != null ? managerWorkInPlan.getWorkInPlanNote() : "";
-                                Timestamp workInPlanTerm = managerWorkInPlan.getWorkInPlanTerm() != null ? managerWorkInPlan.getWorkInPlanTerm() : t1;
-                                Timestamp workInPlanDone = managerWorkInPlan.getWorkInPlanDone() != null ? managerWorkInPlan.getWorkInPlanDone() : t1;
-                                String workInPlanForCustomerID = managerWorkInPlan.getWorkInPlanForCustomerID() != null ? managerWorkInPlan.getWorkInPlanForCustomerID() : "";
+                            for (ManagerReactionWorkInPlan managerReactionWorkInPlan : managerReactionWorkInPlanList) {
+                                int workInPlanID = managerReactionWorkInPlan.getReactionWorkID() != null ? managerReactionWorkInPlan.getReactionWorkID() : 0;
+                                String workInPlanForCustomerName = managerReactionWorkInPlan.getReactionWorkForCustomerName() != null ? managerReactionWorkInPlan.getReactionWorkForCustomerName() : "";
+                                String workInPlanName = managerReactionWorkInPlan.getReactionWorkActionName() != null ? managerReactionWorkInPlan.getReactionWorkActionName() : "";
+                                String workInPlanNote = managerReactionWorkInPlan.getReactionWorkNote() != null ? managerReactionWorkInPlan.getReactionWorkNote() : "";
+                                Timestamp workInPlanTerm = managerReactionWorkInPlan.getReactionWorkTerm() != null ? Timestamp.valueOf(managerReactionWorkInPlan.getReactionWorkTerm()) : t1;
+                                Timestamp workInPlanDone = managerReactionWorkInPlan.getReactionWorkDone() != null ? Timestamp.valueOf(managerReactionWorkInPlan.getReactionWorkDone()) : t1;
+                                String workInPlanForCustomerID = managerReactionWorkInPlan.getReactionWorkForCustomerID() != null ? String.valueOf(managerReactionWorkInPlan.getReactionWorkForCustomerID()) : "";
 
                                 Task task = new Task(workInPlanID, workInPlanForCustomerName, workInPlanName, workInPlanNote, workInPlanTerm, workInPlanDone, workInPlanForCustomerID);
                                 items2.add(task);
@@ -280,7 +279,7 @@ public class TasksTab extends Fragment {
  //   }
 
     public interface OnTasksRetrieved {
-        void getResult(ApiResponseWorkPlan result);
+        void getResult(ApiResponseReactionPlan result);
     }
 
     public interface OnCustomerListRetrieved {
