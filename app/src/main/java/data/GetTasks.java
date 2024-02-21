@@ -275,51 +275,41 @@ public class GetTasks {
         call.enqueue(new Callback<ApiResponseReactionPlan>() {
             @Override
             public void onResponse(Call<ApiResponseReactionPlan> call, Response<ApiResponseReactionPlan> response) {
-                if (response.isSuccessful()) {
-                    Log.d("getWorkPlan", "WorkPlan Request Successful");
+                if (response.isSuccessful() && response.body() != null) {
                     ApiResponseReactionPlan apiResponseReactionPlan = response.body();
-                    for (ManagerReactionWorkInPlan managerReactionWorkInPlan : apiResponseReactionPlan.getData().getManagerReactionWorkList()) {
-                        Timestamp term = Timestamp.valueOf(managerReactionWorkInPlan.getReactionWorkTerm());
-                        //Log.d("WorkPlan term", term.toString());
-                    }
-
-                    callback.getResult(apiResponseReactionPlan);
-
-                    if (apiResponseReactionPlan != null) {
-                        List<ManagerReactionWorkInPlan> managerReactionWorkInPlanList = apiResponseReactionPlan.getData().getManagerReactionWorkList();
-                        if (managerReactionWorkInPlanList != null) {
-                            // Loop through the list and log each ManagerWorkInPlan object
-                            for (ManagerReactionWorkInPlan managerReactionWorkInPlan : managerReactionWorkInPlanList) {
-                               // Log.d("WorkPlan", managerWorkInPlan.toString());
+                    // Assuming getData() correctly returns a Data object that includes a list of ManagerReactionInPlanHeader
+                    List<ManagerReactionWorkInPlan.ManagerReactionInPlanHeader> headers = apiResponseReactionPlan.getData().getManagerReactionInPlanHeaderList();
+                    for (ManagerReactionWorkInPlan.ManagerReactionInPlanHeader header : headers) {
+                        // Assuming getManagerReactionWork() correctly returns a list of ManagerReactionWork within each header
+                        for (ManagerReactionWorkInPlan.ManagerReactionWork work : header.getManagerReactionWork()) {
+                            // Now you can access properties of each work, e.g., reactionWorkTerm
+                            try {
+                                Timestamp term = Timestamp.valueOf(work.getReactionWorkTerm());
+                                // Log.d("WorkPlan term", term.toString());
+                            } catch (IllegalArgumentException e) {
+                                Log.e("getWorkPlan", "Error parsing date: " + e.getMessage());
                             }
-                        } else {
-                            //Log.e("WorkPlan", "ManagerWorkInPlanList is null");
                         }
-                    } else {
-                        Log.e("WorkPlan", "ApiResponse is null");
                     }
+                    // Trigger your callback or further processing here
+                    callback.getResult(apiResponseReactionPlan);
                 } else {
-                    // Handle the case when the response is not successful (e.g., error codes)
                     Log.e("getWorkPlan", "WorkPlan Request Failed: " + response.code());
                     try {
                         if (response.errorBody() != null) {
-                            // Log the error body if available
                             Log.e("getWorkPlan", "Error Body: " + response.errorBody().string());
                         }
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        Log.e("getWorkPlan", "Error reading error body: " + e.getMessage());
                     }
-                    // You can check the response.errorBody() for more details
                 }
             }
 
             @Override
             public void onFailure(Call<ApiResponseReactionPlan> call, Throwable t) {
-                // Handle the case when the network request fails
                 Log.e("getWorkPlan", "WorkPlan Request Failed: " + t.getMessage());
             }
         });
-
 
     }
 

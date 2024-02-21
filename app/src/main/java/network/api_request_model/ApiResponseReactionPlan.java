@@ -27,12 +27,16 @@ public class ApiResponseReactionPlan {
         return data;
     }
 
-    public class Data {
-        @SerializedName("ManagerReactionWork")
-        private List<ManagerReactionWorkInPlan> managerReactionWorkInPlanList;
+    public static class Data {
+        @SerializedName("ManagerReactionInPlanHeader")
+        private List<ManagerReactionWorkInPlan.ManagerReactionInPlanHeader> managerReactionInPlanHeaderList;
 
-        public List<ManagerReactionWorkInPlan> getManagerReactionWorkList() {
-            return managerReactionWorkInPlanList;
+        public List<ManagerReactionWorkInPlan.ManagerReactionInPlanHeader> getManagerReactionInPlanHeaderList() {
+            return managerReactionInPlanHeaderList;
+        }
+
+        public void setManagerReactionInPlanHeaderList(List<ManagerReactionWorkInPlan.ManagerReactionInPlanHeader> managerReactionInPlanHeaderList) {
+            this.managerReactionInPlanHeaderList = managerReactionInPlanHeaderList;
         }
     }
 }

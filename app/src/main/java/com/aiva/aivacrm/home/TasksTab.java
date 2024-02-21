@@ -217,22 +217,24 @@ public class TasksTab extends Fragment {
                 getWorkPlan(context, new OnTasksRetrieved() {
                     @Override
                     public void getResult(ApiResponseReactionPlan result) {
-                        workPlan = result.getData().getManagerReactionWorkList();
-                        if (result != null && result.isSuccess() && result.getData() != null && result.getData().getManagerReactionWorkList() != null) {
-                            List<ManagerReactionWorkInPlan> managerReactionWorkInPlanList = result.getData().getManagerReactionWorkList();
+                        if (result != null && result.isSuccess() && result.getData() != null) {
+                            List<ManagerReactionWorkInPlan.ManagerReactionInPlanHeader> headers = result.getData().getManagerReactionInPlanHeaderList();
+
+
                             List<Task> items2 = new ArrayList<>();
+                            for (ManagerReactionWorkInPlan.ManagerReactionInPlanHeader header : headers) {
+                                for (ManagerReactionWorkInPlan.ManagerReactionWork work : header.getManagerReactionWork()) {
+                                    int workInPlanID = work.getReactionWorkID() != null ? work.getReactionWorkID() : 0;
+                                    String workInPlanForCustomerName = work.getReactionWorkForCustomerName() != null ? work.getReactionWorkForCustomerName() : "";
+                                    String workInPlanName = work.getReactionWorkActionName() != null ? work.getReactionWorkActionName() : "";
+                                    String workInPlanNote = work.getReactionWorkNote() != null ? work.getReactionWorkNote() : "";
+                                    Timestamp workInPlanTerm = work.getReactionWorkTerm() != null ? Timestamp.valueOf(work.getReactionWorkTerm()) : t1;
+                                    Timestamp workInPlanDone = work.getReactionWorkDone() != null ? Timestamp.valueOf(work.getReactionWorkDone()) : t1;
+                                    String workInPlanForCustomerID = work.getReactionWorkForCustomerID() != null ? String.valueOf(work.getReactionWorkForCustomerID()) : "";
 
-                            for (ManagerReactionWorkInPlan managerReactionWorkInPlan : managerReactionWorkInPlanList) {
-                                int workInPlanID = ManagerReactionWorkInPlan.ManagerReactionWork.getReactionWorkID() != null ? managerReactionWorkInPlan.getReactionWorkID() : 0;
-                                String workInPlanForCustomerName = managerReactionWorkInPlan.getReactionWorkForCustomerName() != null ? managerReactionWorkInPlan.getReactionWorkForCustomerName() : "";
-                                String workInPlanName = managerReactionWorkInPlan.getReactionWorkActionName() != null ? managerReactionWorkInPlan.getReactionWorkActionName() : "";
-                                String workInPlanNote = managerReactionWorkInPlan.getReactionWorkNote() != null ? managerReactionWorkInPlan.getReactionWorkNote() : "";
-                                Timestamp workInPlanTerm = managerReactionWorkInPlan.getReactionWorkTerm() != null ? Timestamp.valueOf(managerReactionWorkInPlan.getReactionWorkTerm()) : t1;
-                                Timestamp workInPlanDone = managerReactionWorkInPlan.getReactionWorkDone() != null ? Timestamp.valueOf(managerReactionWorkInPlan.getReactionWorkDone()) : t1;
-                                String workInPlanForCustomerID = managerReactionWorkInPlan.getReactionWorkForCustomerID() != null ? String.valueOf(managerReactionWorkInPlan.getReactionWorkForCustomerID()) : "";
-
-                                Task task = new Task(workInPlanID, workInPlanForCustomerName, workInPlanName, workInPlanNote, workInPlanTerm, workInPlanDone, workInPlanForCustomerID);
-                                items2.add(task);
+                                    Task task = new Task(workInPlanID, workInPlanForCustomerName, workInPlanName, workInPlanNote, workInPlanTerm, workInPlanDone, workInPlanForCustomerID);
+                                    items2.add(task);
+                                }
                             }
 
                             List<Task> filteredItems = new ArrayList<>();

@@ -147,7 +147,7 @@ public class ManagerReactionWorkInPlan {
     }
 
 
-    public static class ManagerReactionWork{
+    public class ManagerReactionWork{
         @SerializedName("reactionWorkID")
         private Integer reactionWorkID;
 
@@ -213,7 +213,7 @@ public class ManagerReactionWorkInPlan {
 
         // Getters and Setters
 
-        public static Integer getReactionWorkID() {
+        public Integer getReactionWorkID() {
             return reactionWorkID;
         }
 
