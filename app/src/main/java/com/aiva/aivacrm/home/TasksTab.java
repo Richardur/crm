@@ -223,7 +223,7 @@ public class TasksTab extends Fragment {
                             List<Task> items2 = new ArrayList<>();
 
                             for (ManagerReactionWorkInPlan managerReactionWorkInPlan : managerReactionWorkInPlanList) {
-                                int workInPlanID = managerReactionWorkInPlan.getReactionWorkID() != null ? managerReactionWorkInPlan.getReactionWorkID() : 0;
+                                int workInPlanID = ManagerReactionWorkInPlan.ManagerReactionWork.getReactionWorkID() != null ? managerReactionWorkInPlan.getReactionWorkID() : 0;
                                 String workInPlanForCustomerName = managerReactionWorkInPlan.getReactionWorkForCustomerName() != null ? managerReactionWorkInPlan.getReactionWorkForCustomerName() : "";
                                 String workInPlanName = managerReactionWorkInPlan.getReactionWorkActionName() != null ? managerReactionWorkInPlan.getReactionWorkActionName() : "";
                                 String workInPlanNote = managerReactionWorkInPlan.getReactionWorkNote() != null ? managerReactionWorkInPlan.getReactionWorkNote() : "";

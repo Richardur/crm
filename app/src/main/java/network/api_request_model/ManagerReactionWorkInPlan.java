@@ -52,7 +52,7 @@ public class ManagerReactionWorkInPlan {
         private String reactionByOrderNo;
 
         @SerializedName("ManagerReactionWork")
-        private List<ManagerReactionWorkInPlan> managerReactionWorkInPlan;
+        private List<ManagerReactionWork> managerReactionWork;
 
         // Getters and Setters
 
@@ -141,13 +141,13 @@ public class ManagerReactionWorkInPlan {
             return managerReactionWork;
         }
 
-        public void setManagerReactionWork(List<ManagerReactionWorkInPlan> managerReactionWorkInPlan) {
-            this.managerReactionWorkInPlan = managerReactionWorkInPlan;
+        public void setManagerReactionWork(List<ManagerReactionWork> managerReactionWork) {
+            this.managerReactionWork = managerReactionWork;
         }
     }
 
 
-    public class ManagerReactionWork{
+    public static class ManagerReactionWork{
         @SerializedName("reactionWorkID")
         private Integer reactionWorkID;
 
@@ -213,7 +213,7 @@ public class ManagerReactionWorkInPlan {
 
         // Getters and Setters
 
-        public Integer getReactionWorkID() {
+        public static Integer getReactionWorkID() {
             return reactionWorkID;
         }
 
