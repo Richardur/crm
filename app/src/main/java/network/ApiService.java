@@ -1,6 +1,7 @@
 package network;
 
 import network.api_request_model.ApiResponseGetCustomer;
+import network.api_request_model.ApiResponseReactionPlan;
 import network.api_request_model.ApiResponseWorkPlan;
 import retrofit2.Call;
 import retrofit2.http.Field;
@@ -14,7 +15,7 @@ public interface ApiService {
     Call<AuthResponse> authenticate(@Field("login") String login, @Field("password") String password);
 
 
-    @POST("managerWorkInPlan")
+  /*  @POST("managerWorkInPlan")
     @FormUrlEncoded
     Call<ApiResponseWorkPlan> getWorkPlanList(@Field("userId") String userId,
                                               @Field("apiKey") String apiKey,
@@ -24,6 +25,17 @@ public interface ApiService {
                                               @Field("where") String where,
                                               @Field("limit") String limit,
                                               @Field("orderBy") String orderBy);
+*/
+    @POST("managerReactionInPlan")
+    @FormUrlEncoded
+    Call<ApiResponseReactionPlan> getReactionPlanList(@Field("userId") String userId,
+                                                  @Field("apiKey") String apiKey,
+                                                  @Field("getInfoType") String getInfoType,
+                                                  @Field("language") String language,
+                                                  @Field("action") String action,
+                                                  @Field("where") String where,
+                                                  @Field("limit") String limit,
+                                                  @Field("orderBy") String orderBy);
 
     @POST("customer")
     @FormUrlEncoded

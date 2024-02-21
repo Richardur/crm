@@ -27,7 +27,9 @@ import network.CustomerEdit;
 import network.CustomerListResponse;
 import network.UserSessionManager;
 import network.api_request_model.ApiResponseGetCustomer;
+import network.api_request_model.ApiResponseReactionPlan;
 import network.api_request_model.ApiResponseWorkPlan;
+import network.api_request_model.ManagerReactionWork;
 import network.api_request_model.ManagerWorkInPlan;
 import network.api_request_model.ManagerWorkInPlanDeserializer;
 import okhttp3.OkHttpClient;
@@ -269,25 +271,25 @@ public class GetTasks {
                 ""
         );
 
-        Call<ApiResponseWorkPlan> call = apiService.getWorkPlanList(userId, apiKey, "*", "", "select", "[]", "100", "");
-        call.enqueue(new Callback<ApiResponseWorkPlan>() {
+        Call<ApiResponseReactionPlan> call = apiService.getReactionPlanList(userId, apiKey, "*", "", "select", "[]", "100", "");
+        call.enqueue(new Callback<ApiResponseReactionPlan>() {
             @Override
-            public void onResponse(Call<ApiResponseWorkPlan> call, Response<ApiResponseWorkPlan> response) {
+            public void onResponse(Call<ApiResponseReactionPlan> call, Response<ApiResponseReactionPlan> response) {
                 if (response.isSuccessful()) {
                     Log.d("getWorkPlan", "WorkPlan Request Successful");
-                    ApiResponseWorkPlan apiResponseWorkPlan = response.body();
-                    for (ManagerWorkInPlan managerWorkInPlan : apiResponseWorkPlan.getData().getManagerWorkInPlanList()) {
-                        Timestamp term = managerWorkInPlan.getWorkInPlanTerm();
+                    ApiResponseReactionPlan apiResponseReactionPlan = response.body();
+                    for (ManagerReactionWork managerReactionWork : apiResponseReactionPlan.getData().getManagerReactionWorkList()) {
+                        Timestamp term = Timestamp.valueOf(managerReactionWork.getReactionWorkTerm());
                         //Log.d("WorkPlan term", term.toString());
                     }
 
-                    callback.getResult(apiResponseWorkPlan);
+                    callback.getResult(apiResponseReactionPlan);
 
-                    if (apiResponseWorkPlan != null) {
-                        List<ManagerWorkInPlan> managerWorkInPlanList = apiResponseWorkPlan.getData().getManagerWorkInPlanList();
-                        if (managerWorkInPlanList != null) {
+                    if (apiResponseReactionPlan != null) {
+                        List<ManagerReactionWork> managerReactionWorkList = apiResponseReactionPlan.getData().getManagerReactionWorkList();
+                        if (managerReactionWorkList != null) {
                             // Loop through the list and log each ManagerWorkInPlan object
-                            for (ManagerWorkInPlan managerWorkInPlan : managerWorkInPlanList) {
+                            for (ManagerReactionWork managerReactionWork : managerReactionWorkList) {
                                // Log.d("WorkPlan", managerWorkInPlan.toString());
                             }
                         } else {
@@ -312,7 +314,7 @@ public class GetTasks {
             }
 
             @Override
-            public void onFailure(Call<ApiResponseWorkPlan> call, Throwable t) {
+            public void onFailure(Call<ApiResponseReactionPlan> call, Throwable t) {
                 // Handle the case when the network request fails
                 Log.e("getWorkPlan", "WorkPlan Request Failed: " + t.getMessage());
             }
