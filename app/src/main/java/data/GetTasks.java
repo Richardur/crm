@@ -267,18 +267,19 @@ public class GetTasks {
                 "",
                 "select",
                 "[]",
-                "10000",
+                "100",
                 ""
         );
 
-        Call<ApiResponseReactionPlan> call = apiService.getReactionPlanList(userId, apiKey, "*", "", "select", "[]", "100", "");
+        Call<ApiResponseReactionPlan> call = apiService.getReactionPlanList(userId, apiKey, "*", "", "select", "[]", "1000", "");
         call.enqueue(new Callback<ApiResponseReactionPlan>() {
             @Override
             public void onResponse(Call<ApiResponseReactionPlan> call, Response<ApiResponseReactionPlan> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     ApiResponseReactionPlan apiResponseReactionPlan = response.body();
                     // Assuming getData() correctly returns a Data object that includes a list of ManagerReactionInPlanHeader
-                    List<ManagerReactionWorkInPlan.ManagerReactionInPlanHeader> headers = apiResponseReactionPlan.getData().getManagerReactionInPlanHeaderList();
+                    List<ManagerReactionWorkInPlan.ManagerReactionInPlanHeader> headers = null;
+                    headers = apiResponseReactionPlan.getData().getManagerReactionInPlanHeaderList();
                     for (ManagerReactionWorkInPlan.ManagerReactionInPlanHeader header : headers) {
                         // Assuming getManagerReactionWork() correctly returns a list of ManagerReactionWork within each header
                         for (ManagerReactionWorkInPlan.ManagerReactionWork work : header.getManagerReactionWork()) {

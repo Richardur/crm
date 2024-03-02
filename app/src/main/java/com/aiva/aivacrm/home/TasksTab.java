@@ -228,8 +228,37 @@ public class TasksTab extends Fragment {
                                     String workInPlanForCustomerName = work.getReactionWorkForCustomerName() != null ? work.getReactionWorkForCustomerName() : "";
                                     String workInPlanName = work.getReactionWorkActionName() != null ? work.getReactionWorkActionName() : "";
                                     String workInPlanNote = work.getReactionWorkNote() != null ? work.getReactionWorkNote() : "";
-                                    Timestamp workInPlanTerm = work.getReactionWorkTerm() != null ? Timestamp.valueOf(work.getReactionWorkTerm()) : t1;
-                                    Timestamp workInPlanDone = work.getReactionWorkDone() != null ? Timestamp.valueOf(work.getReactionWorkDone()) : t1;
+
+                                    Timestamp workInPlanTerm = null;
+                                    if (work.getReactionWorkTerm() != null) {
+                                        try {
+                                            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                                            Date parsedDate = dateFormat.parse(work.getReactionWorkTerm());
+                                            workInPlanTerm = new Timestamp(parsedDate.getTime());
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                            workInPlanTerm = t1; // Fallback to default timestamp t1 in case of parsing failure
+                                        }
+                                    } else {
+                                        workInPlanTerm = t1; // Use default timestamp t1 if 'work.getReactionWorkTerm()' is null
+                                    }
+
+                                    Timestamp workInPlanDone = null;
+                                    if (work.getReactionWorkTerm() != null) {
+                                        try {
+                                            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                                            Date parsedDate = dateFormat.parse(work.getReactionWorkDone());
+                                            workInPlanDone = new Timestamp(parsedDate.getTime());
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                            workInPlanDone = t1; // Fallback to default timestamp t1 in case of parsing failure
+                                        }
+                                    } else {
+                                        workInPlanDone = t1; // Use default timestamp t1 if 'work.getReactionWorkTerm()' is null
+                                    }
+
+                                    //Timestamp workInPlanTerm = work.getReactionWorkTerm() != null ? Timestamp.valueOf(work.getReactionWorkTerm()) : t1;
+                                    //Timestamp workInPlanDone = work.getReactionWorkDone() != null ? Timestamp.valueOf(work.getReactionWorkDone()) : t1;
                                     String workInPlanForCustomerID = work.getReactionWorkForCustomerID() != null ? String.valueOf(work.getReactionWorkForCustomerID()) : "";
 
                                     Task task = new Task(workInPlanID, workInPlanForCustomerName, workInPlanName, workInPlanNote, workInPlanTerm, workInPlanDone, workInPlanForCustomerID);
