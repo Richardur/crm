@@ -37,6 +37,17 @@ public interface ApiService {
                                                   @Field("limit") String limit,
                                                   @Field("orderBy") String orderBy);
 
+  @POST("managerReactionInPlan")
+  @FormUrlEncoded
+  Call<ApiResponseReactionPlan> getTasksForDate(@Field("userId") String userId,
+                                                    @Field("apiKey") String apiKey,
+                                                    @Field("getInfoType") String getInfoType,
+                                                    @Field("language") String language,
+                                                    @Field("action") String action,
+                                                    @Field("where") String where,
+                                                    @Field("limit") String limit,
+                                                    @Field("orderBy") String orderBy);
+
     @POST("customer")
     @FormUrlEncoded
     Call<CustomerListResponse> getCustomerList(@Field("userId") String userId,
