@@ -230,45 +230,45 @@ public class TaskInfo extends AppCompatActivity {
                         saveButton.setVisibility(View.VISIBLE);
                         cancelButton.setVisibility(View.VISIBLE);
 
-                        // Set click listeners for "Save" and "Cancel" buttons
-                        saveButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                // Handle saving edited data here
-                                String editedPhone = editPhone.getText().toString();
-                                String editedEmail = editEmail.getText().toString();
-                                String editedWebsite = editWebsite.getText().toString();
-                                String editedAddress = editAddress.getText().toString();
-                                String editedComment = editComment.getText().toString();
+                            // Set click listeners for "Save" and "Cancel" buttons
+                            saveButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    // Handle saving edited data here
+                                    String editedPhone = editPhone.getText().toString();
+                                    String editedEmail = editEmail.getText().toString();
+                                    String editedWebsite = editWebsite.getText().toString();
+                                    String editedAddress = editAddress.getText().toString();
+                                    String editedComment = editComment.getText().toString();
 
-                                // Update the TextView fields with edited data
-                                phone.setText(editedPhone);
-                                email.setText(editedEmail);
-                                website.setText(editedWebsite);
-                                address.setText(editedAddress);
-                                comment.setText(editedComment);
+                                    // Update the TextView fields with edited data
+                                    phone.setText(editedPhone);
+                                    email.setText(editedEmail);
+                                    website.setText(editedWebsite);
+                                    address.setText(editedAddress);
+                                    comment.setText(editedComment);
 
-                                // Hide EditText fields and "Save" and "Cancel" buttons
-                                phone.setVisibility(View.VISIBLE);
-                                phoneLayout.setVisibility(View.GONE);
+                                    // Hide EditText fields and "Save" and "Cancel" buttons
+                                    phone.setVisibility(View.VISIBLE);
+                                    phoneLayout.setVisibility(View.GONE);
 
-                                email.setVisibility(View.VISIBLE);
-                                emailLayout.setVisibility(View.GONE);
+                                    email.setVisibility(View.VISIBLE);
+                                    emailLayout.setVisibility(View.GONE);
 
-                                website.setVisibility(View.VISIBLE);
-                                websiteLayout.setVisibility(View.GONE);
+                                    website.setVisibility(View.VISIBLE);
+                                    websiteLayout.setVisibility(View.GONE);
 
-                                address.setVisibility(View.VISIBLE);
-                                addressLayout.setVisibility(View.GONE);
+                                    address.setVisibility(View.VISIBLE);
+                                    addressLayout.setVisibility(View.GONE);
 
-                                comment.setVisibility(View.VISIBLE);
-                                commentLayout.setVisibility(View.GONE);
+                                    comment.setVisibility(View.VISIBLE);
+                                    commentLayout.setVisibility(View.GONE);
 
-                                editButton.setVisibility(View.VISIBLE);
-                                saveButton.setVisibility(View.GONE);
-                                cancelButton.setVisibility(View.GONE);
-                            }
-                        });
+                                    editButton.setVisibility(View.VISIBLE);
+                                    saveButton.setVisibility(View.GONE);
+                                    cancelButton.setVisibility(View.GONE);
+                                }
+                            });
 
                         cancelButton.setOnClickListener(new View.OnClickListener() {
                             @Override

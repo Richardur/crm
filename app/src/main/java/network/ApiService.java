@@ -48,6 +48,19 @@ public interface ApiService {
                                                     @Field("limit") String limit,
                                                     @Field("orderBy") String orderBy);
 
+  @POST("managerReactionInPlanEdit")
+  @FormUrlEncoded
+  Call<ApiResponseReactionPlan> updateTask(
+          @Field("userId") String userId,
+          @Field("apiKey") String apiKey,
+          @Field("putType") String putType,
+          @Field("language") String language,
+          @Field("action") String action,
+          @Field("where") String where, // JSON string with the update details
+          @Field("limit") String limit,
+          @Field("orderBy") String orderBy // If needed
+  );
+
     @POST("customer")
     @FormUrlEncoded
     Call<CustomerListResponse> getCustomerList(@Field("userId") String userId,
