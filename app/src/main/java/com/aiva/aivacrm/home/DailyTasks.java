@@ -38,10 +38,17 @@ import java.util.List;
 
 import adapter.AdapterTasks;
 import model.Task;
+import network.ApiService;
 import network.GoogleCalendarService;
 import network.GoogleCalendarServiceSingleton;
 import network.GoogleSignInHelper;
+import network.RetrofitClientInstance;
 import network.UserSessionManager;
+import network.api_request_model.ApiResponseReactionPlan;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 import com.google.android.gms.common.api.Scope;
 import com.google.api.services.calendar.CalendarScopes;
 
@@ -203,7 +210,7 @@ public class DailyTasks extends AppCompatActivity {
             Timestamp workInPlanDone = new Timestamp(endTime.getValue()); // Convert DateTime to Timestamp
 
             // Create a Task object and add it to the list
-            Task task = new Task(ID, workInPlanForCustomerName, workInPlanName, workInPlanNote, workInPlanTerm, workInPlanDone, "0");
+            Task task = new Task(ID, workInPlanForCustomerName, workInPlanName, workInPlanNote, workInPlanTerm, workInPlanDone, "0","");
             tasks.add(task);
         }
         return tasks;
@@ -297,7 +304,7 @@ public class DailyTasks extends AppCompatActivity {
                         selectedDate = LocalDate.of(year, monthOfYear + 1, dayOfMonth);
                         setMonthView();
                         setTabDate(selectedDate);
-                        getTimestamps();
+                        //getTimestamps();
                         getSupportFragmentManager().beginTransaction().detach(fragment).commit();
                         fragment = TasksTab.newInstance(t1, t2, selectedDate);
                         getSupportFragmentManager().beginTransaction().replace(R.id.tabFragment, fragment).commit();
@@ -308,7 +315,8 @@ public class DailyTasks extends AppCompatActivity {
     }
 
     private void getTimestamps() {
-        t1 = selectedDate.atStartOfDay().toString();
-        t2 = selectedDate.plusDays(1).atStartOfDay().toString();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        t1 = selectedDate.atStartOfDay().toString().format(String.valueOf(formatter));
+        t2 = selectedDate.plusDays(1).atStartOfDay().toString().format(String.valueOf(formatter));
     }
 }

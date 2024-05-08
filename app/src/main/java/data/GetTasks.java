@@ -231,7 +231,7 @@ public class GetTasks {
         });
 
     }
-    public static void getWorkPlan(Context context, TasksTab.OnTasksRetrieved callback ) {
+    public static void getWorkPlan(Context context, String t1, String t2, TasksTab.OnTasksRetrieved callback) {
         String apiKey = UserSessionManager.getApiKey(context);
         if (apiKey == null || apiKey.isEmpty()) {
             Log.e("GetTasks", "API Key not found. Please login again.");
@@ -259,19 +259,10 @@ public class GetTasks {
 
         ApiService apiService = retrofit.create(ApiService.class);
 
+        String whereJsonString = String.format("{\"reactionWorkTermFrom\":\"%s\",\"reactionWorkTermTo\":\"%s\"}", t1, t2);
 
-        ApiGetRequest ApiGetRequest = new ApiGetRequest(
-                userId,
-                apiKey,
-                "*",
-                "",
-                "select",
-                "[]",
-                "100",
-                ""
-        );
 
-        Call<ApiResponseReactionPlan> call = apiService.getReactionPlanList(userId, apiKey, "*", "", "select", "[]", "1000", "");
+        Call<ApiResponseReactionPlan> call = apiService.getTasksForDate(userId, apiKey, "*", "", "select", whereJsonString, "1000", "");
         call.enqueue(new Callback<ApiResponseReactionPlan>() {
             @Override
             public void onResponse(Call<ApiResponseReactionPlan> call, Response<ApiResponseReactionPlan> response) {
@@ -311,6 +302,7 @@ public class GetTasks {
                 Log.e("getWorkPlan", "WorkPlan Request Failed: " + t.getMessage());
             }
         });
+
 
     }
 

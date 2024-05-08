@@ -11,8 +11,14 @@ public class Task {
     private Timestamp workInPlanDone;
     private String workInPlanForCustomerID;
 
+    public String getWorkInPlanForCustomerOrder() {
+        return workInPlanForCustomerOrder;
+    }
+
+    private String workInPlanForCustomerOrder;
+
     public Task(int ID, String workInPlanForCutomerName, String workInPlanName,
-                String workInPlanNote, Timestamp workInPlanTerm, Timestamp workInPlanDone, String workInPlanForCustomerID) {
+                String workInPlanNote, Timestamp workInPlanTerm, Timestamp workInPlanDone, String workInPlanForCustomerID, String workInPlanForCustomerOrder) {
         this.ID = ID;
         this.workInPlanForCutomerName = workInPlanForCutomerName;
         this.workInPlanName = workInPlanName;
@@ -20,6 +26,7 @@ public class Task {
         this.workInPlanTerm = workInPlanTerm;
         this.workInPlanDone = workInPlanDone;
         this.workInPlanForCustomerID = workInPlanForCustomerID;
+        this.workInPlanForCustomerOrder = workInPlanForCustomerOrder;
     }
 
     // Getter methods for all fields

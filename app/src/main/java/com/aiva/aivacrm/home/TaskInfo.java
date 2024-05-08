@@ -48,11 +48,12 @@ public class TaskInfo extends AppCompatActivity {
     String TaskComment, TaskCustomer, TaskDuration, TaskDate, TaskDoneDate, TaskStartedDate;
     int Atlikta, Pradeta;
     String RepName, RepSurname, RepPhone, RepEmail;
-    String TaskName;
+    String TaskName, Order;
 
     TextView customerTextView, action, dueDate, comment, status;
     TextView phone, email, website, address, subject;
     TextView dueDateTitle, statusTitle;
+    TextView order;
     TextInputLayout phoneLayout, emailLayout, websiteLayout, addressLayout, commentLayout;
     EditText editPhone, editEmail, editWebsite, editAddress, editComment;
     ImageButton callButton, emailButton, mapButton, editButton, saveButton, cancelButton;
@@ -77,6 +78,7 @@ public class TaskInfo extends AppCompatActivity {
         comment = findViewById(R.id.comment);
         statusTitle = findViewById(R.id.status_title);
         status = findViewById(R.id.status);
+        order = findViewById(R.id.order);
 
         phone = findViewById(R.id.phone);
         email = findViewById(R.id.email);
@@ -393,7 +395,6 @@ public class TaskInfo extends AppCompatActivity {
     }
 
     private void getIncomingIntent() {
-
         if (getIntent().hasExtra("TaskCustomerID")) {
             TaskCustomerID = getIntent().getStringExtra("TaskCustomerID");
         }
@@ -401,7 +402,7 @@ public class TaskInfo extends AppCompatActivity {
             TaskId = getIntent().getIntExtra("TaskId", 0);
         }
         if (getIntent().hasExtra("TaskName")) {
-            TaskName = getIntent().getStringExtra("Veiksmas");
+            TaskName = getIntent().getStringExtra("TaskName");
         }
         if (getIntent().hasExtra("TaskComment")) {
             TaskComment = getIntent().getStringExtra("TaskComment");
@@ -412,19 +413,32 @@ public class TaskInfo extends AppCompatActivity {
         if (getIntent().hasExtra("TaskDate")) {
             TaskDate = getIntent().getStringExtra("TaskDate");
         }
+        if (getIntent().hasExtra("RepPhone")) {
+            RepPhone = getIntent().getStringExtra("RepPhone");
+        }
+        if (getIntent().hasExtra("RepEmail")) {
+            RepEmail = getIntent().getStringExtra("RepEmail");
+        }
+        if (getIntent().hasExtra("RepName")) {
+            RepName = getIntent().getStringExtra("RepName");
+        }
+        if (getIntent().hasExtra("RepSurname")) {
+            RepSurname = getIntent().getStringExtra("RepSurname");
+        }
+        if (getIntent().hasExtra("TaskOrderID")) {
+            Order = getIntent().getStringExtra("TaskOrderID");
+        }
     }
 
     public void setTaskInfo() {
-        //TODO: set action and status
         customerTextView.setText(TaskCustomer);
         action.setText(TaskName);
         dueDate.setText(TaskDate);
         comment.setText(TaskComment);
-
-
         phone.setText(RepPhone);
         email.setText(RepEmail);
-        //subject.setText("Test Test");
+        subject.setText(RepName + " " + RepSurname);
+        order.setText(Order);
     }
 
     public interface OnCustomerRetrieved {

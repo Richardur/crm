@@ -1,5 +1,6 @@
 package com.aiva.aivacrm.home;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 import static data.GetTasks.getWorkPlan;
 
 import android.content.Context;
@@ -26,6 +27,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -103,6 +105,20 @@ public class TasksTab extends Fragment {
         View view = inflater.inflate(R.layout.fragment_tasks, container, false);
         setAdapter(view);
         view2 = view;
+        if (getArguments() != null) {
+            time1 = getArguments().getString(ARG_PARAM1);
+            time2 = getArguments().getString(ARG_PARAM2);
+            selectedDate = (LocalDate) getArguments().getSerializable("selectedDate");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
+            try {
+                Date date1 = dateFormat.parse(time1);
+                Date date2 = dateFormat.parse(time2);
+                t1 = new Timestamp(date1.getTime());
+                t2 = new Timestamp(date2.getTime());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
         scheduleCall();
         return view;
     }
@@ -114,13 +130,15 @@ public class TasksTab extends Fragment {
         mAdapter = new AdapterTasks(getContext(), itemsFromDB, new AdapterTasks.OnTaskItemClickListener() {
             @Override
             public void onTaskItemClick(Task task) {
+                //usable
                 Intent taskInfoIntent = new Intent(getContext(), TaskInfo.class);
                 taskInfoIntent.putExtra("TaskId", task.getID());
-                taskInfoIntent.putExtra("Veiksmas", task.getWorkInPlanName());
-                taskInfoIntent.putExtra("TaskDate", task.getWorkInPlanTerm().toString());
+                taskInfoIntent.putExtra("TaskName", task.getWorkInPlanName());
+                taskInfoIntent.putExtra("TaskDate", task.getWorkInPlanTerm());
                 taskInfoIntent.putExtra("TaskCustomer", task.getWorkInPlanForCutomerName());
                 taskInfoIntent.putExtra("TaskComment", task.getWorkInPlanNote());
                 taskInfoIntent.putExtra("TaskCustomerID", task.getWorkInPlanForCustomerID());
+                taskInfoIntent.putExtra("TaskOrderID", task.getWorkInPlanForCustomerOrder());
                 startActivity(taskInfoIntent);
             }
         });
@@ -157,8 +175,9 @@ public class TasksTab extends Fragment {
             String workInPlanNote = taskDescription;
             Timestamp workInPlanTerm = new Timestamp(startTime.getValue());
             Timestamp workInPlanDone = new Timestamp(endTime.getValue());
+            String workInPlanOrderID = "";
 
-            Task task = new Task(ID, workInPlanForCustomerName, workInPlanName, workInPlanNote, workInPlanTerm, workInPlanDone, "0");
+            Task task = new Task(ID, workInPlanForCustomerName, workInPlanName, workInPlanNote, workInPlanTerm, workInPlanDone, "0", workInPlanOrderID);
             tasks.add(task);
         }
         return tasks;
@@ -180,6 +199,24 @@ public class TasksTab extends Fragment {
     private void scheduleCall() {
         LocalDateTime startOfDay = selectedDate.atStartOfDay();
         LocalDateTime endOfDay = selectedDate.plusDays(1).atStartOfDay();
+
+        // Convert LocalDateTime to java.util.Date first
+        Date startDate = Date.from(startOfDay.atZone(ZoneId.systemDefault()).toInstant());
+        Date endDate = Date.from(endOfDay.atZone(ZoneId.systemDefault()).toInstant());
+
+        // Convert java.util.Date to java.sql.Timestamp
+        t1 = new Timestamp(startDate.getTime());
+        t2 = new Timestamp(endDate.getTime());
+
+        // Formatting timestamps to String is not necessary for SQL query, so remove it if not needed
+        // If you still need to format these timestamps:
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String formattedTime1 = dateFormat.format(t1);
+        String formattedTime2 = dateFormat.format(t2);
+
+        // Now use formattedTime1 and formattedTime2 as string representations if needed for logging or API parameters
+        Log.d(TAG, "Formatted Time1: " + formattedTime1 + ", Time2: " + formattedTime2);
+
 
         // Convert LocalDateTime to DateTime
         DateTime startTime = new DateTime(startOfDay.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
@@ -210,11 +247,22 @@ public class TasksTab extends Fragment {
                     }).execute();
         }
 
-        //connectApi(UserSessionManager.getUsername(this), "0ff4b70dabd059fa7b86d631eb6005a0479845bc2d03f66338bb848a90c2867e", new OnApiKeyRetrieved() {
-            //@Override
-            //public void onApiKeyReceived(String apiKey) {
+        /* if (t1 == null || t2 == null) {
+            //set t1 and t2 to current day
+            t1 = new Timestamp(System.currentTimeMillis());
+            t2 = new Timestamp(System.currentTimeMillis());
+            //format t1 and t2 according to formatter
+            time1 = String.format(t1.toString(), formatter);
+            time2 = String.format(t2.toString(), formatter);
+            //change time1 to keep the date and set time to 00:00:00
+            time1 = time1.substring(0, 11) + "00:00:00";
+            //change time2 to keep the date and set time to 23:59:59
+            time2 = time2.substring(0, 11) + "23:59:59";
+
+        } */
+
         Context context = getContext();
-                getWorkPlan(context, new OnTasksRetrieved() {
+                getWorkPlan(context, formattedTime1, formattedTime2, new OnTasksRetrieved() {
                     @Override
                     public void getResult(ApiResponseReactionPlan result) {
                         if (result != null && result.isSuccess() && result.getData() != null) {
@@ -229,39 +277,25 @@ public class TasksTab extends Fragment {
                                     String workInPlanName = work.getReactionWorkActionName() != null ? work.getReactionWorkActionName() : "";
                                     String workInPlanNote = work.getReactionWorkNote() != null ? work.getReactionWorkNote() : "";
 
-                                    Timestamp workInPlanTerm = null;
-                                    if (work.getReactionWorkTerm() != null) {
-                                        try {
-                                            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                                            Date parsedDate = dateFormat.parse(work.getReactionWorkTerm());
-                                            workInPlanTerm = new Timestamp(parsedDate.getTime());
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                            workInPlanTerm = t1; // Fallback to default timestamp t1 in case of parsing failure
-                                        }
-                                    } else {
-                                        workInPlanTerm = t1; // Use default timestamp t1 if 'work.getReactionWorkTerm()' is null
-                                    }
+                                    Timestamp workInPlanTerm = parseTimestamp(work.getReactionWorkTerm());
+                                    Timestamp workInPlanDone = parseTimestamp(work.getReactionWorkDone());
 
-                                    Timestamp workInPlanDone = null;
-                                    if (work.getReactionWorkTerm() != null) {
-                                        try {
-                                            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                                            Date parsedDate = dateFormat.parse(work.getReactionWorkDone());
-                                            workInPlanDone = new Timestamp(parsedDate.getTime());
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                            workInPlanDone = t1; // Fallback to default timestamp t1 in case of parsing failure
-                                        }
-                                    } else {
-                                        workInPlanDone = t1; // Use default timestamp t1 if 'work.getReactionWorkTerm()' is null
+                                    // Use these timestamps as needed
+                                    // For example, if a timestamp is null, you might want to use a default value
+                                    if (workInPlanTerm == null) {
+                                        workInPlanTerm = t1; // Use default timestamp t1
+                                    }
+                                    if (workInPlanDone == null) {
+                                        workInPlanDone = t1; // Use default timestamp t1
                                     }
 
                                     //Timestamp workInPlanTerm = work.getReactionWorkTerm() != null ? Timestamp.valueOf(work.getReactionWorkTerm()) : t1;
                                     //Timestamp workInPlanDone = work.getReactionWorkDone() != null ? Timestamp.valueOf(work.getReactionWorkDone()) : t1;
                                     String workInPlanForCustomerID = work.getReactionWorkForCustomerID() != null ? String.valueOf(work.getReactionWorkForCustomerID()) : "";
+                                    //get the order of the customer from header (getReactionByOrderNo())
+                                    String workInPlanForCustomerOrder = header.getReactionByOrderNo() != null ? header.getReactionByOrderNo() : "";
 
-                                    Task task = new Task(workInPlanID, workInPlanForCustomerName, workInPlanName, workInPlanNote, workInPlanTerm, workInPlanDone, workInPlanForCustomerID);
+                                    Task task = new Task(workInPlanID, workInPlanForCustomerName, workInPlanName, workInPlanNote, workInPlanTerm, workInPlanDone, workInPlanForCustomerID, workInPlanForCustomerOrder);
                                     items2.add(task);
                                 }
                             }
@@ -298,16 +332,8 @@ public class TasksTab extends Fragment {
                         }
                     }
                 });
-
-                /* getCustomerList(apiKey, new OnCustomerListRetrieved() {
-                    @Override
-                    public void getResult(CustomerListResponse result) {
-                        // Handle customer list data
-                    }
-                }); */
             }
-  //      });
- //   }
+
 
     public interface OnTasksRetrieved {
         void getResult(ApiResponseReactionPlan result);
@@ -324,7 +350,23 @@ public class TasksTab extends Fragment {
     public interface OnTaskItemClickListener {
         void onTaskItemClick(Task task);
     }
+    private Timestamp parseTimestamp(String dateString) {
+        if (dateString != null && !dateString.isEmpty()) {
+            try {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date parsedDate = dateFormat.parse(dateString);
+                return new Timestamp(parsedDate.getTime());
+            } catch (ParseException e) {
+                Log.e(TAG, "Error parsing date: " + dateString, e);
+            }
+        } else {
+            Log.w(TAG, "Attempted to parse a null or empty date string.");
+        }
+        return null; // Return null if input is null or empty
+    }
+
+
 }
-// Rest of your code remains unchanged
+
 
 
