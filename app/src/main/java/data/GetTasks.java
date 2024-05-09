@@ -43,15 +43,24 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class GetTasks {
     static String apiKey3;
 
-   public static void getCustomer(String apiKey3, String CustomerID, TaskInfo.OnCustomerRetrieved callback) {
+   public static void getCustomer(Context context, String CustomerID, TaskInfo.OnCustomerRetrieved callback) {
+       String apiKey = UserSessionManager.getApiKey(context);
+       if (apiKey == null || apiKey.isEmpty()) {
+           Log.e("GetTasks", "API Key not found. Please login again.");
+           return;
+       }
+       String userId = UserSessionManager.getUserId(context);
+       if (userId == null || userId.isEmpty()) {
+           Log.e("GetTasks", "User ID not found. Please login again.");
+           return;
+       }
        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
 
        Gson gson = new GsonBuilder()
                .setDateFormat("yyyy-MM-dd HH:mm:ss")
-               .registerTypeAdapter(Customer.class, new CustomerDeserializer())
-               .setLenient()
+               .registerTypeAdapter(ManagerWorkInPlan.class, new ManagerWorkInPlanDeserializer())
                .create();
 
        Retrofit retrofit = new Retrofit.Builder()
@@ -62,64 +71,52 @@ public class GetTasks {
 
        ApiService apiService = retrofit.create(ApiService.class);
 
-       String userId = "24";
-       try {
-           // Create a JSON array with a single JSON object for the "where" parameter
-           JSONArray whereArray = new JSONArray();
-           JSONObject whereObject = new JSONObject();
-           try {
-               whereObject.put("column", "CustomerID"); // Change to the correct column name
-               whereObject.put("operator", "=");
-               whereObject.put("value", CustomerID); // Use the provided customerID
-           } catch (JSONException e) {
-               e.printStackTrace();
+       String whereJsonString = String.format("{\"customerID\":\"%s\"}", CustomerID);
+
+       Call<ApiResponseGetCustomer> call = apiService.getCustomer(userId, apiKey, "*",
+               "", "select", whereJsonString, "100", "");
+
+
+       call.enqueue(new Callback<ApiResponseGetCustomer>() {
+           @Override
+           public void onResponse(Call<ApiResponseGetCustomer> call, Response<ApiResponseGetCustomer> response) {
+               ApiResponseGetCustomer customerResponse = response.body();
+               if (customerResponse != null && customerResponse.isSuccess()) {
+                   // Access the nested "data" object
+                   ApiResponseGetCustomer.Data data = customerResponse.getData();
+                   if (data != null) {
+                       // Access the "Customer" list
+                       List<Customer> customers = data.getCustomers(); // Correct method name to getCustomers
+                       if (customers != null && !customers.isEmpty()) {
+                           // Process each customer in the list
+                           for (Customer customer : customers) {
+                               if (customer != null) {
+                                   // Now you can access the "customerName" field and other details
+                                   String customerName = customer.getCustomerName();
+                                   String customerEmail = customer.getCustomerContactMail();
+                                   String customerPhone = customer.getCustomerContactPhone();
+                                   Log.d("Customer Info", "Name: " + customerName + ", Email: " + customerEmail + ", Phone: " + customerPhone);
+                                   // Additional logging or processing can be done here
+                               }
+                           }
+                       }
+                       callback.getResult(customerResponse); // Notify the caller that the customer data is available
+                   }
+               } else {
+                   Log.d("Customer log", "Customer Request Failed - Response not successful");
+               }
            }
 
-           whereArray.put(whereObject);
+           @Override
+           public void onFailure(Call<ApiResponseGetCustomer> call, Throwable t) {
+               Log.d("Customer log", "Customer Request Failed");
+               Log.d("Customer log", "Error: " + t.getMessage());
+           }
+       });
 
+   }
 
-           // Convert the JSON array to a string without URL encoding
-           String whereJsonString = "{\"customerID\":\"" + CustomerID + "\"}";
-           // Use the whereJsonString in your API call
-           Call<ApiResponseGetCustomer> call = apiService.getCustomer(userId, apiKey3, "*", "", "select", whereJsonString, "100", "");
-
-
-        call.enqueue(new Callback<ApiResponseGetCustomer>() {
-            @Override
-            public void onResponse(Call<ApiResponseGetCustomer> call, Response<ApiResponseGetCustomer> response) {
-                ApiResponseGetCustomer customerResponse = response.body();
-                if (customerResponse != null && customerResponse.isSuccess()) {
-                    // Access the nested "data" object
-                    ApiResponseGetCustomer.Data data = customerResponse.getData();
-                    if (data != null) {
-                        // Access the "Customer" list
-                        List<Customer> customers = data.getCustomer();
-                        if (customers != null && !customers.isEmpty()) {
-                            // Access the first customer in the list (you may need to loop through the list if there are multiple)
-                            Customer customer = customers.get(0);
-                            if (customer != null) {
-                                // Now you can access the "customerName" field
-                                String customerName = customer.getCustomerName();
-                                Log.d("Customer log", "Customer Name: " + customerName);
-                            }
-                        }
-                    }
-                } else {
-                    Log.d("Customer log", "Customer Request Failed");
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ApiResponseGetCustomer> call, Throwable t) {
-                Log.d("getCustomer", "Customer Request Failed");
-                Log.d("getCustomer", t.getMessage());
-            }
-        });
-    } catch (Exception e) {
-           e.printStackTrace();
-       }}
-
-    public static void editCustomer(String apiKey3, CustomerEdit customerEdit, TaskInfo.OnCustomerEdited callback) {
+    public static void editCustomer(String apiKey3, CustomerEdit customerEdit) {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
@@ -158,7 +155,7 @@ public class GetTasks {
             @Override
             public void onResponse(Call<ApiResponseWorkPlan> call, Response<ApiResponseWorkPlan> response) {
                 if (response.isSuccessful()) {
-                    callback.onCustomerEdited(); // Notify that customer edit is successful
+                    //callback.onCustomerEdited(); // Notify that customer edit is successful
                     Log.d("editCustomer", "Customer Edit Request Successful");
                 } else {
                     // Handle unsuccessful response
@@ -262,7 +259,8 @@ public class GetTasks {
         String whereJsonString = String.format("{\"reactionWorkTermFrom\":\"%s\",\"reactionWorkTermTo\":\"%s\"}", t1, t2);
 
 
-        Call<ApiResponseReactionPlan> call = apiService.getTasksForDate(userId, apiKey, "*", "", "select", whereJsonString, "1000", "");
+        Call<ApiResponseReactionPlan> call = apiService.getTasksForDate(userId, apiKey, "*",
+                "", "select", whereJsonString, "1000", "");
         call.enqueue(new Callback<ApiResponseReactionPlan>() {
             @Override
             public void onResponse(Call<ApiResponseReactionPlan> call, Response<ApiResponseReactionPlan> response) {
@@ -306,7 +304,7 @@ public class GetTasks {
 
     }
 
-    public static void getCustomerList(String apiKey3, TasksTab.OnCustomerListRetrieved callback ) {
+    /* public static void getCustomerList(String apiKey3, TasksTab.OnCustomerListRetrieved callback ) {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
@@ -360,7 +358,7 @@ public class GetTasks {
 
             }
         });}
-
+*/
     public static String generateApiKey(String userId, String username, String apiKey) {
         String formString =userId + username + apiKey;
         return sha256(formString);

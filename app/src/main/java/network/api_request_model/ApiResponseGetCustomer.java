@@ -9,27 +9,37 @@ public class ApiResponseGetCustomer {
     private boolean success;
 
     @SerializedName("data")
-    private Data data; // Change the data field to hold a Data object
+    private Data data; // Data object that holds customer information
 
     public boolean isSuccess() {
         return success;
+    }
+
+    public void setSuccess(boolean success) {
+        this.success = success;
     }
 
     public Data getData() {
         return data;
     }
 
+    public void setData(Data data) {
+        this.data = data;
+    }
+
     // Define the Data class to represent the nested structure
     public static class Data {
         @SerializedName("Customer")
-        private List<Customer> customers; // Change this to a list of customers
+        private List<Customer> customers; // List of Customer objects
 
-        public List<Customer> getCustomer() {
+        public List<Customer> getCustomers() {
             return customers;
+        }
+
+        public void setCustomers(List<Customer> customers) {
+            this.customers = customers;
         }
     }
 
-    // You can remove the single Customer field
-
-    // Add any other fields as needed
+    // Removed the single Customer field as the new structure encapsulates a list of Customers
 }

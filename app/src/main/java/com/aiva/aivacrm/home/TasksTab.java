@@ -134,7 +134,7 @@ public class TasksTab extends Fragment {
                 Intent taskInfoIntent = new Intent(getContext(), TaskInfo.class);
                 taskInfoIntent.putExtra("TaskId", task.getID());
                 taskInfoIntent.putExtra("TaskName", task.getWorkInPlanName());
-                taskInfoIntent.putExtra("TaskDate", task.getWorkInPlanTerm());
+                taskInfoIntent.putExtra("TaskDate", task.getWorkInPlanTerm().toString());
                 taskInfoIntent.putExtra("TaskCustomer", task.getWorkInPlanForCutomerName());
                 taskInfoIntent.putExtra("TaskComment", task.getWorkInPlanNote());
                 taskInfoIntent.putExtra("TaskCustomerID", task.getWorkInPlanForCustomerID());
@@ -340,7 +340,7 @@ public class TasksTab extends Fragment {
     }
 
     public interface OnCustomerListRetrieved {
-        void getResult(CustomerListResponse result);
+        //void getResult(CustomerListResponse result);
     }
 
     public interface OnApiKeyRetrieved {

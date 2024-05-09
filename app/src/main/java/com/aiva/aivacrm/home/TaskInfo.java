@@ -6,6 +6,7 @@ import static data.GetTasks.getCustomer;
 //import static data.GetTasks.testAPI;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -44,11 +45,11 @@ public class TaskInfo extends AppCompatActivity {
 
 
     String TaskCustomerID;
-            int TaskId, AddressId;
+            int TaskId;
     String TaskComment, TaskCustomer, TaskDuration, TaskDate, TaskDoneDate, TaskStartedDate;
     int Atlikta, Pradeta;
     String RepName, RepSurname, RepPhone, RepEmail;
-    String TaskName, Order;
+    String TaskName, Order, Website, Address;
 
     TextView customerTextView, action, dueDate, comment, status;
     TextView phone, email, website, address, subject;
@@ -109,7 +110,7 @@ public class TaskInfo extends AppCompatActivity {
 
         getIncomingIntent();
         setTaskInfo();
-        scheduleCall();
+        getCustomerCredentials();
 
         //on clicking the call button, the phone app opens with the number of the client
         callButton.setOnClickListener(new View.OnClickListener() {
@@ -145,7 +146,6 @@ public class TaskInfo extends AppCompatActivity {
         statusCheckbox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                scheduleCall();
                 if (statusCheckbox.isChecked()) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(TaskInfo.this);
                     //set the alert dialog title and center it
@@ -439,55 +439,59 @@ public class TaskInfo extends AppCompatActivity {
         email.setText(RepEmail);
         subject.setText(RepName + " " + RepSurname);
         order.setText(Order);
+        address.setText(Address);
+        website.setText(Website);
+
+
     }
 
-    public interface OnCustomerRetrieved {
-        void getResult(ApiResponseGetCustomer customer);
-    }
 
-    public void scheduleCall() {
-        connectApi("ricardas", "0ff4b70dabd059fa7b86d631eb6005a0479845bc2d03f66338bb848a90c2867e", new TasksTab.OnApiKeyRetrieved() {
+
+    public void getCustomerCredentials() {
+        //TODO: atskirti ar atstovas ir sukurti nauja sekcija atstovu rekvizitams
+        getCustomer(this, TaskCustomerID, new OnCustomerRetrieved() {
             @Override
-            public void onApiKeyReceived(String apiKey) {
-                getCustomer(apiKey, TaskCustomerID, new OnCustomerRetrieved() {
-                    @Override
-                    public void getResult(ApiResponseGetCustomer customerResponse) {
-                        Log.d("Customer log", "Received customerResponse");
-
-                        if (customerResponse != null) {
-                            Log.d("Customer log", "Response is not null");
-
-                            if (customerResponse.isSuccess()) {
-                                Log.d("Customer log", "Customer Request Successful");
-                                ApiResponseGetCustomer.Data data = customerResponse.getData();
-
-                                if (data != null) {
-                                    List<Customer> customers = data.getCustomer();
-
-                                    if (customers != null && !customers.isEmpty()) {
-                                        for (Customer customer : customers) {
-                                            // Log the customer name
-                                            Log.d("Customer Name (from scheduleCall)", customer.getCustomerName());
+            public void getResult(ApiResponseGetCustomer result) {
+                if (result != null && result.isSuccess() && result.getData() != null) {
+                    List<Customer> customers = result.getData().getCustomers();
+                    if (customers != null && !customers.isEmpty()) {
+                        for (Customer customer : customers) {
+                            if (customer.getCustomerID().equals(TaskCustomerID.toString())) {
+                                RepEmail = customer.getCustomerContactMail();
+                                RepPhone = customer.getCustomerContactPhone();
+                                Website = customer.getCustomerWWW();
+                                Address = customer.getCustomerAdressCity()+ " " + customer.getCustomerAdressStreet() + " " + customer.getCustomerAdressHouse() + " " +
+                                        customer.getCustomerAdressPostIndex()+ " " + customer.getCustomerCountryCode();
+                                if (customer.getCustomerContactPersons() != null) {
+                                {
+                                    for (int i = 0; i < customer.getCustomerContactPersons().size(); i++) {
+                                        if (customer.getCustomerContactPersons().get(i).getContactPersonType().equals("0010")) {
+                                            RepName = customer.getCustomerContactPersons().get(i).getContactPersonName();
+                                            RepSurname = customer.getCustomerContactPersons().get(i).getContactPersonSurname();
                                         }
-                                    } else {
-                                        Log.d("Customer log", "Customer list is empty");
                                     }
-                                } else {
-                                    Log.d("Customer log", "Data is null");
                                 }
-                            } else {
-                                Log.d("Customer log", "Customer Request Failed");
                             }
-                        } else {
-                            Log.d("Customer log", "Response is null");
-                        }
 
-                        setTaskInfo();
+                                Log.d("email", RepEmail);
+                            }
+                        }
+                    } else {
+                        System.out.println("No customers found.");
+                    }
+                    setTaskInfo();
+                } else {
+                    System.out.println("Result is null, not successful, or contains no data.");
+
+                }
                     }
                 });
             }
-        });
+    public interface OnCustomerRetrieved {
+        void getResult(ApiResponseGetCustomer result);
     }
+        }
+
 
     //customerTextView.setText(customer.getCustomerContactMail());
                         //log response body
@@ -522,10 +526,3 @@ public class TaskInfo extends AppCompatActivity {
                         String taskRepEmail = "
                         */
 
-
-
-    public interface OnCustomerEdited {
-        void onCustomerEdited();
-    }
-
-}

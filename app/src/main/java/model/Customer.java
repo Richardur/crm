@@ -1,7 +1,6 @@
 package model;
 
 import com.google.gson.annotations.SerializedName;
-
 import java.util.List;
 
 public class Customer {
@@ -17,11 +16,14 @@ public class Customer {
     @SerializedName("customerCode")
     private String customerCode;
 
-    @SerializedName("customerVat")
+    @SerializedName("customerVAT")
     private String customerVat;
 
     @SerializedName("customerType")
     private String customerType;
+
+    @SerializedName("customerActivityDescription")
+    private String customerActivityDescription;
 
     @SerializedName("customerActive")
     private String customerActive;
@@ -101,6 +103,39 @@ public class Customer {
     @SerializedName("customerImportanceDegree")
     private String customerImportanceDegree;
 
+    @SerializedName("customerCompanyBranchQuantity")
+    private String customerCompanyBranchQuantity;
+
+    @SerializedName("customerCompanyEmployeesQuantity")
+    private String customerCompanyEmployeesQuantity;
+
+    @SerializedName("customerCompanyTurnoverFrom")
+    private String customerCompanyTurnoverFrom;
+
+    @SerializedName("customerCompanyTurnoverFor")
+    private String customerCompanyTurnoverFor;
+
+    @SerializedName("customerMarketNote")
+    private String customerMarketNote;
+
+    @SerializedName("customerLoginUser")
+    private String customerLoginUser;
+
+    @SerializedName("customerLoginPassword")
+    private String customerLoginPassword;
+
+    @SerializedName("customerCreateDate")
+    private String customerCreateDate;
+
+    @SerializedName("CustomerContactPersonList")
+    private List<CustomerContactPerson> customerContactPersons;
+
+    @SerializedName("CustomerInfoForSales")
+    private List<CustomerInfoForSales> customerInfoForSales;
+
+    // Getter and setter methods for each field
+
+
     public String getCustomerID() {
         return customerID;
     }
@@ -147,6 +182,14 @@ public class Customer {
 
     public void setCustomerType(String customerType) {
         this.customerType = customerType;
+    }
+
+    public String getCustomerActivityDescription() {
+        return customerActivityDescription;
+    }
+
+    public void setCustomerActivityDescription(String customerActivityDescription) {
+        this.customerActivityDescription = customerActivityDescription;
     }
 
     public String getCustomerActive() {
@@ -421,53 +464,60 @@ public class Customer {
         this.customerCreateDate = customerCreateDate;
     }
 
-    public List<CustomerContactPerson> getCustomerContactPerson() {
-        return CustomerContactPerson;
+    public List<CustomerContactPerson> getCustomerContactPersons() {
+        return customerContactPersons;
     }
 
-    public void setCustomerContactPerson(List<CustomerContactPerson> customerContactPerson) {
-        CustomerContactPerson = customerContactPerson;
+    public void setCustomerContactPersons(List<CustomerContactPerson> customerContactPersons) {
+        this.customerContactPersons = customerContactPersons;
     }
 
     public List<CustomerInfoForSales> getCustomerInfoForSales() {
-        return CustomerInfoForSales;
+        return customerInfoForSales;
     }
 
     public void setCustomerInfoForSales(List<CustomerInfoForSales> customerInfoForSales) {
-        CustomerInfoForSales = customerInfoForSales;
+        this.customerInfoForSales = customerInfoForSales;
     }
 
-    private String customerCompanyBranchQuantity;
-    private String customerCompanyEmployeesQuantity;
-    private String customerCompanyTurnoverFrom;
-    private String customerCompanyTurnoverFor;
-    private String customerMarketNote;
-    private String customerLoginUser;
-    private String customerLoginPassword;
-    private String customerCreateDate;
-    private List<CustomerContactPerson> CustomerContactPerson;
-    private List<CustomerInfoForSales> CustomerInfoForSales;
-
-    // Add getters for all fields
-
-
     public static class CustomerContactPerson {
-        private String customerID;
+        @SerializedName("contactPersonType")
         private String contactPersonType;
+
+        @SerializedName("contactPersonName")
         private String contactPersonName;
+
+        @SerializedName("contactPersonSurname")
         private String contactPersonSurname;
+
+        @SerializedName("contactPersonResponsibilities")
         private String contactPersonResponsibilities;
+
+        @SerializedName("employeResponsibilitiesID")
         private String employeResponsibilitiesID;
+
+        @SerializedName("contactPersonPhone")
         private String contactPersonPhone;
+
+        @SerializedName("contactPersonMobPhone")
         private String contactPersonMobPhone;
 
-        public String getCustomerID() {
-            return customerID;
-        }
+        @SerializedName("contactPersonMail")
+        private String contactPersonMail;
 
-        public void setCustomerID(String customerID) {
-            this.customerID = customerID;
-        }
+        @SerializedName("contactPersonBornDate")
+        private String contactPersonBornDate;
+
+        @SerializedName("contactPersonLoginUser")
+        private String contactPersonLoginUser;
+
+        @SerializedName("contactPersonLoginPassword")
+        private String contactPersonLoginPassword;
+
+        @SerializedName("contactPersonPriority")
+        private String contactPersonPriority;
+
+        // Getter and setter methods for each field
 
         public String getContactPersonType() {
             return contactPersonType;
@@ -557,61 +607,92 @@ public class Customer {
             this.contactPersonLoginPassword = contactPersonLoginPassword;
         }
 
-        private String contactPersonMail;
-        private String contactPersonBornDate;
-        private String contactPersonLoginUser;
-        private String contactPersonLoginPassword;
+        public String getContactPersonPriority() {
+            return contactPersonPriority;
+        }
 
-        // Add getters for all fields
+        public void setContactPersonPriority(String contactPersonPriority) {
+            this.contactPersonPriority = contactPersonPriority;
+        }
     }
 
     public static class CustomerInfoForSales {
-        private String customerID;
-        private String customerResolutionID;
+        @SerializedName("customerResolution")
         private String customerResolution;
-        private String customerDeliveryConditionID;
+
+        @SerializedName("customerDeliveryCondition")
         private String customerDeliveryCondition;
-        private String customerDeliveryMethodID;
+
+        @SerializedName("customerDeliveryMethod")
         private String customerDeliveryMethod;
-        private String customerPaymentConditionID;
+
+        @SerializedName("customerPaymentCondition")
         private String customerPaymentCondition;
+
+        @SerializedName("customerCreditingCreditLimit")
         private String customerCreditingCreditLimit;
+
+        @SerializedName("customerCreditingCreditDayTerm")
         private String customerCreditingCreditDayTerm;
+
+        @SerializedName("customerCreditingReliability")
         private String customerCreditingReliability;
+
+        @SerializedName("customerCreditingContractNo")
         private String customerCreditingContractNo;
+
+        @SerializedName("customerCreditingContractData")
         private String customerCreditingContractData;
+
+        @SerializedName("customerDebtSum")
         private String customerDebtSum;
+
+        @SerializedName("customerOverdueDebtSuma")
         private String customerOverdueDebtSuma;
+
+        @SerializedName("customerCreditContractBankID")
         private String customerCreditContractBankID;
+
+        @SerializedName("customerCreditContractBankName")
         private String customerCreditContractBankName;
+
+        @SerializedName("customerCreditContractBankAccountNo")
         private String customerCreditContractBankAccountNo;
+
+        @SerializedName("customerCreditContractCorrespBankID")
         private String customerCreditContractCorrespBankID;
+
+        @SerializedName("customerCreditContractCorrespBankName")
         private String customerCreditContractCorrespBankName;
+
+        @SerializedName("customerCreditContractCorrespBankAccountNo")
         private String customerCreditContractCorrespBankAccountNo;
+
+        @SerializedName("customerCreditContractSWIFTCode")
         private String customerCreditContractSWIFTCode;
+
+        @SerializedName("customerCreditContractCustomerCode")
         private String customerCreditContractCustomerCode;
+
+        @SerializedName("customerCreditContractCustomerVATCode")
         private String customerCreditContractCustomerVATCode;
+
+        @SerializedName("customerCreditContractNo")
         private String customerCreditContractNo;
+
+        @SerializedName("customerCreditContractData")
         private String customerCreditContractData;
+
+        @SerializedName("customerCreditContractPaymentDayTerm")
         private String customerCreditContractPaymentDayTerm;
+
+        @SerializedName("customerCreditContractPercOfAdvance")
         private String customerCreditContractPercOfAdvance;
+
+        @SerializedName("customerCreditContractInfo")
         private String customerCreditContractInfo;
 
-        public String getCustomerID() {
-            return customerID;
-        }
-
-        public void setCustomerID(String customerID) {
-            this.customerID = customerID;
-        }
-
-        public String getCustomerResolutionID() {
-            return customerResolutionID;
-        }
-
-        public void setCustomerResolutionID(String customerResolutionID) {
-            this.customerResolutionID = customerResolutionID;
-        }
+        // Getter and setter methods for each field
 
         public String getCustomerResolution() {
             return customerResolution;
@@ -619,14 +700,6 @@ public class Customer {
 
         public void setCustomerResolution(String customerResolution) {
             this.customerResolution = customerResolution;
-        }
-
-        public String getCustomerDeliveryConditionID() {
-            return customerDeliveryConditionID;
-        }
-
-        public void setCustomerDeliveryConditionID(String customerDeliveryConditionID) {
-            this.customerDeliveryConditionID = customerDeliveryConditionID;
         }
 
         public String getCustomerDeliveryCondition() {
@@ -637,28 +710,12 @@ public class Customer {
             this.customerDeliveryCondition = customerDeliveryCondition;
         }
 
-        public String getCustomerDeliveryMethodID() {
-            return customerDeliveryMethodID;
-        }
-
-        public void setCustomerDeliveryMethodID(String customerDeliveryMethodID) {
-            this.customerDeliveryMethodID = customerDeliveryMethodID;
-        }
-
         public String getCustomerDeliveryMethod() {
             return customerDeliveryMethod;
         }
 
         public void setCustomerDeliveryMethod(String customerDeliveryMethod) {
             this.customerDeliveryMethod = customerDeliveryMethod;
-        }
-
-        public String getCustomerPaymentConditionID() {
-            return customerPaymentConditionID;
-        }
-
-        public void setCustomerPaymentConditionID(String customerPaymentConditionID) {
-            this.customerPaymentConditionID = customerPaymentConditionID;
         }
 
         public String getCustomerPaymentCondition() {
@@ -836,12 +893,5 @@ public class Customer {
         public void setCustomerCreditContractInfo(String customerCreditContractInfo) {
             this.customerCreditContractInfo = customerCreditContractInfo;
         }
-
-
-        // Add getters for all fields
     }
-
 }
-
-
-
