@@ -4,6 +4,7 @@ import network.api_request_model.ApiResponseGetCustomer;
 import network.api_request_model.ApiResponseReactionPlan;
 import network.api_request_model.ApiResponseWorkPlan;
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.POST;
@@ -48,7 +49,7 @@ public interface ApiService {
                                                     @Field("limit") String limit,
                                                     @Field("orderBy") String orderBy);
 
-  @POST("managerReactionInPlanEdit")
+  @POST("managerReactionInPlan")
   @FormUrlEncoded
   Call<ApiResponseReactionPlan> updateTask(
           @Field("userId") String userId,
@@ -57,9 +58,13 @@ public interface ApiService {
           @Field("language") String language,
           @Field("action") String action,
           @Field("where") String where, // JSON string with the update details
-          @Field("limit") String limit,
-          @Field("orderBy") String orderBy // If needed
+          @Field("limit") String limit
+          //@Field("orderBy") String orderBy // If needed
   );
+
+    @POST("managerReactionInPlan")
+    Call<ApiResponseUpdate> updateManagerReaction(@Body ManagerReactionUpdateRequest request);
+
 
     @POST("customer")
     @FormUrlEncoded
