@@ -5,13 +5,17 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.aiva.aivacrm.R;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
@@ -66,13 +70,20 @@ public class AdapterTasks extends RecyclerView.Adapter<AdapterTasks.ViewHolder> 
         notifyDataSetChanged(); // Notify the adapter that the data has changed
     }
 
+    // Method to return the current list of tasks
+    public List<Task> getTasks() {
+        return taskList;
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         private TextView workInPlanForCutomerName;
         private TextView workInPlanName;
         private TextView workInPlanNote;
         private TextView workInPlanTerm1, workInPlanTerm2;
-        private TextView workInPlanDone;
+        private CheckBox workInPlanDone;
+        private ImageView noTimeIcon;
+        private LinearLayout timeLayout;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -82,6 +93,8 @@ public class AdapterTasks extends RecyclerView.Adapter<AdapterTasks.ViewHolder> 
             workInPlanTerm1 = itemView.findViewById(R.id.hours);
             workInPlanTerm2 = itemView.findViewById(R.id.minutes);
             workInPlanDone = itemView.findViewById(R.id.atlikta);
+            noTimeIcon = itemView.findViewById(R.id.no_time_icon);
+            timeLayout = itemView.findViewById(R.id.time_layout);
         }
 
         public void bind(final Task task, final OnTaskItemClickListener listener) {
@@ -89,18 +102,29 @@ public class AdapterTasks extends RecyclerView.Adapter<AdapterTasks.ViewHolder> 
             workInPlanName.setText(task.getWorkInPlanName());
             workInPlanNote.setText(task.getWorkInPlanNote());
 
-            java.util.Date date = new java.util.Date(task.getWorkInPlanTerm().getTime());
-            LocalDateTime localDateTime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-            int hours = localDateTime.getHour();
-            String hoursString = String.valueOf(hours);
-            int minutes = localDateTime.getMinute();
-            String minutesString = String.valueOf(minutes);
-            if (minutesString.length() == 1) {
-                minutesString = "0" + minutesString;
-            }
+            if (task.getWorkInPlanTerm() == null || task.getWorkInPlanTerm().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime().toLocalTime().equals(LocalDateTime.MIN.toLocalTime())) {
+                // Task has no time, show the rhomboid icon
+                workInPlanTerm1.setVisibility(View.GONE);
+                workInPlanTerm2.setVisibility(View.GONE);
+                noTimeIcon.setVisibility(View.VISIBLE);
+            } else {
+                // Task has time, show the time
+                noTimeIcon.setVisibility(View.GONE);
+                workInPlanTerm1.setVisibility(View.VISIBLE);
+                workInPlanTerm2.setVisibility(View.VISIBLE);
+                java.util.Date date = new java.util.Date(task.getWorkInPlanTerm().getTime());
+                LocalDateTime localDateTime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                int hours = localDateTime.getHour();
+                String hoursString = String.valueOf(hours);
+                int minutes = localDateTime.getMinute();
+                String minutesString = String.valueOf(minutes);
+                if (minutesString.length() == 1) {
+                    minutesString = "0" + minutesString;
+                }
 
-            workInPlanTerm1.setText(hoursString);
-            workInPlanTerm2.setText(minutesString);
+                workInPlanTerm1.setText(hoursString);
+                workInPlanTerm2.setText(minutesString);
+            }
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -117,6 +141,11 @@ public class AdapterTasks extends RecyclerView.Adapter<AdapterTasks.ViewHolder> 
                     // Checkbox click handling code, if any
                 }
             });
+        }
+
+        private boolean isTimeNotSet(Timestamp timestamp) {
+            LocalDateTime localDateTime = timestamp.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+            return localDateTime.toLocalTime().equals(LocalDateTime.MIN.toLocalTime());
         }
     }
 

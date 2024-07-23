@@ -14,6 +14,7 @@
         android:background="@android:color/white"
         android:theme="@style/AppTheme.AppBarOverlay"
         app:elevation="0dp">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -31,24 +32,40 @@
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/monthYearTV"
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-                android:textColor="@color/grey_60"
-                android:textStyle="bold"
-                android:textSize="24sp"
-                android:gravity="center" />
+                android:orientation="vertical"
+                android:gravity="center_horizontal">
+
+                <TextView
+                    android:id="@+id/monthYearTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+                    android:textColor="@color/grey_60"
+                    android:textStyle="bold"
+                    android:textSize="24sp"
+                    android:gravity="center" />
+
+                <TextView
+                    android:id="@+id/employeeNameTV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textColor="@color/grey_60"
+                    android:textSize="14sp"
+                    android:gravity="center"
+                    android:text="Employee Name" />
+            </LinearLayout>
 
             <ImageButton
                 android:id="@+id/menu_button"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:background="?attr/selectableItemBackground"
-                android:src="@drawable/ic_baseline_menu_24"
-                app:popupMenu="@menu/menu_options" />
+                android:src="@drawable/ic_baseline_menu_24" />
         </LinearLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -72,6 +89,48 @@
         app:tabTextColor="@color/grey_40">
 
         <!-- Define TabItems here -->
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/tab_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/day1" />
+
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/tab_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/day2" />
+
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/tab_3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/day3" />
+
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/tab_4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/day4" />
+
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/tab_5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/day5" />
+
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/tab_6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/day6" />
+
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/tab_7"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/day7" />
+
     </com.google.android.material.tabs.TabLayout>
 
     <FrameLayout

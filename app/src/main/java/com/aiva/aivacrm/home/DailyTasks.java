@@ -2,35 +2,24 @@ package com.aiva.aivacrm.home;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.app.DatePickerDialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.DatePicker;
+import android.widget.ImageButton;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
-import com.aiva.aivacrm.R;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.material.tabs.TabLayout;
-import com.google.api.client.util.DateTime;
-import com.google.api.services.calendar.Calendar;
-import com.google.api.services.calendar.CalendarScopes;
-import com.google.api.services.calendar.model.Event;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
+import com.aiva.aivacrm.R;
+import com.google.android.material.tabs.TabLayout;
+
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -38,19 +27,8 @@ import java.util.List;
 
 import adapter.AdapterTasks;
 import model.Task;
-import network.ApiService;
-import network.GoogleCalendarService;
 import network.GoogleCalendarServiceSingleton;
-import network.GoogleSignInHelper;
-import network.RetrofitClientInstance;
 import network.UserSessionManager;
-import network.api_request_model.ApiResponseReactionPlan;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
-import com.google.android.gms.common.api.Scope;
-import com.google.api.services.calendar.CalendarScopes;
 
 public class DailyTasks extends AppCompatActivity {
 
@@ -59,21 +37,17 @@ public class DailyTasks extends AppCompatActivity {
     private Button pickDate;
     private TabLayout weekdays;
     private Fragment fragment;
-    private RecyclerView recyclerView;
     private AdapterTasks adapterTasks;
-    private List<Task> taskList = new ArrayList<>();
+    private List<Task> allTasks = new ArrayList<>();
+    private List<Task> filteredTasks = new ArrayList<>();
     private String t1, t2;
-    private static final int RC_SIGN_IN = 123;
-    private GoogleCalendarServiceSingleton calendarServiceSingleton; // Google Calendar service
-    private GoogleSignInClient mGoogleSignInClient;
+    private GoogleCalendarServiceSingleton calendarServiceSingleton;
+    private boolean tasksInitialized = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_daily_tasks);
-
-
-
 
         initComponents();
         selectedDate = LocalDate.now();
@@ -83,152 +57,108 @@ public class DailyTasks extends AppCompatActivity {
 
         calendarServiceSingleton = new GoogleCalendarServiceSingleton(this);
 
-        Button signInButton = findViewById(R.id.sign_in_button);
-        signInButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                GoogleSignInHelper signInHelper = new GoogleSignInHelper();
-                String clientId = signInHelper.getClientId(getResources());
-                Log.d(TAG, "Sign-in button clicked");
-
-                // Step 1: Initialize Google Sign-In Options
-                GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                       // .requestIdToken(clientId)  // Use the actual clientId here, not the string "clientId"
-                        .requestEmail()
-                        .requestScopes(new Scope("https://www.googleapis.com/auth/calendar"))
-                        .build();
-
-                mGoogleSignInClient = GoogleSignIn.getClient(DailyTasks.this, gso);
-
-                GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(DailyTasks.this);
-                //updateUI(account);
-                // Step 2: Start the Google Sign-In process
-                signInWithGoogle();
-            }
+        ImageButton menuButton = findViewById(R.id.menu_button);
+        menuButton.setOnClickListener(view -> {
+            PopupMenu popup = new PopupMenu(DailyTasks.this, view);
+            popup.inflate(R.menu.menu_options);
+            popup.setOnMenuItemClickListener(item -> {
+                switch (item.getItemId()) {
+                    case R.id.action_show_all:
+                        // Show all tasks
+                        filterTasks(TaskFilter.ALL);
+                        return true;
+                    case R.id.action_show_completed:
+                        // Show completed tasks
+                        filterTasks(TaskFilter.COMPLETED);
+                        return true;
+                    case R.id.action_show_pending:
+                        // Show pending tasks
+                        filterTasks(TaskFilter.PENDING);
+                        return true;
+                    default:
+                        return false;
+                }
+            });
+            popup.show();
         });
 
         fragment = TasksTab.newInstance(t1, t2, selectedDate);
-
         getSupportFragmentManager().beginTransaction().replace(R.id.tabFragment, fragment).commit();
 
-        pickDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                pickDate();
-                setMonthView();
-                int dayOfWeek = selectedDate.getDayOfWeek().getValue();
-                weekdays.getTabAt(dayOfWeek - 1).select();
-            }
+        pickDate.setOnClickListener(view -> {
+            pickDate();
+            setMonthView();
+            int dayOfWeek = selectedDate.getDayOfWeek().getValue();
+            weekdays.getTabAt(dayOfWeek - 1).select();
         });
     }
 
-    // Handle Google Sign-In
-    private void signInWithGoogle() {
-        // Step 3: Start the Google Sign-In process
-        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-        startActivityForResult(signInIntent, RC_SIGN_IN);
-
-
-    }
-
-    // Handle Sign-In Result
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == RC_SIGN_IN) {
-            com.google.android.gms.tasks.Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            handleSignInResult(task);
+    public void setAdapterTasks(AdapterTasks adapterTasks) {
+        this.adapterTasks = adapterTasks;
+        // Ensure allTasks is initially populated only once
+        if (!tasksInitialized && adapterTasks != null) {
+            allTasks = adapterTasks.getTasks();
+            tasksInitialized = true;
+            filterTasks(TaskFilter.PENDING); // Initial filter to show pending tasks
         }
     }
 
-    private void handleSignInResult(com.google.android.gms.tasks.Task<GoogleSignInAccount> completedTask) {
-        try {
-            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-            // Signed in successfully, you can now use the account information.
-            UserSessionManager.userSignedIn = true;
-            // Fetch and display calendar events without setting the API key.
-            fetchAndDisplayCalendarEvents();
-        } catch (ApiException e) {
-            // Handle sign-in failure (e.g., user canceled, network error, etc.)
-            Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
-            // You may want to show an error message to the user.
+    private void filterTasks(TaskFilter filter) {
+        TasksTab tasksTabFragment = (TasksTab) getSupportFragmentManager().findFragmentById(R.id.tabFragment);
+        if (tasksTabFragment != null) {
+            tasksTabFragment.refreshTasks(filter); // Trigger the API call to refresh tasks
         }
-    }
+        if (allTasks == null || allTasks.isEmpty()) {
+            Log.e(TAG, "Task list is empty or not initialized");
+            return;
+        }
 
-
-    // Fetch and display calendar events
-    private void fetchAndDisplayCalendarEvents() {
-        try {
-            // Fetch calendar events using the Google Calendar service
-            GoogleCalendarService calendarService = calendarServiceSingleton.getCalendarService();
-            if (calendarService.getIsInitialized() == false) {
-                Log.e(TAG, "Calendar service is not initialized");
-                return; // Return early if the service is not initialized
+        filteredTasks.clear();
+        for (Task task : allTasks) {
+            switch (filter) {
+                case ALL:
+                    filteredTasks.add(task);
+                    break;
+                case COMPLETED:
+                    if ("1".equals(task.getWorkInPlanDone())) {
+                        filteredTasks.add(task);
+                    }
+                    break;
+                case PENDING:
+                    if ("0".equals(task.getWorkInPlanDone())) {
+                        filteredTasks.add(task);
+                    }
+                    break;
             }
-            List<Event> events = null;
-            if (calendarService.getIsInitialized() == true){
-                Log.e(TAG, "Calendar service is initialized");
-                 events = calendarService.getCalendarEvents();
+        }
+
+        Log.d(TAG, "Filtered tasks count: " + filteredTasks.size());
+        if (filteredTasks.isEmpty()) {
+            Log.w(TAG, "No tasks found for the selected filter");
+        } else {
+            for (Task t : filteredTasks) {
+                Log.d(TAG, "Filtered task: " + t.toString());
             }
+        }
 
-
-            if (events != null) {
-                // Convert events to tasks and display them in your RecyclerView
-                List<Task> tasks = convertEventsToTasks(events);
-
-                // Update your RecyclerView adapter with the tasks
-                adapterTasks.updateTasks(tasks);
-            } else {
-                Log.e(TAG, "Failed to fetch calendar events: events list is null");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            Log.e(TAG, "Error fetching calendar events: " + e.getMessage(), e);
-
-            // Handle the error appropriately in your app
-            // Example: showToast("Error fetching calendar events. Please try again.");
+        if (adapterTasks != null) {
+            adapterTasks.updateTasks(filteredTasks);
         }
     }
 
-    // Convert Google Calendar events to Task objects
-    private List<Task> convertEventsToTasks(List<Event> events) {
-        List<Task> tasks = new ArrayList<>();
-        for (Event event : events) {
-            // Extract relevant information from the Google Calendar event
-            String taskName = event.getSummary();
-            DateTime startTime = event.getStart().getDateTime();
-            DateTime endTime = event.getEnd().getDateTime();
-            String taskDescription = event.getDescription();
-
-            // Transform the data to fit your Task constructor
-            int ID = 0; // Set an appropriate ID or leave it as 0
-            String workInPlanForCustomerName = ""; // Set the customer name if available
-            String workInPlanName = taskName;
-            String workInPlanNote = taskDescription != null ? taskDescription : ""; // Handle potential null description
-            Timestamp workInPlanTerm = new Timestamp(startTime.getValue()); // Convert DateTime to Timestamp
-            Timestamp workInPlanDone = new Timestamp(endTime.getValue()); // Convert DateTime to Timestamp
-
-            // Additional parameters for the Task constructor
-            String workInPlanForCustomerID = "0"; // Example value, replace with actual data if available
-            String workInPlanForCustomerOrder = ""; // Example value, replace with actual data if available
-            String workInPlanDoneBy = ""; // Example value, replace with actual data if available
-            String workInPlanReviewed = ""; // Example value, replace with actual data if available
-            String workInPlanDelayed = ""; // Example value, replace with actual data if available
-
-            // Create a Task object and add it to the list
-            //Task task = new Task(ID, workInPlanForCustomerName, workInPlanName, workInPlanNote, workInPlanTerm, workInPlanDone, workInPlanForCustomerID, workInPlanForCustomerOrder, workInPlanDoneBy, workInPlanReviewed);
-            //tasks.add(task);
-        }
-        return tasks;
+    enum TaskFilter {
+        ALL,
+        COMPLETED,
+        PENDING
     }
-
-
 
     private void initComponents() {
         pickDate = findViewById(R.id.pickDate);
         monthYearText = findViewById(R.id.monthYearTV);
         weekdays = findViewById(R.id.tab_layout);
+        String employeeName = UserSessionManager.getEmployeeName(this);
+        TextView employeeNameTV = findViewById(R.id.employeeNameTV);
+        employeeNameTV.setText(employeeName);
     }
 
     private void setMonthView() {
@@ -288,14 +218,10 @@ public class DailyTasks extends AppCompatActivity {
             }
 
             @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
+            public void onTabUnselected(TabLayout.Tab tab) {}
 
             @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
+            public void onTabReselected(TabLayout.Tab tab) {}
         });
     }
 
@@ -305,19 +231,13 @@ public class DailyTasks extends AppCompatActivity {
         int mDay = selectedDate.getDayOfMonth();
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(this,
-                new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year,
-                                          int monthOfYear, int dayOfMonth) {
-
-                        selectedDate = LocalDate.of(year, monthOfYear + 1, dayOfMonth);
-                        setMonthView();
-                        setTabDate(selectedDate);
-                        //getTimestamps();
-                        getSupportFragmentManager().beginTransaction().detach(fragment).commit();
-                        fragment = TasksTab.newInstance(t1, t2, selectedDate);
-                        getSupportFragmentManager().beginTransaction().replace(R.id.tabFragment, fragment).commit();
-                    }
+                (view, year, monthOfYear, dayOfMonth) -> {
+                    selectedDate = LocalDate.of(year, monthOfYear + 1, dayOfMonth);
+                    setMonthView();
+                    setTabDate(selectedDate);
+                    getSupportFragmentManager().beginTransaction().detach(fragment).commit();
+                    fragment = TasksTab.newInstance(t1, t2, selectedDate);
+                    getSupportFragmentManager().beginTransaction().replace(R.id.tabFragment, fragment).commit();
                 }, mYear, mMonth, mDay);
 
         datePickerDialog.show();

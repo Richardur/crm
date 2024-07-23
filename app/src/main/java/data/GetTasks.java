@@ -33,6 +33,7 @@ import network.api_request_model.ApiResponseWorkPlan;
 import network.api_request_model.ManagerReactionWorkInPlan;
 import network.api_request_model.ManagerWorkInPlan;
 import network.api_request_model.ManagerWorkInPlanDeserializer;
+import network.api_response.CRMWorkResponse;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
@@ -170,14 +171,24 @@ public class GetTasks {
             }
         });
     }
-
-    public static void connectApi(String login, String password, TasksTab.OnApiKeyRetrieved callback) {
+    public static void getActionsInfo(Context context, TasksTab.OnActionsInfoRetrieved callback){
+        String apiKey = UserSessionManager.getApiKey(context);
+        if (apiKey == null || apiKey.isEmpty()) {
+            Log.e("GetTasks", "API Key not found. Please login again.");
+            return;
+        }
+        String userId = UserSessionManager.getUserId(context);
+        if (userId == null || userId.isEmpty()) {
+            Log.e("GetTasks", "User ID not found. Please login again.");
+            return;
+        }
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
 
         Gson gson = new GsonBuilder()
                 .setDateFormat("yyyy-MM-dd HH:mm:ss")
+                .registerTypeAdapter(ManagerWorkInPlan.class, new ManagerWorkInPlanDeserializer())
                 .create();
 
         Retrofit retrofit = new Retrofit.Builder()
@@ -188,38 +199,36 @@ public class GetTasks {
 
         ApiService apiService = retrofit.create(ApiService.class);
 
-        Call<AuthResponse> authCall = apiService.authenticate(login, password);
-        authCall.enqueue(new Callback<AuthResponse>() {
+
+        Call<CRMWorkResponse> call = apiService.getActionDetails(userId, apiKey, "*",
+                "", "select", "", "1000", "");
+
+        call.enqueue(new Callback<CRMWorkResponse>() {
             @Override
-            public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
-                // Handle the authentication response
-                if (response.isSuccessful()) {
-                    AuthResponse authResponse = response.body();
-                    String userId = authResponse.getUserId();
-                    String apiKey = authResponse.getApiKey();
-                    System.out.println("User ID: " + userId);
-                    System.out.println("API Key: " + apiKey);
-                    String apiKey2 = generateApiKey(userId, "ricardas", apiKey);
-                    System.out.println("API Key2: " + apiKey2);
-                    apiKey3 = apiKey2;
+            public void onResponse(Call<CRMWorkResponse> call, Response<CRMWorkResponse> response) {
+                CRMWorkResponse crmWorkResponse = response.body();
+                if (crmWorkResponse != null && crmWorkResponse.isSuccess()) {
+                    CRMWorkResponse.Data data = crmWorkResponse.getData();
+                    if (data != null) {
 
-                    callback.onApiKeyReceived(apiKey2);
-
-                    Log.d("Callback", "API Key Received Callback Invoked");
-
+                        callback.getResult(crmWorkResponse); // Notify the caller that the action data is available
+                    }
                 } else {
-                    // Put into terminal the error message
-                    System.out.println(response.errorBody());
+                    Log.d("Action log", "Action Request Failed - Response not successful");
                 }
             }
 
             @Override
-            public void onFailure(Call<AuthResponse> call, Throwable t) {
+            public void onFailure(Call<CRMWorkResponse> call, Throwable t) {
+                Log.d("Action log", "Action Request Failed");
+                Log.d("Action log", "Error: " + t.getMessage());
 
             }
         });
+        }
 
-    }
+
+
     public static void getWorkPlan(Context context, String t1, String t2, TasksTab.OnTasksRetrieved callback) {
 
         String apiKey = UserSessionManager.getApiKey(context);

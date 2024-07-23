@@ -3,8 +3,6 @@ package network;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.aiva.aivacrm.home.LoginActivity;
-
 import model.Employe;
 
 public class UserSessionManager {
@@ -45,7 +43,7 @@ public class UserSessionManager {
     public static void saveEmployeeDetails(Context context, Employe employee) {
         init(context);
         editor.putString(KEY_EMPLOYEE_ID, String.valueOf(employee.getEmployeID()));
-        editor.putString(KEY_EMPLOYEE_NAME, employee.getEmployeName() + " " + employee.getEmployeSurname());
+        editor.putString(KEY_EMPLOYEE_NAME, employee.getEmployeName() + " " + employee.getEmploeerSurname());
         editor.commit(); // Commit the changes to save them
     }
 

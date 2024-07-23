@@ -4,6 +4,7 @@ import model.Employe;
 import network.api_request_model.ApiResponseGetCustomer;
 import network.api_request_model.ApiResponseReactionPlan;
 import network.api_request_model.ApiResponseWorkPlan;
+import network.api_response.CRMWorkResponse;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.Field;
@@ -15,6 +16,17 @@ public interface ApiService {
     @POST("login")
     @FormUrlEncoded
     Call<AuthResponse> authenticate(@Field("login") String login, @Field("password") String password);
+
+    @POST("CRMWorkList")
+    @FormUrlEncoded
+    Call<CRMWorkResponse> getActionDetails(@Field("userId") String userId,
+                                           @Field("apiKey") String apiKey,
+                                           @Field("getInfoType") String getInfoType,
+                                           @Field("language") String language,
+                                           @Field("action") String action,
+                                           @Field("where") String where,
+                                           @Field("limit") String limit,
+                                           @Field("orderBy") String orderBy);
 
     @POST("zinynai_employe")
     @FormUrlEncoded

@@ -3,7 +3,7 @@
     public class Employe {
         private int employeID;
         private String employeName;
-        private String employeSurname;
+        private String emploeerSurname;
         private String employeCode;
         private String employeBornDate;
         private String employeLoginUser;
@@ -32,12 +32,12 @@
             this.employeName = employeName;
         }
 
-        public String getEmployeSurname() {
-            return employeSurname;
+        public String getEmploeerSurname() {
+            return emploeerSurname;
         }
 
-        public void setEmployeSurname(String employeSurname) {
-            this.employeSurname = employeSurname;
+        public void setEmploeerSurname(String emploeerSurname) {
+            this.emploeerSurname = emploeerSurname;
         }
 
         public String getEmployeCode() {
