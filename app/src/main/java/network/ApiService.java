@@ -1,5 +1,6 @@
 package network;
 
+import model.Employe;
 import network.api_request_model.ApiResponseGetCustomer;
 import network.api_request_model.ApiResponseReactionPlan;
 import network.api_request_model.ApiResponseWorkPlan;
@@ -15,18 +16,19 @@ public interface ApiService {
     @FormUrlEncoded
     Call<AuthResponse> authenticate(@Field("login") String login, @Field("password") String password);
 
-
-  /*  @POST("managerWorkInPlan")
+    @POST("zinynai_employe")
     @FormUrlEncoded
-    Call<ApiResponseWorkPlan> getWorkPlanList(@Field("userId") String userId,
-                                              @Field("apiKey") String apiKey,
-                                              @Field("getInfoType") String getInfoType,
-                                              @Field("language") String language,
-                                              @Field("action") String action,
-                                              @Field("where") String where,
-                                              @Field("limit") String limit,
-                                              @Field("orderBy") String orderBy);
-*/
+    Call<EmployeResponse> getEmployeeDetails(@Field("userId") String userId,
+                                     @Field("apiKey") String apiKey,
+                                     @Field("getInfoType") String getInfoType,
+                                     @Field("language") String language,
+                                     @Field("action") String action,
+                                     @Field("where") String where,
+                                     @Field("limit") String limit,
+                                     @Field("orderBy") String orderBy);
+
+
+
     @POST("managerReactionInPlan")
     @FormUrlEncoded
     Call<ApiResponseReactionPlan> getReactionPlanList(@Field("userId") String userId,
@@ -63,7 +65,15 @@ public interface ApiService {
   );
 
     @POST("managerReactionInPlan")
-    Call<ApiResponseUpdate> updateManagerReaction(@Body ManagerReactionUpdateRequest request);
+    @FormUrlEncoded
+    Call<ApiResponseUpdate> updateManagerReaction(
+            @Field("userId") String userId,
+            @Field("apiKey") String apiKey,
+            @Field("action") String action,
+            @Field("languageCode") String languageCode,
+            @Field("ManagerReactionInPlanHeaderReg") String managerReactionInPlanHeaderReg,
+            @Field("ManagerReactionWorkReg") String managerReactionWorkReg
+    );
 
 
     @POST("customer")
@@ -88,17 +98,27 @@ public interface ApiService {
                                @Field("orderBy") String orderBy);
 
 
-    @PUT("customerReg")
+    @POST("customer")
     @FormUrlEncoded
-    Call<ApiResponseWorkPlan> editCustomer(
-            @Field("apiKey") String apiKey,
+    Call<ApiResponseUpdate> updateCustomer(
             @Field("userId") String userId,
-            @Field("language") String language,
-            @Field("putType") String putType,
-            @Field("limit") String limit,
-            @Field("id") String id,
-            @Field("customerName") String customerName, // Add other fields as needed
-            @Field("customerCode") String customerCode);
+            @Field("apiKey") String apiKey,
+            @Field("action") String action,
+            @Field("languageCode") String languageCode,
+            @Field("customerID") String customerId,
+            @Field("customerName") String customerName,
+            @Field("customerCode") String customerCode,
+            @Field("customerVAT") String customerVAT,
+            @Field("customerType") String customerType,
+            @Field("customerActive") String customerActive,
+            @Field("customerAdressCity") String customerAdressCity,
+            @Field("customerAdressStreet") String customerAdressStreet,
+            @Field("customerAdressHouse") String customerAdressHouse,
+            @Field("customerAdressPostIndex") String customerAdressPostIndex,
+            @Field("customerWWW") String customerWWW,
+            @Field("CustomerContactPersons") String customerContactPersons // JSON string of contact persons
+    );
 
 
+    Call<ApiResponseUpdate> updateCustomer(String userId, String apiKey, String action, String languageCode, Object customer);
 }

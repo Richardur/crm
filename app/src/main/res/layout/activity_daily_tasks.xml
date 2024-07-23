@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main_content"
@@ -7,8 +6,6 @@
     android:background="@android:color/white"
     android:fitsSystemWindows="true"
     android:orientation="vertical">
-
-
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
@@ -19,9 +16,11 @@
         app:elevation="0dp">
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="20dp"
-            >
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="10dp">
+
             <Button
                 android:id="@+id/pickDate"
                 android:layout_width="70dp"
@@ -30,120 +29,58 @@
                 android:background="@drawable/ic_baseline_calendar_today_24"
                 android:gravity="right"
                 android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/monthYearTV"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+                android:textColor="@color/grey_60"
                 android:textStyle="bold"
-                 />
-                <TextView
-                    android:id="@+id/monthYearTV"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="2"
-                    android:layout_marginEnd="5dp"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-                    android:textColor="@color/grey_60"
-                    android:textStyle="bold"
-                    android:textSize="24sp"
-                    android:gravity="center"
-                     />
+                android:textSize="24sp"
+                android:gravity="center" />
 
-
-
-                <Button
-                    android:id="@+id/sign_in_button"
-                    android:layout_width="62dp"
-                    android:layout_height="60dp"
-                    android:layout_marginEnd="4dp"
-                    android:layout_marginTop="8dp"
-                    android:background="@drawable/ic_baseline_menu_24"
-                    android:gravity="right"
-                    android:textSize="22sp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.466" />
-
+            <ImageButton
+                android:id="@+id/menu_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackground"
+                android:src="@drawable/ic_baseline_menu_24"
+                app:popupMenu="@menu/menu_options" />
         </LinearLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tab_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_medium"
+        android:background="@android:color/transparent"
+        app:tabBackground="@android:color/transparent"
+        app:tabGravity="fill"
+        app:tabIndicator="@drawable/shape_round_corner"
+        app:tabIndicatorColor="@color/red_A200"
+        app:tabIndicatorFullWidth="false"
+        app:tabIndicatorGravity="top"
+        app:tabIndicatorHeight="@dimen/spacing_medium"
+        app:tabMode="scrollable"
+        app:tabRippleColor="@android:color/transparent"
+        app:tabSelectedTextColor="@color/red_A200"
+        app:tabTextAppearance="@style/TextAppearance.AppCompat.Subhead"
+        app:tabTextColor="@color/grey_40">
 
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tab_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_medium"
-            android:background="@android:color/transparent"
-            app:tabBackground="@android:color/transparent"
-            app:tabGravity="fill"
-            app:tabIndicator="@drawable/shape_round_corner"
-            app:tabIndicatorColor="@color/red_A200"
-            app:tabIndicatorFullWidth="false"
-            app:tabIndicatorGravity="top"
-            app:tabIndicatorHeight="@dimen/spacing_medium"
-            app:tabMode="scrollable"
-            app:tabRippleColor="@android:color/transparent"
-            app:tabSelectedTextColor="@color/red_A200"
-            app:tabTextAppearance="@style/TextAppearance.AppCompat.Subhead"
-            app:tabTextColor="@color/grey_40">
-
-            <com.google.android.material.tabs.TabItem
-                android:id="@+id/tab_2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:text="@string/day1" />
-
-            <com.google.android.material.tabs.TabItem
-                android:id="@+id/tab_3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:text="@string/day2"/>
-
-            <com.google.android.material.tabs.TabItem
-                android:id="@+id/tab_4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:text="@string/day3"/>
-
-            <com.google.android.material.tabs.TabItem
-                android:id="@+id/tab_5"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:text="@string/day4"/>
-
-            <com.google.android.material.tabs.TabItem
-                android:id="@+id/tab_7"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:text="@string/day5"/>
-
-            <com.google.android.material.tabs.TabItem
-                android:id="@+id/tab_8"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:text="@string/day6" />
-
-            <com.google.android.material.tabs.TabItem
-                android:id="@+id/tab_9"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:text="@string/day7" />
-
-        </com.google.android.material.tabs.TabLayout>
+        <!-- Define TabItems here -->
+    </com.google.android.material.tabs.TabLayout>
 
     <FrameLayout
+        android:id="@+id/tabFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/tabFragment">
-
-    <androidx.viewpager2.widget.ViewPager2
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/view_pager2" />
+        android:layout_height="match_parent">
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/view_pager2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
     </FrameLayout>
-        </LinearLayout>
+</LinearLayout>

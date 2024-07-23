@@ -8,21 +8,19 @@
     android:orientation="vertical">
 
     <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/app_bar"
+        android:id="@+id/app_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
+        android:theme="@style/Theme.AivaCRM.AppBarOverlay">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fitsSystemWindows="true"
-            android:theme="@style/Theme.AivaCRM.AppBarOverlay">
-
-
-                <androidx.appcompat.widget.Toolbar
-                    android:id="@+id/toolbar"
-                    android:layout_width="match_parent"
-                    android:layout_height="?attr/actionBarSize"
-                    app:layout_collapseMode="pin"
-                    app:popupTheme="@style/Theme.AivaCRM.PopupOverlay" />
-
-        </com.google.android.material.appbar.AppBarLayout>
+            android:layout_height="?attr/actionBarSize"
+            app:layout_collapseMode="pin"
+            app:popupTheme="@style/Theme.AivaCRM.PopupOverlay" />
+    </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nested_content"
@@ -40,22 +38,22 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/client_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_large"
                 android:text="@string/customer"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
-                android:textColor="@color/purple_500"
-                android:id="@+id/client_name" />
+                android:textColor="@color/purple_500" />
 
-            <TextView
+            <Spinner
+                android:id="@+id/contact_person_spinner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/subject"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
-                android:textColor="@color/blue_grey_600"
-                android:id="@+id/subject" />
-
+                android:gravity="center"
+                android:padding="8dp"
+                android:textSize="16sp"
+                android:textColor="@android:color/black" />
 
 
             <LinearLayout
@@ -65,47 +63,42 @@
                 android:gravity="center"
                 android:orientation="horizontal">
 
-
                 <ImageButton
+                    android:id="@+id/call_button"
                     android:layout_width="?android:attr/actionBarSize"
                     android:layout_height="?android:attr/actionBarSize"
                     android:layout_margin="@dimen/spacing_middle"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_call"
-                    android:id="@+id/call_button"
-                    app:tint="@color/yellow_A700"
-
-                    />
+                    app:tint="@color/yellow_A700" />
 
                 <ImageButton
+                    android:id="@+id/email_button"
                     android:layout_width="?android:attr/actionBarSize"
                     android:layout_height="?android:attr/actionBarSize"
                     android:layout_margin="@dimen/spacing_middle"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     app:srcCompat="@drawable/ic_email"
-                    android:id="@+id/email_button"
                     app:tint="@color/yellow_A700" />
 
                 <ImageButton
+                    android:id="@+id/map_button"
                     android:layout_width="?android:attr/actionBarSize"
                     android:layout_height="?android:attr/actionBarSize"
                     android:layout_margin="@dimen/spacing_middle"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_navigation"
-                    android:id="@+id/map_button"
-                    app:tint="@color/yellow_A700"
-
-                    />
+                    app:tint="@color/yellow_A700" />
 
             </LinearLayout>
 
             <TextView
+                android:id="@+id/action"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/action"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
-                android:textColor="@color/purple_500"
-                android:id="@+id/action"/>
+                android:textColor="@color/purple_500" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -135,10 +128,10 @@
                         android:orientation="vertical">
 
                         <TextView
+                            android:id="@+id/status_title"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/status"
-                            android:id="@+id/status_title"
                             android:textAppearance="@style/TextAppearance.AppCompat.Title"
                             android:textColor="@color/purple_500" />
 
@@ -151,22 +144,14 @@
                             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                             android:textColor="@color/grey_60" />
 
-
                         <CheckBox
                             android:id="@+id/status_checkbox"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:scaleX="1.4"
                             android:scaleY="1.4"
-                            android:buttonTint="@color/yellow_A700"/>
-
+                            android:buttonTint="@color/yellow_A700" />
                     </LinearLayout>
-
-
-
-
-
-
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -187,25 +172,21 @@
                             android:textColor="@color/purple_500" />
 
                         <TextView
+                            android:id="@+id/due_date"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/spacing_xsmall"
-                            android:id="@+id/due_date"
                             android:text="2023-01-01 00:00"
                             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                             android:textColor="@color/grey_60" />
-
                     </LinearLayout>
-
                 </LinearLayout>
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="@color/grey_10" />
-
             </LinearLayout>
-
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -219,44 +200,40 @@
                     android:layout_height="wrap_content"
                     android:text="@string/comment"
                     android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                    android:textColor="@color/purple_500"
-                     />
+                    android:textColor="@color/purple_500" />
 
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/comment_layout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:visibility="gone"
-                    android:id="@+id/comment_layout"
-                    app:boxBackgroundColor="@color/grey_50"
-                    >
+                    app:boxBackgroundColor="@color/grey_50">
 
                     <androidx.appcompat.widget.AppCompatEditText
+                        android:id="@+id/edit_comment"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/spacing_small"
                         android:layout_marginLeft="@dimen/spacing_xlarge"
                         android:layout_marginRight="@dimen/spacing_xlarge"
-                        android:id="@+id/edit_comment"
                         android:paddingTop="@dimen/spacing_medium"
                         android:paddingBottom="@dimen/spacing_medium"
-                        android:lineSpacingExtra="2dp"
-                        />
-
+                        android:lineSpacingExtra="2dp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/spacing_xlarge"
-                android:layout_marginRight="@dimen/spacing_xlarge"
-                android:layout_marginTop="@dimen/spacing_small"
-                android:gravity="center"
-                android:lineSpacingExtra="2dp"
-                android:text="@string/sample_paragraph"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
-                android:textColor="@color/grey_90"
-                android:id="@+id/comment"/>
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/comment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/spacing_xlarge"
+                    android:layout_marginRight="@dimen/spacing_xlarge"
+                    android:layout_marginTop="@dimen/spacing_small"
+                    android:gravity="center"
+                    android:lineSpacingExtra="2dp"
+                    android:text="@string/sample_paragraph"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                    android:textColor="@color/grey_90" />
+            </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
@@ -287,23 +264,20 @@
                         android:textStyle="bold" />
 
                     <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/phone_layout"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:visibility="gone"
-                        android:id="@+id/phone_layout"
-                        app:boxBackgroundColor="@color/grey_50"
-                        >
+                        app:boxBackgroundColor="@color/grey_50">
 
                         <androidx.appcompat.widget.AppCompatEditText
+                            android:id="@+id/edit_phone"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/spacing_small"
                             android:inputType="phone"
-                            android:id="@+id/edit_phone"
                             android:paddingTop="@dimen/spacing_medium"
-                            android:paddingBottom="@dimen/spacing_medium"
-                            />
-
+                            android:paddingBottom="@dimen/spacing_medium" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <TextView
@@ -314,8 +288,7 @@
                         android:text="@string/phone"
                         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                         android:textColor="@color/grey_60"
-                        android:visibility="visible"/>
-
+                        android:visibility="visible" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -333,24 +306,22 @@
                         android:textStyle="bold" />
 
                     <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/email_layout"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:visibility="gone"
-                        android:id="@+id/email_layout"
                         app:boxBackgroundColor="@color/grey_50">
 
-
                         <androidx.appcompat.widget.AppCompatEditText
+                            android:id="@+id/edit_email"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/spacing_small"
                             android:inputType="textEmailAddress"
-                            android:id="@+id/edit_email"
                             android:paddingTop="@dimen/spacing_medium"
-                            android:paddingBottom="@dimen/spacing_medium"
-                            />
-
+                            android:paddingBottom="@dimen/spacing_medium" />
                     </com.google.android.material.textfield.TextInputLayout>
+
                     <TextView
                         android:id="@+id/email"
                         android:layout_width="wrap_content"
@@ -359,11 +330,8 @@
                         android:text="@string/email"
                         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                         android:textColor="@color/grey_60" />
-
                 </LinearLayout>
-
             </LinearLayout>
-
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -388,23 +356,22 @@
                         android:textStyle="bold" />
 
                     <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/website_layout"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:visibility="gone"
-                        android:id="@+id/website_layout"
                         app:boxBackgroundColor="@color/grey_50">
 
-
-                    <androidx.appcompat.widget.AppCompatEditText
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_small"
-                        android:id="@+id/edit_website"
-                        android:inputType="textUri"
-                        android:paddingTop="@dimen/spacing_medium"
-                        android:paddingBottom="@dimen/spacing_medium"
-                        />
+                        <androidx.appcompat.widget.AppCompatEditText
+                            android:id="@+id/edit_website"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_small"
+                            android:inputType="textUri"
+                            android:paddingTop="@dimen/spacing_medium"
+                            android:paddingBottom="@dimen/spacing_medium" />
                     </com.google.android.material.textfield.TextInputLayout>
+
                     <TextView
                         android:id="@+id/website"
                         android:layout_width="wrap_content"
@@ -413,7 +380,6 @@
                         android:text="@string/website"
                         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                         android:textColor="@color/grey_60" />
-
                 </LinearLayout>
 
                 <LinearLayout
@@ -431,22 +397,19 @@
                         android:textStyle="bold" />
 
                     <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/address_layout"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:visibility="gone"
-                        android:id="@+id/address_layout"
                         app:boxBackgroundColor="@color/grey_50">
 
-
                         <androidx.appcompat.widget.AppCompatEditText
+                            android:id="@+id/edit_address"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/spacing_small"
-                            android:id="@+id/edit_address"
                             android:paddingTop="@dimen/spacing_medium"
-                            android:paddingBottom="@dimen/spacing_medium"
-                            />
-
+                            android:paddingBottom="@dimen/spacing_medium" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <TextView
@@ -457,9 +420,7 @@
                         android:text="@string/address"
                         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                         android:textColor="@color/grey_60" />
-
                 </LinearLayout>
-
             </LinearLayout>
 
             <View
@@ -474,8 +435,7 @@
                 android:layout_marginLeft="@dimen/spacing_xlarge"
                 android:layout_marginRight="@dimen/spacing_xlarge"
                 android:layout_marginTop="@dimen/spacing_large"
-                android:orientation="horizontal"
-                >
+                android:orientation="horizontal">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -502,17 +462,13 @@
                         android:text="@string/order"
                         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                         android:textColor="@color/grey_60" />
-
                 </LinearLayout>
-
             </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/spacing_xxlarge" />
-
         </LinearLayout>
-
     </androidx.core.widget.NestedScrollView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -526,7 +482,7 @@
         app:fabSize="normal"
         app:srcCompat="@drawable/ic_edit"
         app:tint="@android:color/white"
-        app:maxImageSize="36dp"/>
+        app:maxImageSize="36dp" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/save_button"
@@ -540,7 +496,8 @@
         app:fabSize="normal"
         app:srcCompat="@drawable/ic_done"
         app:tint="@android:color/white"
-        app:maxImageSize="36dp"/>
+        app:maxImageSize="36dp" />
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/cancel_button"
         android:visibility="gone"
@@ -553,8 +510,6 @@
         app:fabSize="normal"
         app:srcCompat="@drawable/ic_close"
         app:tint="@android:color/white"
-        app:maxImageSize="36dp"/>
-
-
+        app:maxImageSize="36dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

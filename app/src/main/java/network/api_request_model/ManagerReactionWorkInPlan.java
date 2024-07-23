@@ -20,18 +20,18 @@ public class ManagerReactionWorkInPlan {
         private List<ManagerReactionInPlanHeader> managerReactionInPlanHeaderList;
     }
 
-    public class ManagerReactionInPlanHeader {
+    public static class ManagerReactionInPlanHeader {
         @SerializedName("reactionHeaderID")
-        private Integer reactionHeaderID;
+        private String reactionHeaderID;
 
         @SerializedName("reactionManagerID")
-        private Integer reactionManagerID;
+        private String reactionManagerID;
 
         @SerializedName("reactionManageName")
         private String reactionManageName;
 
         @SerializedName("reactionForCustomerID")
-        private Integer reactionForCustomerID;
+        private String reactionForCustomerID;
 
         @SerializedName("reactionForCustomerName")
         private String reactionForCustomerName;
@@ -57,19 +57,19 @@ public class ManagerReactionWorkInPlan {
         // Getters and Setters
 
 
-        public Integer getReactionHeaderID() {
+        public String getReactionHeaderID() {
             return reactionHeaderID;
         }
 
-        public void setReactionHeaderID(Integer reactionHeaderID) {
+        public void setReactionHeaderID(String reactionHeaderID) {
             this.reactionHeaderID = reactionHeaderID;
         }
 
-        public Integer getReactionManagerID() {
+        public String getReactionManagerID() {
             return reactionManagerID;
         }
 
-        public void setReactionManagerID(Integer reactionManagerID) {
+        public void setReactionManagerID(String reactionManagerID) {
             this.reactionManagerID = reactionManagerID;
         }
 
@@ -81,11 +81,11 @@ public class ManagerReactionWorkInPlan {
             this.reactionManageName = reactionManageName;
         }
 
-        public Integer getReactionForCustomerID() {
+        public String getReactionForCustomerID() {
             return reactionForCustomerID;
         }
 
-        public void setReactionForCustomerID(Integer reactionForCustomerID) {
+        public void setReactionForCustomerID(String reactionForCustomerID) {
             this.reactionForCustomerID = reactionForCustomerID;
         }
 
@@ -147,7 +147,7 @@ public class ManagerReactionWorkInPlan {
     }
 
 
-    public class ManagerReactionWork{
+    public static class ManagerReactionWork{
         @SerializedName("reactionWorkID")
         private Integer reactionWorkID;
 
@@ -171,6 +171,29 @@ public class ManagerReactionWorkInPlan {
 
         @SerializedName("reactionWorkDone")
         private String reactionWorkDone; // Same as above
+
+        public void setReactionWorkID(Integer reactionWorkID) {
+            this.reactionWorkID = reactionWorkID;
+        }
+
+        public void setReactionWorkManagerID(Integer reactionWorkManagerID) {
+            this.reactionWorkManagerID = reactionWorkManagerID;
+        }
+
+        public String getReactionWorkDoneDate() {
+            return reactionWorkDoneDate;
+        }
+
+        public void setReactionWorkDoneDate(String reactionWorkDoneDate) {
+            this.reactionWorkDoneDate = reactionWorkDoneDate;
+        }
+
+        public void setReactionWorkActionID(Integer reactionWorkActionID) {
+            this.reactionWorkActionID = reactionWorkActionID;
+        }
+
+        @SerializedName("reactionWorkDoneDate")
+        private String reactionWorkDoneDate; // Same as above
 
         @SerializedName("reactionWorkStarted")
         private String reactionWorkStarted; // Same as above
@@ -217,16 +240,16 @@ public class ManagerReactionWorkInPlan {
             return reactionWorkID;
         }
 
-        public void setReactionWorkID(Integer reactionWorkID) {
-            this.reactionWorkID = reactionWorkID;
+        public void setReactionWorkID(String reactionWorkID) {
+            this.reactionWorkID = Integer.valueOf(reactionWorkID);
         }
 
         public Integer getReactionWorkManagerID() {
             return reactionWorkManagerID;
         }
 
-        public void setReactionWorkManagerID(Integer reactionWorkManagerID) {
-            this.reactionWorkManagerID = reactionWorkManagerID;
+        public void setReactionWorkManagerID(String reactionWorkManagerID) {
+            this.reactionWorkManagerID = Integer.valueOf(reactionWorkManagerID);
         }
 
         public String getReactionWorkManageName() {
@@ -337,8 +360,8 @@ public class ManagerReactionWorkInPlan {
             return reactionWorkActionID;
         }
 
-        public void setReactionWorkActionID(Integer reactionWorkActionID) {
-            this.reactionWorkActionID = reactionWorkActionID;
+        public void setReactionWorkActionID(String reactionWorkActionID) {
+            this.reactionWorkActionID = Integer.valueOf(reactionWorkActionID);
         }
 
         public String getReactionWorkActionName() {

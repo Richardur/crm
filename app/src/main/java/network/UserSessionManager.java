@@ -3,6 +3,10 @@ package network;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.aiva.aivacrm.home.LoginActivity;
+
+import model.Employe;
+
 public class UserSessionManager {
     public static boolean userSignedIn = false;
 
@@ -10,6 +14,8 @@ public class UserSessionManager {
     private static final String KEY_API_KEY = "apiKey";
     private static final String KEY_USERNAME = "username";
     private static final String KEY_USER_ID = "userId";
+    private static final String KEY_EMPLOYEE_ID = "employeeId";
+    private static final String KEY_EMPLOYEE_NAME = "employeeName";
 
     private static SharedPreferences sharedPreferences;
     private static SharedPreferences.Editor editor;
@@ -36,6 +42,13 @@ public class UserSessionManager {
         editor.putString(KEY_USER_ID, userId);
         editor.commit(); // Use commit to ensure the data is saved immediately
     }
+    public static void saveEmployeeDetails(Context context, Employe employee) {
+        init(context);
+        editor.putString(KEY_EMPLOYEE_ID, String.valueOf(employee.getEmployeID()));
+        editor.putString(KEY_EMPLOYEE_NAME, employee.getEmployeName() + " " + employee.getEmployeSurname());
+        editor.commit(); // Commit the changes to save them
+    }
+
 
     public static String getApiKey(Context context) {
         init(context);
@@ -49,4 +62,16 @@ public class UserSessionManager {
         init(context);
         return sharedPreferences.getString(KEY_USER_ID, null);
     }
+    public static String getEmployeeId(Context context) {
+        init(context);
+        return sharedPreferences.getString(KEY_EMPLOYEE_ID, null);
+    }
+    public static String getEmployeeName(Context context) {
+        init(context);
+        return sharedPreferences.getString(KEY_EMPLOYEE_NAME, null);
+    }
+
+
+
+
 }

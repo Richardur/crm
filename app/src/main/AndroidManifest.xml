@@ -17,7 +17,7 @@
         android:theme="@style/Theme.AivaCRM"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".home.TaskInfo"
+            android:name=".home.TaskInfoActivity"
             android:exported="false"
             android:label="@string/title_activity_task_info"
             android:theme="@style/Theme.AivaCRM.NoActionBar">

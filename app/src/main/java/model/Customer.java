@@ -127,15 +127,14 @@ public class Customer {
     @SerializedName("customerCreateDate")
     private String customerCreateDate;
 
-    @SerializedName("CustomerContactPersonList")
+    @SerializedName("CustomerContactPerson") // Correct field name as per the JSON response
     private List<CustomerContactPerson> customerContactPersons;
 
     @SerializedName("CustomerInfoForSales")
     private List<CustomerInfoForSales> customerInfoForSales;
 
+
     // Getter and setter methods for each field
-
-
     public String getCustomerID() {
         return customerID;
     }
@@ -481,6 +480,11 @@ public class Customer {
     }
 
     public static class CustomerContactPerson {
+
+        public boolean isRepresentative() {
+            return contactPersonType != null && (contactPersonType.charAt(2) == '1');
+        }
+
         @SerializedName("contactPersonType")
         private String contactPersonType;
 
@@ -518,7 +522,6 @@ public class Customer {
         private String contactPersonPriority;
 
         // Getter and setter methods for each field
-
         public String getContactPersonType() {
             return contactPersonType;
         }
@@ -693,7 +696,6 @@ public class Customer {
         private String customerCreditContractInfo;
 
         // Getter and setter methods for each field
-
         public String getCustomerResolution() {
             return customerResolution;
         }
@@ -826,7 +828,8 @@ public class Customer {
             return customerCreditContractCorrespBankAccountNo;
         }
 
-        public void setCustomerCreditContractCorrespBankAccountNo(String customerCreditContractCorrespBankAccountNo) {
+        public void setCustomerCreditContractCorrespBankAccountNo(String customerCreditContractCorrespBankAccountNo
+        ) {
             this.customerCreditContractCorrespBankAccountNo = customerCreditContractCorrespBankAccountNo;
         }
 

@@ -11,38 +11,23 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.aiva.aivacrm.R;
-import com.aiva.aivacrm.home.TasksTab;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 
-import okhttp3.internal.concurrent.Task;
+import model.Task;
 
 public class AdapterTasks extends RecyclerView.Adapter<AdapterTasks.ViewHolder> {
 
     private Context context;
-    private static List<model.Task> taskList;
+    private List<Task> taskList;
     private OnTaskItemClickListener listener;
 
-    private OnTaskItemClickListener onTaskItemClickListener;
-
-    public void setOnTaskItemClickListener(OnTaskItemClickListener onTaskItemClickListener) {
-        this.onTaskItemClickListener = onTaskItemClickListener;
-    }
-
-    private boolean isCheckboxAction = false;
-
-    public void setCheckboxAction(boolean checkboxAction) {
-        isCheckboxAction = checkboxAction;
-    }
-
-
-    public AdapterTasks(Context context, List<model.Task> taskList, OnTaskItemClickListener listener) {
+    public AdapterTasks(Context context, List<Task> taskList, OnTaskItemClickListener listener) {
         this.context = context;
         this.taskList = taskList;
         this.listener = listener;
-
     }
 
     @NonNull
@@ -54,21 +39,32 @@ public class AdapterTasks extends RecyclerView.Adapter<AdapterTasks.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        model.Task task = taskList.get(position);
+        Task task = taskList.get(position);
         holder.bind(task, listener);
     }
-    // Method to set the new data
-    public void setTaskList(List<model.Task> newTaskList) {
-        taskList.clear(); // Clear the existing data
-        taskList.addAll(newTaskList); // Add the new data
-        notifyDataSetChanged(); // Notify the adapter of the data change
-    }
+
     @Override
     public int getItemCount() {
         return taskList.size();
     }
 
+    // Method to set the new data
+    public void setTaskList(List<Task> newTaskList) {
+        taskList.clear(); // Clear the existing data
+        taskList.addAll(newTaskList); // Add the new data
+        notifyDataSetChanged(); // Notify the adapter of the data change
+    }
 
+    public void updateTasks(List<Task> newTaskList) {
+        taskList.clear();
+        taskList.addAll(newTaskList);
+        notifyDataSetChanged();
+    }
+
+    public void setItems(List<Task> items) {
+        setTaskList(items);
+        notifyDataSetChanged(); // Notify the adapter that the data has changed
+    }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -88,10 +84,11 @@ public class AdapterTasks extends RecyclerView.Adapter<AdapterTasks.ViewHolder> 
             workInPlanDone = itemView.findViewById(R.id.atlikta);
         }
 
-        public void bind(final model.Task task, final OnTaskItemClickListener listener) {
-            workInPlanForCutomerName.setText(task.getWorkInPlanForCutomerName());
+        public void bind(final Task task, final OnTaskItemClickListener listener) {
+            workInPlanForCutomerName.setText(task.getWorkInPlanForCustomerName());
             workInPlanName.setText(task.getWorkInPlanName());
             workInPlanNote.setText(task.getWorkInPlanNote());
+
             java.util.Date date = new java.util.Date(task.getWorkInPlanTerm().getTime());
             LocalDateTime localDateTime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
             int hours = localDateTime.getHour();
@@ -104,41 +101,26 @@ public class AdapterTasks extends RecyclerView.Adapter<AdapterTasks.ViewHolder> 
 
             workInPlanTerm1.setText(hoursString);
             workInPlanTerm2.setText(minutesString);
+
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d("AdapterTasks", "Task clicked for task ID: " + task.getID());
+                    Log.d("AdapterTasks", "Task clicked for task ID: " + task.getWorkInPlanID());
                     listener.onTaskItemClick(task);
                 }
             });
+
             workInPlanDone.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d("AdapterTasks", "Checkbox clicked for task ID: " + task.getID());
-
+                    Log.d("AdapterTasks", "Checkbox clicked for task ID: " + task.getWorkInPlanID());
+                    // Checkbox click handling code, if any
                 }
             });
         }
     }
-    public void updateTasks(List<model.Task> newTaskList) {
-        // Clear the existing task list
-        taskList.clear();
-
-        // Add the new tasks to the task list
-        taskList.addAll(newTaskList);
-
-        // Notify the adapter that the data has changed
-        notifyDataSetChanged();
-    }
-
-    public void setItems(List<model.Task> items) {
-        setTaskList(items);
-        notifyDataSetChanged(); // Notify the adapter that the data has changed
-    }
 
     public interface OnTaskItemClickListener {
-        void onTaskItemClick(model.Task task);
+        void onTaskItemClick(Task task);
     }
-
 }
-

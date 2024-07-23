@@ -3,7 +3,8 @@ package data;
 import android.content.Context;
 import android.util.Log;
 
-import com.aiva.aivacrm.home.TaskInfo;
+import com.aiva.aivacrm.home.TaskInfoActivity;
+import com.aiva.aivacrm.home.TaskInfoActivity;
 import com.aiva.aivacrm.home.TasksTab;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -43,7 +44,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class GetTasks {
     static String apiKey3;
 
-   public static void getCustomer(Context context, String CustomerID, TaskInfo.OnCustomerRetrieved callback) {
+   public static void getCustomer(Context context, String CustomerID, TaskInfoActivity.OnCustomerRetrieved callback) {
        String apiKey = UserSessionManager.getApiKey(context);
        if (apiKey == null || apiKey.isEmpty()) {
            Log.e("GetTasks", "API Key not found. Please login again.");
@@ -140,16 +141,7 @@ public class GetTasks {
         String limit = "100"; // Replace with the desired limit
         String id = "customerId"; // Replace with the customer ID you want to edit
 
-        Call<ApiResponseWorkPlan> call = apiService.editCustomer(
-                apiKey,
-                userId,
-                language,
-                putType,
-                limit,
-                id,
-                customerEdit.getCustomerName(), // Replace with the appropriate customerEdit field values
-                customerEdit.getCustomerCode()
-        );
+        Call<ApiResponseWorkPlan> call = null;
 
         call.enqueue(new Callback<ApiResponseWorkPlan>() {
             @Override
@@ -229,6 +221,7 @@ public class GetTasks {
 
     }
     public static void getWorkPlan(Context context, String t1, String t2, TasksTab.OnTasksRetrieved callback) {
+
         String apiKey = UserSessionManager.getApiKey(context);
         if (apiKey == null || apiKey.isEmpty()) {
             Log.e("GetTasks", "API Key not found. Please login again.");

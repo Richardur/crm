@@ -1,42 +1,144 @@
 package model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.sql.Timestamp;
 
-public class Task {
-    private int ID;
-    private String workInPlanForCutomerName;
+public class Task implements Parcelable {
+    private String reactionHeaderID;
+    private String reactionHeaderManagerID;
+    private String workInPlanForCustomerID;
+    private String workInPlanForCustomerOrder;
+    private int workInPlanID;
+    private String reactionWorkManagerID;
+    private String managerName;
+    private String reactionWorkActionID;
     private String workInPlanName;
     private String workInPlanNote;
-    private Timestamp workInPlanTerm; // Format: "hh:mm"
-    private Timestamp workInPlanDone;
-    private String workInPlanForCustomerID;
+    private String workInPlanForCustomerName;
+    private Timestamp workInPlanTerm;
+    private Timestamp workInPlanDoneDate;
+    private String workInPlanDone;
+
+    // Representative details
+    private String repName;
+    private String repSurname;
+    private String repPhone;
+    private String repEmail;
+
+    public Task(String reactionHeaderID, String reactionHeaderManagerID, String workInPlanForCustomerID,
+                String workInPlanForCustomerOrder, int workInPlanID, String reactionWorkManagerID,
+                String managerName, String reactionWorkActionID, String workInPlanName, String workInPlanNote,
+                String workInPlanForCustomerName, Timestamp workInPlanTerm, Timestamp workInPlanDoneDate, String workInPlanDone) {
+        this.reactionHeaderID = reactionHeaderID;
+        this.reactionHeaderManagerID = reactionHeaderManagerID;
+        this.workInPlanForCustomerID = workInPlanForCustomerID;
+        this.workInPlanForCustomerOrder = workInPlanForCustomerOrder;
+        this.workInPlanID = workInPlanID;
+        this.reactionWorkManagerID = reactionWorkManagerID;
+        this.managerName = managerName;
+        this.reactionWorkActionID = reactionWorkActionID;
+        this.workInPlanName = workInPlanName;
+        this.workInPlanNote = workInPlanNote;
+        this.workInPlanForCustomerName = workInPlanForCustomerName;
+        this.workInPlanTerm = workInPlanTerm;
+        this.workInPlanDoneDate = workInPlanDoneDate;
+        this.workInPlanDone = workInPlanDone;
+    }
+
+    protected Task(Parcel in) {
+        reactionHeaderID = in.readString();
+        reactionHeaderManagerID = in.readString();
+        workInPlanForCustomerID = in.readString();
+        workInPlanForCustomerOrder = in.readString();
+        workInPlanID = in.readInt();
+        reactionWorkManagerID = in.readString();
+        managerName = in.readString();
+        reactionWorkActionID = in.readString();
+        workInPlanName = in.readString();
+        workInPlanNote = in.readString();
+        workInPlanForCustomerName = in.readString();
+        workInPlanTerm = new Timestamp(in.readLong());
+        workInPlanDoneDate = new Timestamp(in.readLong());
+        workInPlanDone = in.readString();;
+        repName = in.readString();
+        repSurname = in.readString();
+        repPhone = in.readString();
+        repEmail = in.readString();
+
+    }
+
+    public static final Creator<Task> CREATOR = new Creator<Task>() {
+        @Override
+        public Task createFromParcel(Parcel in) {
+            return new Task(in);
+        }
+
+        @Override
+        public Task[] newArray(int size) {
+            return new Task[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(reactionHeaderID);
+        dest.writeString(reactionHeaderManagerID);
+        dest.writeString(workInPlanForCustomerID);
+        dest.writeString(workInPlanForCustomerOrder);
+        dest.writeInt(workInPlanID);
+        dest.writeString(reactionWorkManagerID);
+        dest.writeString(managerName);
+        dest.writeString(reactionWorkActionID);
+        dest.writeString(workInPlanName);
+        dest.writeString(workInPlanNote);
+        dest.writeString(workInPlanForCustomerName);
+        dest.writeLong(workInPlanTerm.getTime());
+        dest.writeLong(workInPlanDoneDate.getTime());
+        dest.writeString(repName);
+        dest.writeString(repSurname);
+        dest.writeString(repPhone);
+        dest.writeString(repEmail);
+    }
+
+    // Getter methods for all fields...
+
+    public String getReactionHeaderID() {
+        return reactionHeaderID;
+    }
+
+    public String getReactionHeaderManagerID() {
+        return reactionHeaderManagerID;
+    }
+
+    public String getWorkInPlanForCustomerID() {
+        return workInPlanForCustomerID;
+    }
 
     public String getWorkInPlanForCustomerOrder() {
         return workInPlanForCustomerOrder;
     }
 
-    private String workInPlanForCustomerOrder;
-
-    public Task(int ID, String workInPlanForCutomerName, String workInPlanName,
-                String workInPlanNote, Timestamp workInPlanTerm, Timestamp workInPlanDone, String workInPlanForCustomerID, String workInPlanForCustomerOrder) {
-        this.ID = ID;
-        this.workInPlanForCutomerName = workInPlanForCutomerName;
-        this.workInPlanName = workInPlanName;
-        this.workInPlanNote = workInPlanNote;
-        this.workInPlanTerm = workInPlanTerm;
-        this.workInPlanDone = workInPlanDone;
-        this.workInPlanForCustomerID = workInPlanForCustomerID;
-        this.workInPlanForCustomerOrder = workInPlanForCustomerOrder;
+    public int getWorkInPlanID() {
+        return workInPlanID;
     }
 
-    // Getter methods for all fields
-
-    public int getID() {
-        return ID;
+    public String getReactionWorkManagerID() {
+        return reactionWorkManagerID;
     }
 
-    public String getWorkInPlanForCutomerName() {
-        return workInPlanForCutomerName;
+    public String getManagerName() {
+        return managerName;
+    }
+
+    public String getReactionWorkActionID() {
+        return reactionWorkActionID;
     }
 
     public String getWorkInPlanName() {
@@ -47,19 +149,53 @@ public class Task {
         return workInPlanNote;
     }
 
+    public String getWorkInPlanForCustomerName() {
+        return workInPlanForCustomerName;
+    }
+
     public Timestamp getWorkInPlanTerm() {
         return workInPlanTerm;
     }
 
-    public Timestamp isWorkInPlanDone() {
+    public Timestamp getWorkInPlanDoneDate() {
+        return workInPlanDoneDate;
+    }
+
+    public String getWorkInPlanDone() {
         return workInPlanDone;
     }
 
-    public String getWorkInPlanForCustomerID() {
-        return workInPlanForCustomerID;
+    public String getRepName() {
+        return repName;
     }
 
-    public void setWorkInPlanForCustomerID(String workInPlanForCustomerID) {
-        this.workInPlanForCustomerID = workInPlanForCustomerID;
+    public String getRepSurname() {
+        return repSurname;
+    }
+
+    public String getRepPhone() {
+        return repPhone;
+    }
+
+    public String getRepEmail() {
+        return repEmail;
+    }
+
+    // Setter methods for representative details...
+
+    public void setRepName(String repName) {
+        this.repName = repName;
+    }
+
+    public void setRepSurname(String repSurname) {
+        this.repSurname = repSurname;
+    }
+
+    public void setRepPhone(String repPhone) {
+        this.repPhone = repPhone;
+    }
+
+    public void setRepEmail(String repEmail) {
+        this.repEmail = repEmail;
     }
 }

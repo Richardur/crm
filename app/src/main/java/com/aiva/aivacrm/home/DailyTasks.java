@@ -205,16 +205,25 @@ public class DailyTasks extends AppCompatActivity {
             int ID = 0; // Set an appropriate ID or leave it as 0
             String workInPlanForCustomerName = ""; // Set the customer name if available
             String workInPlanName = taskName;
-            String workInPlanNote = taskDescription;
+            String workInPlanNote = taskDescription != null ? taskDescription : ""; // Handle potential null description
             Timestamp workInPlanTerm = new Timestamp(startTime.getValue()); // Convert DateTime to Timestamp
             Timestamp workInPlanDone = new Timestamp(endTime.getValue()); // Convert DateTime to Timestamp
 
+            // Additional parameters for the Task constructor
+            String workInPlanForCustomerID = "0"; // Example value, replace with actual data if available
+            String workInPlanForCustomerOrder = ""; // Example value, replace with actual data if available
+            String workInPlanDoneBy = ""; // Example value, replace with actual data if available
+            String workInPlanReviewed = ""; // Example value, replace with actual data if available
+            String workInPlanDelayed = ""; // Example value, replace with actual data if available
+
             // Create a Task object and add it to the list
-            Task task = new Task(ID, workInPlanForCustomerName, workInPlanName, workInPlanNote, workInPlanTerm, workInPlanDone, "0","");
-            tasks.add(task);
+            //Task task = new Task(ID, workInPlanForCustomerName, workInPlanName, workInPlanNote, workInPlanTerm, workInPlanDone, workInPlanForCustomerID, workInPlanForCustomerOrder, workInPlanDoneBy, workInPlanReviewed);
+            //tasks.add(task);
         }
         return tasks;
     }
+
+
 
     private void initComponents() {
         pickDate = findViewById(R.id.pickDate);
