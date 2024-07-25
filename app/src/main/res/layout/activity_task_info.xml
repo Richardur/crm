@@ -12,15 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true"
-        android:theme="@style/Theme.AivaCRM.AppBarOverlay">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:layout_collapseMode="pin"
-            app:popupTheme="@style/Theme.AivaCRM.PopupOverlay" />
-    </com.google.android.material.appbar.AppBarLayout>
+        android:theme="@style/Theme.AivaCRM.AppBarOverlay"
+        />
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nested_content"
@@ -35,7 +28,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingTop="24dp"> <!-- Add padding here -->
 
             <TextView
                 android:id="@+id/client_name"

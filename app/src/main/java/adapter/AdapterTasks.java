@@ -52,7 +52,9 @@ public class AdapterTasks extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     @Override
     public int getItemViewType(int position) {
         Task task = taskList.get(position);
-        if (task.isDateOnlyAction() || isTimeNotSet(task.getWorkInPlanTerm())) {
+        if (isTaskListActivity) {
+            return VIEW_TYPE_WITH_TIME;
+        } else if (task.isDateOnlyAction() || isTimeNotSet(task.getWorkInPlanTerm())) {
             return VIEW_TYPE_DATE_ONLY;
         } else {
             return VIEW_TYPE_WITH_TIME;
@@ -63,7 +65,7 @@ public class AdapterTasks extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView;
-        if (viewType == VIEW_TYPE_DATE_ONLY) {
+        if (viewType == VIEW_TYPE_DATE_ONLY && !isTaskListActivity) {
             itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_task, parent, false);
             return new DateOnlyViewHolder(itemView);
         } else {
@@ -75,7 +77,7 @@ public class AdapterTasks extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         Task task = taskList.get(position);
-        if (holder.getItemViewType() == VIEW_TYPE_DATE_ONLY) {
+        if (holder.getItemViewType() == VIEW_TYPE_DATE_ONLY && !isTaskListActivity) {
             ((DateOnlyViewHolder) holder).bind(task, listener);
         } else {
             ((WithTimeViewHolder) holder).bind(task, listener, showFullDateTime, isTaskListActivity);
@@ -131,18 +133,13 @@ public class AdapterTasks extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             komentaras.setText(task.getWorkInPlanNote());
             noTimeIcon.setVisibility(View.VISIBLE);
 
-            if ("1".equals(task.getWorkInPlanDone())) {
-                atliktaIcon.setImageResource(R.drawable.ic_check_box);
-            } else {
-                atliktaIcon.setImageResource(R.drawable.ic_check_box_unchecked);
-            }
+            setCompletionIcon(atliktaIcon, task.getWorkInPlanDone());
 
             itemView.setOnClickListener(v -> listener.onTaskItemClick(task));
         }
     }
 
     public class WithTimeViewHolder extends RecyclerView.ViewHolder {
-
         private TextView klientas;
         private TextView darbas;
         private TextView komentaras;
@@ -170,13 +167,13 @@ public class AdapterTasks extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             String dateStr = dateFormat.format(task.getWorkInPlanTerm());
             String timeStr = timeFormat.format(task.getWorkInPlanTerm());
 
+            date.setVisibility(View.VISIBLE);
+            date.setText(dateStr);
+            darbas.setText(task.getWorkInPlanName());
+            komentaras.setText(task.getWorkInPlanNote());
+
             if (isTaskListActivity) {
-                // TaskListActivity logic
                 klientas.setVisibility(View.GONE);
-                date.setVisibility(View.VISIBLE);
-                date.setText(dateStr);
-                darbas.setText(task.getWorkInPlanName());
-                komentaras.setText(task.getWorkInPlanNote());
 
                 if (task.getWorkInPlanTerm() != null && !isTimeNotSet(task.getWorkInPlanTerm())) {
                     timeLayout.setVisibility(View.VISIBLE);
@@ -191,11 +188,8 @@ public class AdapterTasks extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     timeLayout.setVisibility(View.GONE);
                 }
             } else {
-                // TaskTab logic
                 klientas.setVisibility(View.VISIBLE);
                 klientas.setText(task.getWorkInPlanForCustomerName());
-                darbas.setText(task.getWorkInPlanName());
-                komentaras.setText(task.getWorkInPlanNote());
                 date.setVisibility(View.GONE);
 
                 if (task.getWorkInPlanTerm() != null && !isTimeNotSet(task.getWorkInPlanTerm())) {
@@ -208,15 +202,11 @@ public class AdapterTasks extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                         Log.e("AdapterTasks", "Unexpected time format: " + timeStr);
                     }
                 } else {
-
-                }
-
-                if ("1".equals(task.getWorkInPlanDone())) {
-                    atliktaIcon.setImageResource(R.drawable.ic_check_box);
-                } else {
-                    atliktaIcon.setImageResource(R.drawable.ic_check_box_unchecked);
+                    timeLayout.setVisibility(View.GONE);
                 }
             }
+
+            setCompletionIcon(atliktaIcon, task.getWorkInPlanDone());
 
             itemView.setOnClickListener(v -> listener.onTaskItemClick(task));
         }
@@ -228,6 +218,14 @@ public class AdapterTasks extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         }
         LocalDateTime localDateTime = timestamp.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         return localDateTime.toLocalTime().equals(LocalDateTime.MIN.toLocalTime());
+    }
+
+    private void setCompletionIcon(ImageView icon, String done) {
+        if ("1".equals(done)) {
+            icon.setImageResource(R.drawable.ic_check_box);
+        } else {
+            icon.setImageResource(R.drawable.ic_check_box_outline);
+        }
     }
 
     public interface OnTaskItemClickListener {

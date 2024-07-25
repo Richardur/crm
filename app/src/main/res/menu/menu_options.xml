@@ -1,11 +1,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/action_show_all"
-        android:title="Show All Tasks"/>
+        android:title="All Tasks"/>
     <item
         android:id="@+id/action_show_completed"
-        android:title="Show Completed Tasks"/>
+        android:title="Completed"/>
     <item
         android:id="@+id/action_show_pending"
-        android:title="Show Pending Tasks"/>
+        android:title="Not Completed (default)"/>
+
 </menu>

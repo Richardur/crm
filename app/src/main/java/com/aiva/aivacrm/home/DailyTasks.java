@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.aiva.aivacrm.R;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 
 import java.sql.Timestamp;
@@ -57,23 +58,31 @@ public class DailyTasks extends AppCompatActivity {
 
         calendarServiceSingleton = new GoogleCalendarServiceSingleton(this);
 
+        // Initialize views
+        FloatingActionButton menuFab = findViewById(R.id.menu_fab);
         ImageButton menuButton = findViewById(R.id.menu_button);
+
+        // Set click listener for the new FAB
+        menuFab.setOnClickListener(v -> openCurrentMenuFunctionality());
+
+        // Set click listener for the menu button for sign out and options
         menuButton.setOnClickListener(view -> {
             PopupMenu popup = new PopupMenu(DailyTasks.this, view);
-            popup.inflate(R.menu.menu_options);
+            popup.inflate(R.menu.sign_out_options);
             popup.setOnMenuItemClickListener(item -> {
                 switch (item.getItemId()) {
                     case R.id.action_show_all:
-                        // Show all tasks
                         filterTasks(TaskFilter.ALL);
                         return true;
                     case R.id.action_show_completed:
-                        // Show completed tasks
                         filterTasks(TaskFilter.COMPLETED);
                         return true;
                     case R.id.action_show_pending:
-                        // Show pending tasks
                         filterTasks(TaskFilter.PENDING);
+                        return true;
+                    case R.id.action_sign_out:
+                        // Implement sign-out functionality
+                        signOut();
                         return true;
                     default:
                         return false;
@@ -91,6 +100,60 @@ public class DailyTasks extends AppCompatActivity {
             int dayOfWeek = selectedDate.getDayOfWeek().getValue();
             weekdays.getTabAt(dayOfWeek - 1).select();
         });
+    }
+
+    private void openCurrentMenuFunctionality() {
+        // Implement the functionality that was previously in the menu button
+        PopupMenu popup = new PopupMenu(DailyTasks.this, findViewById(R.id.menu_fab));
+        popup.inflate(R.menu.menu_options);
+        popup.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.action_show_all:
+                    filterTasks(TaskFilter.ALL);
+                    return true;
+                case R.id.action_show_completed:
+                    filterTasks(TaskFilter.COMPLETED);
+                    return true;
+                case R.id.action_show_pending:
+                    filterTasks(TaskFilter.PENDING);
+                    return true;
+                case R.id.action_sign_out:
+                    // Implement sign-out functionality
+                    signOut();
+                    return true;
+                default:
+                    return false;
+            }
+        });
+        popup.show();
+    }
+
+    private void showSignOutAndOptions() {
+        // Implement sign out and options
+        // You can add a dialog or another activity for settings and sign-out
+        PopupMenu popup = new PopupMenu(DailyTasks.this, findViewById(R.id.menu_button));
+        popup.inflate(R.menu.sign_out_options);
+        popup.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.action_sign_out:
+                    // Implement sign-out functionality
+                    signOut();
+                    return true;
+                default:
+                    return false;
+            }
+        });
+        popup.show();
+    }
+
+    private void signOut() {
+        // Implement your sign-out functionality here
+        // For example, clear user session and redirect to login activity
+        UserSessionManager.clearSession(this);
+        // Redirect to login activity
+        // Intent intent = new Intent(this, LoginActivity.class);
+        // startActivity(intent);
+        finish();
     }
 
     public void setAdapterTasks(AdapterTasks adapterTasks) {

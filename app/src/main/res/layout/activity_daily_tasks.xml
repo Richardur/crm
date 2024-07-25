@@ -30,16 +30,15 @@
                 style="@style/CustomButtonStyle"
                 android:gravity="start|left"
                 android:textSize="20sp"
-                android:textStyle="bold"
-                />
-
+                android:textStyle="bold" />
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="vertical"
-                android:gravity="center_horizontal">
+                android:gravity="center_horizontal"
+                android:paddingTop="8dp"> <!-- Add paddingTop to lower the texts -->
 
                 <TextView
                     android:id="@+id/monthYearTV"
@@ -64,8 +63,9 @@
 
             <ImageButton
                 android:id="@+id/menu_button"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:paddingTop="@dimen/spacing_xmedium"
                 android:background="?attr/selectableItemBackground"
                 android:src="@drawable/ic_baseline_menu_24" />
         </LinearLayout>
@@ -135,13 +135,30 @@
 
     </com.google.android.material.tabs.TabLayout>
 
+
     <FrameLayout
         android:id="@+id/tabFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/menu_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="@dimen/spacing_smlarge"
+            android:clickable="true"
+            app:backgroundTint="@color/red_A200"
+            app:fabSize="normal"
+            app:srcCompat="@drawable/ic_sort"
+            app:tint="@android:color/white"
+            app:maxImageSize="36dp"
+            android:contentDescription="TODO" />
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/view_pager2"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </FrameLayout>
+
+
+
 </LinearLayout>

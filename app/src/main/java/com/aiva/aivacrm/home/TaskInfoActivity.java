@@ -15,6 +15,7 @@ import com.aiva.aivacrm.databinding.ActivityTaskInfoBinding;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.FragmentManager;
 
 import android.util.Log;
 import android.view.View;
@@ -59,7 +60,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class TaskInfoActivity extends AppCompatActivity {
+public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialogFragment.OnNewTaskCreatedListener {
 
     private ActivityTaskInfoBinding binding;
 
@@ -85,12 +86,11 @@ public class TaskInfoActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         binding = ActivityTaskInfoBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        Toolbar toolbar = binding.toolbar;
-        setSupportActionBar(toolbar);
+        //Toolbar toolbar = binding.toolbar;
+        //setSupportActionBar(toolbar);
 
         initializeViews();
         setListeners();
@@ -198,8 +198,70 @@ public class TaskInfoActivity extends AppCompatActivity {
         });
 
         editButton.setOnClickListener(v -> showEditConfirmationDialog());
-        newTaskButton.setOnClickListener(v -> showNewTaskConfirmationDialog());
+        newTaskButton.setOnClickListener(v -> showNewTaskDialog());
     }
+
+    private void showNewTaskDialog() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        NewTaskDialogFragment newTaskDialogFragment = NewTaskDialogFragment.newInstance(this);
+        newTaskDialogFragment.show(fragmentManager, "NewTaskDialogFragment");
+    }
+
+    @Override
+    public void onNewTaskCreated(String action, String date, String time, String comment) {
+        createNewTask(action, date, time, comment);
+    }
+
+    private void createNewTask(String action, String date, String time, String comment) {
+        String apiKey = UserSessionManager.getApiKey(this);
+        String userId = UserSessionManager.getUserId(this);
+
+        if (apiKey == null || apiKey.isEmpty() || userId == null || userId.isEmpty()) {
+            Toast.makeText(this, "Please login again.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        ManagerReactionUpdateRequest taskUpdateRequest = new ManagerReactionUpdateRequest();
+        taskUpdateRequest.setUserId(userId);
+        taskUpdateRequest.setApiKey(apiKey);
+        taskUpdateRequest.setAction("update");
+        taskUpdateRequest.setLanguageCode("lt");
+
+        ManagerReactionWorkInPlan.ManagerReactionInPlanHeader header = new ManagerReactionWorkInPlan.ManagerReactionInPlanHeader();
+        header.setReactionHeaderID(reactionHeaderId);
+        header.setReactionManagerID(reactionHeaderManagerId);
+        header.setReactionForCustomerID(taskCustomerId);
+
+        List<ManagerReactionWorkInPlan.ManagerReactionWork> works = new ArrayList<>();
+        ManagerReactionWorkInPlan.ManagerReactionWork newWork = new ManagerReactionWorkInPlan.ManagerReactionWork();
+        newWork.setReactionWorkManagerID(reactionWorkManagerId);
+        newWork.setReactionWorkActionID(reactionWorkActionId);
+        newWork.setReactionWorkActionName(action);
+        newWork.setReactionWorkTerm(date + (time.isEmpty() ? "" : " " + time));
+        newWork.setReactionWorkNote(comment);
+        works.add(newWork);
+
+        taskUpdateRequest.setManagerReactionInPlanHeaderReg(header);
+        taskUpdateRequest.setManagerReactionWorkReg(works);
+
+        updateWorkPlan(this, taskUpdateRequest, new Callback<ApiResponseUpdate>() {
+            @Override
+            public void onResponse(Call<ApiResponseUpdate> call, Response<ApiResponseUpdate> response) {
+                if (response.isSuccessful()) {
+                    Log.d("UpdateWorkPlan", "New task creation successful");
+                } else {
+                    Log.e("UpdateWorkPlan", "New task creation failed: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseUpdate> call, Throwable t) {
+                Log.e("UpdateWorkPlan", "Network error: " + t.getMessage());
+            }
+        });
+    }
+
+
 
     private void showStatusConfirmationDialog(String title, boolean isChecked) {
         AlertDialog.Builder builder = new AlertDialog.Builder(TaskInfoActivity.this);

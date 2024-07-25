@@ -30,16 +30,19 @@ public class UserSessionManager {
         editor.putString(KEY_USERNAME, username);
         editor.commit(); // Use commit to ensure the data is saved immediately
     }
+
     public static void saveApiKey(Context context, String apiKey) {
         init(context);
         editor.putString(KEY_API_KEY, apiKey);
         editor.commit(); // Use commit to ensure the data is saved immediately
     }
+
     public static void saveUserId(Context context, String userId) {
         init(context);
         editor.putString(KEY_USER_ID, userId);
         editor.commit(); // Use commit to ensure the data is saved immediately
     }
+
     public static void saveEmployeeDetails(Context context, Employe employee) {
         init(context);
         editor.putString(KEY_EMPLOYEE_ID, String.valueOf(employee.getEmployeID()));
@@ -47,29 +50,34 @@ public class UserSessionManager {
         editor.commit(); // Commit the changes to save them
     }
 
-
     public static String getApiKey(Context context) {
         init(context);
         return sharedPreferences.getString(KEY_API_KEY, null);
     }
+
     public static String getUsername(Context context) {
         init(context);
         return sharedPreferences.getString(KEY_USERNAME, null);
     }
+
     public static String getUserId(Context context) {
         init(context);
         return sharedPreferences.getString(KEY_USER_ID, null);
     }
+
     public static String getEmployeeId(Context context) {
         init(context);
         return sharedPreferences.getString(KEY_EMPLOYEE_ID, null);
     }
+
     public static String getEmployeeName(Context context) {
         init(context);
         return sharedPreferences.getString(KEY_EMPLOYEE_NAME, null);
     }
 
-
-
-
+    public static void clearSession(Context context) {
+        init(context);
+        editor.clear();
+        editor.commit();
+    }
 }

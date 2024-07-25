@@ -33,6 +33,7 @@
         </activity>
         <activity android:name=".home.TaskListActivity" />
         <activity android:name=".home.LoginActivity"
+            android:theme="@style/Theme.AivaCRM.NoActionBar"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

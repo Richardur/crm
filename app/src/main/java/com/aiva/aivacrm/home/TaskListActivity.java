@@ -131,7 +131,7 @@ public class TaskListActivity extends AppCompatActivity {
         Collections.sort(tasks, new Comparator<Task>() {
             @Override
             public int compare(Task task1, Task task2) {
-                return task1.getWorkInPlanTerm().compareTo(task2.getWorkInPlanTerm());
+                return task2.getWorkInPlanTerm().compareTo(task1.getWorkInPlanTerm());
             }
         });
     }

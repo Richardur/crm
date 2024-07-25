@@ -119,6 +119,7 @@
     <string name="CANCEL">CANCEL</string>
     <string name="YES">YES</string>
     <string name="NO">NO</string>
+    <string name="select_action">select</string>
 
 
 </resources>

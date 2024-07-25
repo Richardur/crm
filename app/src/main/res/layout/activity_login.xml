@@ -1,28 +1,146 @@
-<!-- activity_login.xml -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:background="@android:color/background_light"
+    android:orientation="vertical">
 
-    <EditText
-        android:id="@+id/username"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/username_hint"
-        android:inputType="textEmailAddress" />
+    <LinearLayout
+        android:layout_width="330dp"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:orientation="vertical"
+        android:padding="@dimen/spacing_large">
 
-    <EditText
-        android:id="@+id/password"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/password_hint"
-        android:inputType="textPassword" />
+        <View
+            android:layout_width="0dp"
+            android:layout_height="@dimen/spacing_middle" />
 
-    <Button
-        android:id="@+id/loginButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/login_button" />
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/logo"
+            app:tint="@color/purple_500" />
 
-</LinearLayout>
+        <View
+            android:layout_width="0dp"
+            android:layout_height="@dimen/spacing_large" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:text="Welcome to Aiva CRM"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+            android:textColor="@color/purple_500"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:text="Enter your AIVA9001 login credentials"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+            android:textColor="@color/grey_60" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="USERNAME"
+            android:textAlignment="center"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Caption"
+            android:textColor="@color/grey_40" />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="-4dp"
+            android:layout_marginRight="-4dp"
+            android:inputType="text"
+            android:maxLength="50"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:textColor="@android:color/black" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="@dimen/spacing_mlarge" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PASSWORD"
+            android:textAlignment="center"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Caption"
+            android:textColor="@color/grey_40" />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="-4dp"
+            android:layout_marginRight="-4dp"
+            android:inputType="textPassword"
+            android:maxLength="50"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:textColor="@android:color/black" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="@dimen/spacing_mxlarge" />
+
+        <CheckBox
+            android:id="@+id/remember_me"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="-4dp"
+            android:layout_marginRight="-4dp"
+            android:text="Remember Me"
+            android:textColor="@color/grey_60" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="@dimen/spacing_large" />
+
+        <Button
+            android:id="@+id/loginButton"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_marginLeft="-4dp"
+            android:layout_marginRight="-4dp"
+            android:background="@drawable/btn_rounded_red_a200"
+            android:text="S I G N  I N"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="@dimen/spacing_medium" />
+
+        <LinearLayout
+            android:id="@+id/sign_up_for_account"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="@dimen/spacing_xlarge" />
+    </LinearLayout>
+</RelativeLayout>

@@ -25,19 +25,17 @@
                 android:id="@+id/time_layout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:layout_marginEnd="6dp"
                 android:orientation="horizontal"
-                android:visibility="visible">
+                android:gravity="center"
+                android:layout_centerInParent="true">
 
                 <TextView
                     android:id="@+id/hours"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:textColor="?attr/colorPrimary"
                     android:textSize="@dimen/text_size_xlarge"
-                    android:layout_marginStart="8dp" />
+                    android:gravity="center" />
 
                 <TextView
                     android:id="@+id/colon"
@@ -45,15 +43,16 @@
                     android:layout_height="wrap_content"
                     android:text=":"
                     android:textColor="?attr/colorPrimary"
-                    android:textSize="@dimen/text_size_xlarge" />
+                    android:textSize="@dimen/text_size_xlarge"
+                    android:gravity="center" />
 
                 <TextView
                     android:id="@+id/minutes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:textColor="?attr/colorPrimary"
-                    android:textSize="@dimen/text_size_xlarge" />
+                    android:textSize="@dimen/text_size_xlarge"
+                    android:gravity="center" />
             </LinearLayout>
 
             <ImageView
@@ -85,11 +84,9 @@
                 android:textColor="@color/grey_90"
                 android:textStyle="bold"
                 android:visibility="gone"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true"
-
-                /> <!-- Default to gone -->
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="4dp" />
 
             <TextView
                 android:id="@+id/klientas"
@@ -100,7 +97,9 @@
                 android:text="Klientas"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="@color/grey_90"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:layout_below="@+id/date"
+                android:layout_marginTop="4dp" />
 
             <TextView
                 android:id="@+id/darbas"
@@ -129,8 +128,8 @@
 
         <ImageView
             android:id="@+id/atlikta_icon"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:layout_gravity="center_vertical"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
