@@ -17,7 +17,7 @@ public interface ApiService {
     @FormUrlEncoded
     Call<AuthResponse> authenticate(@Field("login") String login, @Field("password") String password);
 
-    @POST("CRMWorkList")
+    @POST("zinynai_crmWork")
     @FormUrlEncoded
     Call<CRMWorkResponse> getActionDetails(@Field("userId") String userId,
                                            @Field("apiKey") String apiKey,

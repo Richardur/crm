@@ -27,10 +27,12 @@
                 android:layout_width="70dp"
                 android:layout_height="60dp"
                 android:layout_marginEnd="2dp"
-                android:background="@drawable/ic_baseline_calendar_today_24"
-                android:gravity="right"
+                style="@style/CustomButtonStyle"
+                android:gravity="start|left"
                 android:textSize="20sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                />
+
 
             <LinearLayout
                 android:layout_width="0dp"

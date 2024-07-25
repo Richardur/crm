@@ -20,6 +20,7 @@ public class Task implements Parcelable {
     private Timestamp workInPlanTerm;
     private Timestamp workInPlanDoneDate;
     private String workInPlanDone;
+    private boolean isDateOnlyAction;
 
     // Representative details
     private String repName;
@@ -27,10 +28,18 @@ public class Task implements Parcelable {
     private String repPhone;
     private String repEmail;
 
+    public boolean isDateOnlyAction() {
+        return isDateOnlyAction;
+    }
+
+    public void setDateOnlyAction(boolean dateOnlyAction) {
+        isDateOnlyAction = dateOnlyAction;
+    }
+
     public Task(String reactionHeaderID, String reactionHeaderManagerID, String workInPlanForCustomerID,
                 String workInPlanForCustomerOrder, int workInPlanID, String reactionWorkManagerID,
                 String managerName, String reactionWorkActionID, String workInPlanName, String workInPlanNote,
-                String workInPlanForCustomerName, Timestamp workInPlanTerm, Timestamp workInPlanDoneDate, String workInPlanDone) {
+                String workInPlanForCustomerName, Timestamp workInPlanTerm, Timestamp workInPlanDoneDate, String workInPlanDone, boolean isDateOnlyAction) {
         this.reactionHeaderID = reactionHeaderID;
         this.reactionHeaderManagerID = reactionHeaderManagerID;
         this.workInPlanForCustomerID = workInPlanForCustomerID;
@@ -45,6 +54,7 @@ public class Task implements Parcelable {
         this.workInPlanTerm = workInPlanTerm;
         this.workInPlanDoneDate = workInPlanDoneDate;
         this.workInPlanDone = workInPlanDone;
+        this.isDateOnlyAction = isDateOnlyAction;
     }
 
     protected Task(Parcel in) {
@@ -59,14 +69,13 @@ public class Task implements Parcelable {
         workInPlanName = in.readString();
         workInPlanNote = in.readString();
         workInPlanForCustomerName = in.readString();
-        workInPlanTerm = new Timestamp(in.readLong());
-        workInPlanDoneDate = new Timestamp(in.readLong());
-        workInPlanDone = in.readString();;
+        workInPlanTerm = in.readByte() == 0 ? null : new Timestamp(in.readLong());
+        workInPlanDoneDate = in.readByte() == 0 ? null : new Timestamp(in.readLong());
+        workInPlanDone = in.readString();
         repName = in.readString();
         repSurname = in.readString();
         repPhone = in.readString();
         repEmail = in.readString();
-
     }
 
     public static final Creator<Task> CREATOR = new Creator<Task>() {
@@ -99,8 +108,22 @@ public class Task implements Parcelable {
         dest.writeString(workInPlanName);
         dest.writeString(workInPlanNote);
         dest.writeString(workInPlanForCustomerName);
-        dest.writeLong(workInPlanTerm.getTime());
-        dest.writeLong(workInPlanDoneDate.getTime());
+
+        if (workInPlanTerm == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeLong(workInPlanTerm.getTime());
+        }
+
+        if (workInPlanDoneDate == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeLong(workInPlanDoneDate.getTime());
+        }
+
+        dest.writeString(workInPlanDone);
         dest.writeString(repName);
         dest.writeString(repSurname);
         dest.writeString(repPhone);

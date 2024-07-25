@@ -14,6 +14,25 @@
         <item name="android:dialogTheme">@style/Dialog.Theme</item>
     </style>
 
+    <!-- Custom Button Style -->
+    <style name="CustomButtonStyle" parent="Widget.AppCompat.Button">
+        <item name="android:background">@drawable/ic_baseline_calendar_today_24</item>
+        <item name="android:tint">@color/red_A200</item>
+        <item name="android:backgroundTint">@color/red_A200</item>
+        <item name="android:padding">0dp</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:textColor">?attr/colorOnSecondary</item>
+    </style>
+
+    <style name="AppTheme.CustomButton" parent="BaseTheme">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="buttonStyle">@style/CustomButtonStyle</item>
+    </style>
+
     <style name="BaseTheme.Material" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
@@ -261,7 +280,5 @@
     <style name="RippleStyleDark" parent="RippleStyleWhite">
         <item name="mrl_rippleColor">#80000000</item>
     </style>
-
-
 
 </resources>

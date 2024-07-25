@@ -26,6 +26,7 @@ import network.AuthResponse;
 import network.CustomerDeserializer;
 import network.CustomerEdit;
 import network.CustomerListResponse;
+import network.RetrofitClientInstance;
 import network.UserSessionManager;
 import network.api_request_model.ApiResponseGetCustomer;
 import network.api_request_model.ApiResponseReactionPlan;
@@ -57,7 +58,7 @@ public class GetTasks {
            return;
        }
        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-       interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+       interceptor.setLevel(HttpLoggingInterceptor.Level.NONE);
        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
 
        Gson gson = new GsonBuilder()
@@ -120,7 +121,7 @@ public class GetTasks {
 
     public static void editCustomer(String apiKey3, CustomerEdit customerEdit) {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        interceptor.setLevel(HttpLoggingInterceptor.Level.NONE);
         OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
 
         Gson gson = new GsonBuilder()
@@ -183,21 +184,8 @@ public class GetTasks {
             return;
         }
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
 
-        Gson gson = new GsonBuilder()
-                .setDateFormat("yyyy-MM-dd HH:mm:ss")
-                .registerTypeAdapter(ManagerWorkInPlan.class, new ManagerWorkInPlanDeserializer())
-                .create();
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://gamyba.online/api-aiva/v1/")
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .client(client)
-                .build();
-
-        ApiService apiService = retrofit.create(ApiService.class);
+        ApiService apiService = RetrofitClientInstance.getRetrofitInstance().create(ApiService.class);
 
 
         Call<CRMWorkResponse> call = apiService.getActionDetails(userId, apiKey, "*",
@@ -229,61 +217,50 @@ public class GetTasks {
 
 
 
-    public static void getWorkPlan(Context context, String t1, String t2, TasksTab.OnTasksRetrieved callback) {
+    public static void getWorkPlan(Context context, String clientId, String orderId, String t1, String t2, TasksTab.OnTasksRetrieved callback) {
+        new Thread(() -> {
+            String apiKey = UserSessionManager.getApiKey(context);
+            if (apiKey == null || apiKey.isEmpty()) {
+                Log.e("GetTasks", "API Key not found. Please login again.");
+                return;
+            }
+            String userId = UserSessionManager.getUserId(context);
+            if (userId == null || userId.isEmpty()) {
+                Log.e("GetTasks", "User ID not found. Please login again.");
+                return;
+            }
 
-        String apiKey = UserSessionManager.getApiKey(context);
-        if (apiKey == null || apiKey.isEmpty()) {
-            Log.e("GetTasks", "API Key not found. Please login again.");
-            return;
-        }
-        String userId = UserSessionManager.getUserId(context);
-        if (userId == null || userId.isEmpty()) {
-            Log.e("GetTasks", "User ID not found. Please login again.");
-            return;
-        }
-        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
+            HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+            interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+            OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
 
-        Gson gson = new GsonBuilder()
-                .setDateFormat("yyyy-MM-dd HH:mm:ss")
-                .registerTypeAdapter(ManagerWorkInPlan.class, new ManagerWorkInPlanDeserializer())
-                .create();
+            Gson gson = new GsonBuilder()
+                    .setDateFormat("yyyy-MM-dd HH:mm:ss")
+                    .registerTypeAdapter(ManagerWorkInPlan.class, new ManagerWorkInPlanDeserializer())
+                    .create();
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://gamyba.online/api-aiva/v1/")
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .client(client)
-                .build();
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl("https://gamyba.online/api-aiva/v1/")
+                    .addConverterFactory(GsonConverterFactory.create(gson))
+                    .client(client)
+                    .build();
 
-        ApiService apiService = retrofit.create(ApiService.class);
+            ApiService apiService = retrofit.create(ApiService.class);
 
-        String whereJsonString = String.format("{\"reactionWorkTermFrom\":\"%s\",\"reactionWorkTermTo\":\"%s\"}", t1, t2);
+            String whereJsonString;
+            if (!clientId.isEmpty() && !orderId.isEmpty()) {
+                whereJsonString = String.format("{\"reactionForCustomerID\":\"%s\",\"reactionByOrderNo\":\"%s\"}", clientId, orderId);
+            } else {
+                whereJsonString = String.format("{\"reactionWorkTermFrom\":\"%s\",\"reactionWorkTermTo\":\"%s\"}", t1, t2);
+            }
 
+            Call<ApiResponseReactionPlan> call = apiService.getTasksForDate(userId, apiKey, "*",
+                    "", "select", whereJsonString, "1000", "");
 
-        Call<ApiResponseReactionPlan> call = apiService.getTasksForDate(userId, apiKey, "*",
-                "", "select", whereJsonString, "1000", "");
-        call.enqueue(new Callback<ApiResponseReactionPlan>() {
-            @Override
-            public void onResponse(Call<ApiResponseReactionPlan> call, Response<ApiResponseReactionPlan> response) {
+            try {
+                Response<ApiResponseReactionPlan> response = call.execute();
                 if (response.isSuccessful() && response.body() != null) {
                     ApiResponseReactionPlan apiResponseReactionPlan = response.body();
-                    // Assuming getData() correctly returns a Data object that includes a list of ManagerReactionInPlanHeader
-                    List<ManagerReactionWorkInPlan.ManagerReactionInPlanHeader> headers = null;
-                    headers = apiResponseReactionPlan.getData().getManagerReactionInPlanHeaderList();
-                    for (ManagerReactionWorkInPlan.ManagerReactionInPlanHeader header : headers) {
-                        // Assuming getManagerReactionWork() correctly returns a list of ManagerReactionWork within each header
-                        for (ManagerReactionWorkInPlan.ManagerReactionWork work : header.getManagerReactionWork()) {
-                            // Now you can access properties of each work, e.g., reactionWorkTerm
-                            try {
-                                Timestamp term = Timestamp.valueOf(work.getReactionWorkTerm());
-                                // Log.d("WorkPlan term", term.toString());
-                            } catch (IllegalArgumentException e) {
-                                Log.e("getWorkPlan", "Error parsing date: " + e.getMessage());
-                            }
-                        }
-                    }
-                    // Trigger your callback or further processing here
                     callback.getResult(apiResponseReactionPlan);
                 } else {
                     Log.e("getWorkPlan", "WorkPlan Request Failed: " + response.code());
@@ -295,16 +272,14 @@ public class GetTasks {
                         Log.e("getWorkPlan", "Error reading error body: " + e.getMessage());
                     }
                 }
+            } catch (IOException e) {
+                Log.e("getWorkPlan", "Network error: " + e.getMessage());
             }
-
-            @Override
-            public void onFailure(Call<ApiResponseReactionPlan> call, Throwable t) {
-                Log.e("getWorkPlan", "WorkPlan Request Failed: " + t.getMessage());
-            }
-        });
-
-
+        }).start();
     }
+
+
+
 
     /* public static void getCustomerList(String apiKey3, TasksTab.OnCustomerListRetrieved callback ) {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();

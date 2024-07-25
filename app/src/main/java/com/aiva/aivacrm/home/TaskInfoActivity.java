@@ -3,9 +3,9 @@ package com.aiva.aivacrm.home;
 import static data.GetTasks.getCustomer;
 
 import android.app.DatePickerDialog;
-import android.app.TaskInfo;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -24,12 +24,14 @@ import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.aiva.aivacrm.R;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.gson.Gson;
 
@@ -72,11 +74,13 @@ public class TaskInfoActivity extends AppCompatActivity {
     private TextView clientNameTextView, actionTextView, dueDateTextView, commentTextView, statusTextView;
     private TextView phoneTextView, emailTextView, websiteTextView, addressTextView;
     private TextView dueDateTitleTextView, statusTitleTextView;
-    private TextView orderTextView;
+    private TextView orderTextView, orderTitleTextView;
+    private LinearLayout orderLayout;
     private TextInputLayout phoneLayout, emailLayout, websiteLayout, addressLayout, commentLayout;
     private EditText editPhone, editEmail, editWebsite, editAddress, editComment;
     private ImageButton callButton, emailButton, mapButton, editButton, saveButton, cancelButton;
     private CheckBox statusCheckbox;
+    private FloatingActionButton newTaskButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,6 +112,8 @@ public class TaskInfoActivity extends AppCompatActivity {
         statusTitleTextView = findViewById(R.id.status_title);
         statusTextView = findViewById(R.id.status);
         orderTextView = findViewById(R.id.order);
+        orderTitleTextView = findViewById(R.id.order_title);
+        orderLayout = findViewById(R.id.order_layout);
 
         phoneTextView = findViewById(R.id.phone);
         emailTextView = findViewById(R.id.email);
@@ -120,6 +126,7 @@ public class TaskInfoActivity extends AppCompatActivity {
         editButton = findViewById(R.id.edit_button);
         saveButton = findViewById(R.id.save_button);
         cancelButton = findViewById(R.id.cancel_button);
+        newTaskButton = findViewById(R.id.new_task_button);
 
         phoneLayout = findViewById(R.id.phone_layout);
         emailLayout = findViewById(R.id.email_layout);
@@ -146,6 +153,28 @@ public class TaskInfoActivity extends AppCompatActivity {
                 Toast.makeText(TaskInfoActivity.this, "Phone number is not assigned", Toast.LENGTH_SHORT).show();
             }
         });
+        orderTextView.setOnClickListener(v -> {
+            Intent intent = new Intent(TaskInfoActivity.this, TaskListActivity.class);
+            intent.putExtra("selectedTaskId", taskId);
+            intent.putExtra("clientId", taskCustomerId);
+            intent.putExtra("orderId", order);
+            startActivity(intent);
+        });
+        orderTitleTextView.setOnClickListener(v -> {
+            Intent intent = new Intent(TaskInfoActivity.this, TaskListActivity.class);
+            intent.putExtra("selectedTaskId", taskId);
+            intent.putExtra("clientId", taskCustomerId);
+            intent.putExtra("orderId", order);
+            startActivity(intent);
+        });
+        orderLayout.setOnClickListener(v -> {
+            Intent intent = new Intent(TaskInfoActivity.this, TaskListActivity.class);
+            intent.putExtra("selectedTaskId", taskId);
+            intent.putExtra("clientId", taskCustomerId);
+            intent.putExtra("orderId", order);
+            startActivity(intent);
+        });
+
 
         emailButton.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_SEND);
@@ -169,6 +198,7 @@ public class TaskInfoActivity extends AppCompatActivity {
         });
 
         editButton.setOnClickListener(v -> showEditConfirmationDialog());
+        newTaskButton.setOnClickListener(v -> showNewTaskConfirmationDialog());
     }
 
     private void showStatusConfirmationDialog(String title, boolean isChecked) {
@@ -177,12 +207,25 @@ public class TaskInfoActivity extends AppCompatActivity {
         builder.setPositiveButton(R.string.YES, (dialogInterface, i) -> {
             statusTextView.setText(isChecked ? "Completed" : "Not completed");
             statusCheckbox.setChecked(isChecked);
+            handleStatusChange(isChecked);
         });
         builder.setNegativeButton(R.string.NO, (dialogInterface, i) -> {
             statusTextView.setText(isChecked ? "Not completed" : "Completed");
             statusCheckbox.setChecked(!isChecked);
         });
         builder.show();
+    }
+
+    private void handleStatusChange(boolean isChecked) {
+        String workDone = isChecked ? "1" : "0";
+        String workDoneDate = isChecked ? getCurrentTimestamp() : null;
+
+        // Implement API call to update the task status here
+        updateTaskStatus(taskId, workDone, workDoneDate);
+    }
+
+    private void updateTaskStatus(int taskId, String workDone, String workDoneDate) {
+        // Implement the API call to update the task status
     }
 
     private void showEditConfirmationDialog() {
@@ -210,8 +253,6 @@ public class TaskInfoActivity extends AppCompatActivity {
         editAddress.setText(addressTextView.getText().toString());
         addressLayout.setVisibility(View.VISIBLE);
 
-        editAddress.setOnClickListener(v -> showEditAddressDialog());
-
         commentTextView.setVisibility(View.GONE);
         editComment.setText(commentTextView.getText().toString());
         commentLayout.setVisibility(View.VISIBLE);
@@ -220,46 +261,11 @@ public class TaskInfoActivity extends AppCompatActivity {
         saveButton.setVisibility(View.VISIBLE);
         cancelButton.setVisibility(View.VISIBLE);
 
-        // Set listeners for date picking
         dueDateTitleTextView.setOnClickListener(v -> showDateTimePicker());
         dueDateTextView.setOnClickListener(v -> showDateTimePicker());
 
         saveButton.setOnClickListener(v -> saveChanges());
         cancelButton.setOnClickListener(v -> exitEditMode());
-    }
-
-    private void showEditAddressDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View view = getLayoutInflater().inflate(R.layout.dialog_edit_address, null);
-        builder.setView(view);
-
-        EditText editStreet = view.findViewById(R.id.edit_street);
-        EditText editHouse = view.findViewById(R.id.edit_house);
-        EditText editPostIndex = view.findViewById(R.id.edit_post_index);
-        EditText editCity = view.findViewById(R.id.edit_city);
-        EditText editCountryCode = view.findViewById(R.id.edit_country_code);
-
-        // Populate the fields with current address data
-        String[] addressParts = addressTextView.getText().toString().split(" ");
-        editCity.setText(addressParts[0]);
-        editStreet.setText(addressParts[1]);
-        editHouse.setText(addressParts[2]);
-        editPostIndex.setText(addressParts[3]);
-        editCountryCode.setText(addressParts[4]);
-
-        builder.setPositiveButton("Save", (dialog, which) -> {
-            String newStreet = editStreet.getText().toString();
-            String newHouse = editHouse.getText().toString();
-            String newPostIndex = editPostIndex.getText().toString();
-            String newCity = editCity.getText().toString();
-            String newCountryCode = editCountryCode.getText().toString();
-
-            addressTextView.setText(newCity + " " + newStreet + " " + newHouse + " " + newPostIndex + " " + newCountryCode);
-            address = addressTextView.getText().toString();
-        });
-
-        builder.setNegativeButton("Cancel", null);
-        builder.show();
     }
 
     private void saveChanges() {
@@ -338,7 +344,6 @@ public class TaskInfoActivity extends AppCompatActivity {
             taskUpdateRequest.setManagerReactionWorkReg(works);
         }
 
-        // Create the update request for customer info
         CustomerUpdateRequest customerUpdateRequest = new CustomerUpdateRequest();
         customerUpdateRequest.setUserId(userId);
         customerUpdateRequest.setApiKey(apiKey);
@@ -346,19 +351,15 @@ public class TaskInfoActivity extends AppCompatActivity {
         customerUpdateRequest.setLanguageCode("lt");
         customerUpdateRequest.setCustomerId(taskCustomerId);
 
-        // Set customer data
-        customerUpdateRequest.setCustomerAdressCity(editAddress.getText().toString()); // Assume all fields are filled in dialog
-        // set other address fields accordingly
+        customerUpdateRequest.setCustomerAdressCity(editAddress.getText().toString());
 
         if (!editedPhone.equals(repPhone) || !editedEmail.equals(repEmail) || !editedAddress.equals(address)) {
             customerChanged = true;
 
-            // Update the contact person
             Customer.CustomerContactPerson selectedPerson = getSelectedContactPerson();
             selectedPerson.setContactPersonMobPhone(editedPhone);
             selectedPerson.setContactPersonMail(editedEmail);
 
-            // Ensure you add the contact person to the customer object
             List<Customer.CustomerContactPerson> contactPersons = new ArrayList<>();
             contactPersons.add(selectedPerson);
             customerUpdateRequest.setCustomerContactPersons(contactPersons);
@@ -409,8 +410,7 @@ public class TaskInfoActivity extends AppCompatActivity {
     }
 
     private List<Customer.CustomerContactPerson> getCustomerContactPersons() {
-        // Fetch the list of customer contact persons from the data source
-        return new ArrayList<>(); // Replace with actual data retrieval logic
+        return new ArrayList<>();
     }
 
     private void updateCustomer(Context context, CustomerUpdateRequest request, Callback<ApiResponseUpdate> callback) {
@@ -435,7 +435,6 @@ public class TaskInfoActivity extends AppCompatActivity {
         call.enqueue(callback);
     }
 
-
     private void exitEditMode() {
         phoneTextView.setVisibility(View.VISIBLE);
         phoneLayout.setVisibility(View.GONE);
@@ -455,20 +454,6 @@ public class TaskInfoActivity extends AppCompatActivity {
         editButton.setVisibility(View.VISIBLE);
         saveButton.setVisibility(View.GONE);
         cancelButton.setVisibility(View.GONE);
-
-        dueDateTitleTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDateTimePicker();
-            }
-        });
-        dueDateTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDateTimePicker();
-            }
-        });
-
     }
 
     private String getCurrentTimestamp() {
@@ -505,7 +490,6 @@ public class TaskInfoActivity extends AppCompatActivity {
         addressTextView.setText(address);
         websiteTextView.setText(website);
 
-        // Ensure that taskDone and taskDoneDate are not null before checking their values
         boolean isCompleted = "1".equals(task.getWorkInPlanDone()) && task.getWorkInPlanDoneDate() != null;
         statusCheckbox.setChecked(isCompleted);
         statusTextView.setText(isCompleted ? "Completed" : "Not completed");
@@ -643,6 +627,91 @@ public class TaskInfoActivity extends AppCompatActivity {
         emailTextView.setText(repEmail);
     }
 
+    private void showNewTaskConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(TaskInfoActivity.this);
+        builder.setTitle("Create new task?");
+        builder.setMessage("Do you want to create the same task for the selected client?");
+        builder.setPositiveButton(R.string.YES, (dialogInterface, i) -> showTaskTypeSelectionDialog());
+        builder.setNegativeButton(R.string.NO, null);
+        builder.show();
+    }
+
+    private void showTaskTypeSelectionDialog() {
+        // List of task types
+        String[] taskTypes = {"Task Type 1", "Task Type 2", "Task Type 3"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(TaskInfoActivity.this);
+        builder.setTitle("Select Task Type");
+        builder.setItems(taskTypes, (dialogInterface, i) -> {
+            String selectedTaskType = taskTypes[i];
+            showDateTimeSelectionDialog(selectedTaskType);
+        });
+        builder.show();
+    }
+
+    private void showDateTimeSelectionDialog(String taskType) {
+        // Check if the task type requires date or date+time
+        boolean isDateOnly = taskType.equals("Task Type 1"); // Example condition, adjust accordingly
+        if (isDateOnly) {
+            showDatePickerDialog();
+        } else {
+            showDateTimePickerDialog();
+        }
+    }
+
+    private void showDatePickerDialog() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(TaskInfoActivity.this, (view, year1, monthOfYear, dayOfMonth) -> {
+            String dateString = year1 + "-" + (monthOfYear + 1) + "-" + dayOfMonth;
+            showCommentDialog(dateString, null);
+        }, year, month, day);
+        datePickerDialog.show();
+    }
+
+    private void showDateTimePickerDialog() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(TaskInfoActivity.this, (view, year1, monthOfYear, dayOfMonth) -> {
+            TimePickerDialog timePickerDialog = new TimePickerDialog(TaskInfoActivity.this, (view1, hourOfDay, minute1) -> {
+                String dateString = year1 + "-" + (monthOfYear + 1) + "-" + dayOfMonth + " " + hourOfDay + ":" + minute1;
+                showCommentDialog(dateString, null);
+            }, hour, minute, true);
+            timePickerDialog.show();
+        }, year, month, day);
+        datePickerDialog.show();
+    }
+
+    private void showCommentDialog(String date, String time) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(TaskInfoActivity.this);
+        builder.setTitle("Add Comment");
+
+        final EditText input = new EditText(TaskInfoActivity.this);
+        input.setHint("Optional Comment");
+        builder.setView(input);
+
+        builder.setPositiveButton(R.string.YES, (dialog, which) -> {
+            String comment = input.getText().toString();
+            createNewTask(date, time, comment);
+        });
+        builder.setNegativeButton(R.string.NO, (dialog, which) -> dialog.cancel());
+        builder.show();
+    }
+
+    private void createNewTask(String date, String time, String comment) {
+        // Implement the logic to create a new task using the provided date, time, and comment
+        // This might involve calling an API or updating local data
+
+        Toast.makeText(TaskInfoActivity.this, "New task created with date: " + date + " and comment: " + comment, Toast.LENGTH_SHORT).show();
+    }
+
     public interface OnCustomerRetrieved {
         void getResult(ApiResponseGetCustomer result);
     }
@@ -683,6 +752,7 @@ public class TaskInfoActivity extends AppCompatActivity {
             }
         });
     }
+
     private void showDateTimePicker() {
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
@@ -691,18 +761,12 @@ public class TaskInfoActivity extends AppCompatActivity {
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
 
-        DatePickerDialog datePickerDialog = new DatePickerDialog(TaskInfoActivity.this, new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                TimePickerDialog timePickerDialog = new TimePickerDialog(TaskInfoActivity.this, new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        String dateString = year + "-" + (monthOfYear + 1) + "-" + dayOfMonth + " " + hourOfDay + ":" + minute;
-                        dueDateTextView.setText(dateString);
-                    }
-                }, hour, minute, true);
-                timePickerDialog.show();
-            }
+        DatePickerDialog datePickerDialog = new DatePickerDialog(TaskInfoActivity.this, (view, year1, monthOfYear, dayOfMonth) -> {
+            TimePickerDialog timePickerDialog = new TimePickerDialog(TaskInfoActivity.this, (view1, hourOfDay, minute1) -> {
+                String dateString = year1 + "-" + (monthOfYear + 1) + "-" + dayOfMonth + " " + hourOfDay + ":" + minute1;
+                dueDateTextView.setText(dateString);
+            }, hour, minute, true);
+            timePickerDialog.show();
         }, year, month, day);
         datePickerDialog.show();
     }
