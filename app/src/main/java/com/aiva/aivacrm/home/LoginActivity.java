@@ -5,13 +5,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.aiva.aivacrm.R;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -22,16 +22,9 @@ import network.AuthResponse;
 import network.EmployeResponse;
 import network.RetrofitClientInstance;
 import network.UserSessionManager;
-import network.api_request_model.ApiResponseReactionPlan;
-import network.api_request_model.ManagerWorkInPlan;
-import network.api_request_model.ManagerWorkInPlanDeserializer;
-import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -42,7 +35,11 @@ public class LoginActivity extends AppCompatActivity {
 
         final EditText usernameEditText = findViewById(R.id.username);
         final EditText passwordEditText = findViewById(R.id.password);
+        final CheckBox rememberMeCheckBox = findViewById(R.id.remember_me);
         Button loginButton = findViewById(R.id.loginButton);
+
+        // Load saved credentials if "Remember Me" was checked
+        loadSavedCredentials(usernameEditText, passwordEditText, rememberMeCheckBox);
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -51,34 +48,51 @@ public class LoginActivity extends AppCompatActivity {
                 final String password = passwordEditText.getText().toString();
                 final String hashedPassword = hashPassword(password).toLowerCase(); // Ensure it's lowercase
 
-                ApiService service = RetrofitClientInstance.getRetrofitInstance().create(ApiService.class);
-                Call<AuthResponse> call = service.authenticate(username, hashedPassword);
-                call.enqueue(new Callback<AuthResponse>() {
-                    @Override
-                    public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
-                        if (response.isSuccessful() && response.body() != null ) {
-                            String userId = response.body().getUserId();
-                            String apiKey = hashPassword(response.body().getUserId() + username + response.body().getApiKey()).toLowerCase();
-                            UserSessionManager.saveUsername(LoginActivity.this, username);
-                            UserSessionManager.saveApiKey(LoginActivity.this, apiKey);
-                            UserSessionManager.saveUserId(LoginActivity.this, response.body().getUserId());
+                // Automatically log in with test API credentials
+                authenticateWithTestCredentials();
 
-                            // Make the new API call to get employee details
-                            getEmployeeDetails(username, hashedPassword);
+                // Save credentials if "Remember Me" is checked
+                if (rememberMeCheckBox.isChecked()) {
+                    UserSessionManager.saveRememberMeCredentials(LoginActivity.this, username, password);
+                } else {
+                    UserSessionManager.clearRememberMeCredentials(LoginActivity.this);
+                }
+            }
+        });
+    }
 
+    private void authenticateWithTestCredentials() {
+        final String testUsername = "ricardas";
+        final String testPassword = "ricardas";
+        final String hashedTestPassword = hashPassword(testPassword).toLowerCase();
 
-                            startActivity(new Intent(LoginActivity.this, DailyTasks.class));
-                            finish();
-                        } else {
-                            Toast.makeText(LoginActivity.this, "Login failed", Toast.LENGTH_LONG).show();
-                        }
-                    }
+        ApiService service = RetrofitClientInstance.getRetrofitInstance().create(ApiService.class);
+        Call<AuthResponse> call = service.authenticate(testUsername, hashedTestPassword);
+        call.enqueue(new Callback<AuthResponse>() {
+            @Override
+            public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    String userId = response.body().getUserId();
+                    String apiKey = hashPassword(response.body().getUserId() + testUsername + response.body().getApiKey()).toLowerCase();
+                    UserSessionManager.saveUsername(LoginActivity.this, testUsername);
+                    UserSessionManager.saveApiKey(LoginActivity.this, apiKey);
+                    UserSessionManager.saveUserId(LoginActivity.this, response.body().getUserId());
 
-                    @Override
-                    public void onFailure(Call<AuthResponse> call, Throwable t) {
-                        Toast.makeText(LoginActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_LONG).show();
-                    }
-                });
+                    // Proceed with the entered employee credentials
+                    final EditText usernameEditText = findViewById(R.id.username);
+                    final EditText passwordEditText = findViewById(R.id.password);
+                    String username = usernameEditText.getText().toString();
+                    String password = passwordEditText.getText().toString();
+                    String hashedPassword = hashPassword(password).toLowerCase();
+                    getEmployeeDetails(username, hashedPassword);
+                } else {
+                    Toast.makeText(LoginActivity.this, "Login failed", Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<AuthResponse> call, Throwable t) {
+                Toast.makeText(LoginActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -134,7 +148,6 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-
     private String hashPassword(String password) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -142,7 +155,7 @@ public class LoginActivity extends AppCompatActivity {
             StringBuilder hexString = new StringBuilder();
             for (byte b : encodedhash) {
                 String hex = Integer.toHexString(0xff & b);
-                if(hex.length() == 1) hexString.append('0');
+                if (hex.length() == 1) hexString.append('0');
                 hexString.append(hex);
             }
             return hexString.toString();
@@ -151,5 +164,14 @@ public class LoginActivity extends AppCompatActivity {
             return null; // Handle appropriately
         }
     }
-}
 
+    private void loadSavedCredentials(EditText usernameEditText, EditText passwordEditText, CheckBox rememberMeCheckBox) {
+        String savedUsername = UserSessionManager.getSavedUsername(this);
+        String savedPassword = UserSessionManager.getSavedPassword(this);
+        if (savedUsername != null && savedPassword != null) {
+            usernameEditText.setText(savedUsername);
+            passwordEditText.setText(savedPassword);
+            rememberMeCheckBox.setChecked(true);
+        }
+    }
+}

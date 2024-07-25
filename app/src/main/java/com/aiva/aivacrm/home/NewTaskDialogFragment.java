@@ -48,7 +48,7 @@ public class NewTaskDialogFragment extends DialogFragment {
     private boolean isDateOnly = false;
 
     public interface OnNewTaskCreatedListener {
-        void onNewTaskCreated(String action, String date, String time, String comment);
+        void onNewTaskCreated(CRMWork action, String date, String time, String comment);
     }
 
     public static NewTaskDialogFragment newInstance(OnNewTaskCreatedListener listener) {
@@ -92,7 +92,7 @@ public class NewTaskDialogFragment extends DialogFragment {
 
         MaterialButton createButton = view.findViewById(R.id.createButton);
         createButton.setOnClickListener(v -> {
-            String selectedAction = actionSpinner.getSelectedItem().toString();
+            CRMWork selectedAction = actionList.get(actionSpinner.getSelectedItemPosition());
             String date = dateEditText.getText().toString();
             String time = timeEditText.getText().toString();
             String comment = commentEditText.getText().toString();

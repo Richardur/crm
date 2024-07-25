@@ -3,8 +3,12 @@ package com.aiva.aivacrm.home;
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -19,12 +23,11 @@ import com.aiva.aivacrm.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import adapter.AdapterTasks;
 import model.Task;
@@ -48,6 +51,11 @@ public class DailyTasks extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SharedPreferences prefs = getSharedPreferences("Settings", MODE_PRIVATE);
+        String language = prefs.getString("My_Lang", "en");
+        setLocale(language);
+
         setContentView(R.layout.activity_daily_tasks);
 
         initComponents();
@@ -58,14 +66,11 @@ public class DailyTasks extends AppCompatActivity {
 
         calendarServiceSingleton = new GoogleCalendarServiceSingleton(this);
 
-        // Initialize views
         FloatingActionButton menuFab = findViewById(R.id.menu_fab);
         ImageButton menuButton = findViewById(R.id.menu_button);
 
-        // Set click listener for the new FAB
         menuFab.setOnClickListener(v -> openCurrentMenuFunctionality());
 
-        // Set click listener for the menu button for sign out and options
         menuButton.setOnClickListener(view -> {
             PopupMenu popup = new PopupMenu(DailyTasks.this, view);
             popup.inflate(R.menu.sign_out_options);
@@ -81,8 +86,10 @@ public class DailyTasks extends AppCompatActivity {
                         filterTasks(TaskFilter.PENDING);
                         return true;
                     case R.id.action_sign_out:
-                        // Implement sign-out functionality
                         signOut();
+                        return true;
+                    case R.id.action_language_switch:
+                        switchLanguage();
                         return true;
                     default:
                         return false;
@@ -103,7 +110,6 @@ public class DailyTasks extends AppCompatActivity {
     }
 
     private void openCurrentMenuFunctionality() {
-        // Implement the functionality that was previously in the menu button
         PopupMenu popup = new PopupMenu(DailyTasks.this, findViewById(R.id.menu_fab));
         popup.inflate(R.menu.menu_options);
         popup.setOnMenuItemClickListener(item -> {
@@ -118,26 +124,10 @@ public class DailyTasks extends AppCompatActivity {
                     filterTasks(TaskFilter.PENDING);
                     return true;
                 case R.id.action_sign_out:
-                    // Implement sign-out functionality
                     signOut();
                     return true;
-                default:
-                    return false;
-            }
-        });
-        popup.show();
-    }
-
-    private void showSignOutAndOptions() {
-        // Implement sign out and options
-        // You can add a dialog or another activity for settings and sign-out
-        PopupMenu popup = new PopupMenu(DailyTasks.this, findViewById(R.id.menu_button));
-        popup.inflate(R.menu.sign_out_options);
-        popup.setOnMenuItemClickListener(item -> {
-            switch (item.getItemId()) {
-                case R.id.action_sign_out:
-                    // Implement sign-out functionality
-                    signOut();
+                case R.id.action_language_switch:
+                    switchLanguage();
                     return true;
                 default:
                     return false;
@@ -147,23 +137,33 @@ public class DailyTasks extends AppCompatActivity {
     }
 
     private void signOut() {
-        // Implement your sign-out functionality here
-        // For example, clear user session and redirect to login activity
         UserSessionManager.clearSession(this);
-        // Redirect to login activity
-        // Intent intent = new Intent(this, LoginActivity.class);
-        // startActivity(intent);
         finish();
     }
 
-    public void setAdapterTasks(AdapterTasks adapterTasks) {
-        this.adapterTasks = adapterTasks;
-        // Ensure allTasks is initially populated only once
-        if (!tasksInitialized && adapterTasks != null) {
-            allTasks = adapterTasks.getTasks();
-            tasksInitialized = true;
-            filterTasks(TaskFilter.PENDING); // Initial filter to show pending tasks
-        }
+    private void switchLanguage() {
+        SharedPreferences prefs = getSharedPreferences("Settings", MODE_PRIVATE);
+        String currentLanguage = prefs.getString("My_Lang", "en");
+        String newLanguage = currentLanguage.equals("en") ? "lt" : "en";
+
+        setLocale(newLanguage);
+
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("My_Lang", newLanguage);
+        editor.apply();
+
+        // Restart activity to apply the language change
+        Intent intent = getIntent();
+        finish();
+        startActivity(intent);
+    }
+
+    private void setLocale(String lang) {
+        Locale locale = new Locale(lang);
+        Locale.setDefault(locale);
+        Configuration config = new Configuration();
+        config.locale = locale;
+        getBaseContext().getResources().updateConfiguration(config, getBaseContext().getResources().getDisplayMetrics());
     }
 
     private void filterTasks(TaskFilter filter) {
@@ -206,6 +206,16 @@ public class DailyTasks extends AppCompatActivity {
 
         if (adapterTasks != null) {
             adapterTasks.updateTasks(filteredTasks);
+        }
+    }
+
+    public void setAdapterTasks(AdapterTasks adapterTasks) {
+        this.adapterTasks = adapterTasks;
+        // Ensure allTasks is initially populated only once
+        if (!tasksInitialized && adapterTasks != null) {
+            allTasks = adapterTasks.getTasks();
+            tasksInitialized = true;
+            filterTasks(TaskFilter.PENDING); // Initial filter to show pending tasks
         }
     }
 

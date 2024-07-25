@@ -12,8 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true"
-        android:theme="@style/Theme.AivaCRM.AppBarOverlay"
-        />
+        android:theme="@style/Theme.AivaCRM.AppBarOverlay" />
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nested_content"
@@ -29,7 +28,7 @@
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:paddingTop="24dp"> <!-- Add padding here -->
+            android:paddingTop="24dp">
 
             <TextView
                 android:id="@+id/client_name"
@@ -82,7 +81,6 @@
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_navigation"
                     app:tint="@color/red_A200" />
-
             </LinearLayout>
 
             <TextView
@@ -133,7 +131,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/spacing_xsmall"
-                            android:text="Not completed"
+                            android:text="@string/not_completed"
                             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                             android:textColor="@color/grey_60" />
 
@@ -444,7 +442,7 @@
                         android:id="@+id/order_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Order"
+                        android:text="@string/order_title"
                         android:textAppearance="@style/TextAppearance.AppCompat.Title"
                         android:textColor="@color/red_A200" />
 
@@ -516,6 +514,21 @@
         app:backgroundTint="@color/red_A200"
         app:fabSize="normal"
         app:srcCompat="@drawable/ic_add"
+        app:tint="@android:color/white"
+        app:maxImageSize="36dp" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/delete_button"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toStartOf="@id/cancel_button"
+        android:layout_margin="@dimen/spacing_smlarge"
+        android:clickable="true"
+        app:backgroundTint="@color/red_A200"
+        app:fabSize="normal"
+        app:srcCompat="@drawable/ic_delete"
         app:tint="@android:color/white"
         app:maxImageSize="36dp" />
 

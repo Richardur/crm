@@ -1,13 +1,16 @@
 package com.aiva.aivacrm.home;
 
+import static android.app.Activity.RESULT_OK;
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 import static data.GetTasks.getActionsInfo;
-import static data.GetTasks.getWorkPlan;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -71,6 +74,8 @@ public class TasksTab extends Fragment {
     private String currentEmployeeID;
     private List<Integer> dateOnlyActionIds = new ArrayList<>();
 
+    private ActivityResultLauncher<Intent> taskInfoLauncher;
+
     public TasksTab() {
         // Required empty public constructor
     }
@@ -88,6 +93,17 @@ public class TasksTab extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        taskInfoLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        // Handle the result, refresh tasks
+                        refreshTasks(DailyTasks.TaskFilter.ALL);
+                    }
+                }
+        );
+
         GoogleCalendarServiceSingleton.getInstance(getContext()); // Initialize without API key
         if (getArguments() != null) {
             time1 = getArguments().getString(ARG_PARAM1);
@@ -122,15 +138,11 @@ public class TasksTab extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
         recyclerView.setHasFixedSize(true);
-        mAdapter = new AdapterTasks(getContext(), new ArrayList<>(), new AdapterTasks.OnTaskItemClickListener() {
-            @Override
-            public void onTaskItemClick(Task task) {
-                Intent taskInfoIntent = new Intent(getContext(), TaskInfoActivity.class);
-                taskInfoIntent.putExtra("Task", task);
-                startActivity(taskInfoIntent);
-            }
+        mAdapter = new AdapterTasks(getContext(), new ArrayList<>(), task -> {
+            Intent taskInfoIntent = new Intent(getContext(), TaskInfoActivity.class);
+            taskInfoIntent.putExtra("Task", task);
+            taskInfoLauncher.launch(taskInfoIntent);
         }, false, false); // Do not show full date and time, isTaskListActivity = false
-// Do not show full date and time
 
         Log.d("TasksTab", "Setting adapter with OnTaskItemClickListener");
         recyclerView.setAdapter(mAdapter);
@@ -141,7 +153,6 @@ public class TasksTab extends Fragment {
             ((DailyTasks) getActivity()).setAdapterTasks(mAdapter);
         }
     }
-
 
     public void updateTasks(List<Task> tasks) {
         if (mAdapter != null) {
@@ -179,36 +190,28 @@ public class TasksTab extends Fragment {
 
     private void updateAdapter(List<Task> tasks) {
         // Sort tasks based on workInPlanTerm
-        Collections.sort(tasks, new Comparator<Task>() {
-            @Override
-            public int compare(Task task1, Task task2) {
-                return task1.getWorkInPlanTerm().compareTo(task2.getWorkInPlanTerm());
-            }
-        });
+        Collections.sort(tasks, Comparator.comparing(Task::getWorkInPlanTerm));
 
         mAdapter.setItems(tasks);
         mAdapter.notifyDataSetChanged();
     }
 
     private void fetchActionInfo(){
-        getActionsInfo(getContext(), new OnActionsInfoRetrieved() {
-            @Override
-            public void getResult(CRMWorkResponse result) {
-                if (result != null && result.isSuccess()) {
-                    List<CRMWork> crmWorkList = result.getData().getCrmWorkList();
-                    if (crmWorkList != null) {
-                        for (CRMWork work : crmWorkList) {
-                            if ("yyyy.mm.dd".equals(work.getCRMWorkFormat())) {
-                                dateOnlyActionIds.add(work.getCRMWorkID());
-                            }
+        getActionsInfo(getContext(), result -> {
+            if (result != null && result.isSuccess()) {
+                List<CRMWork> crmWorkList = result.getData().getCrmWorkList();
+                if (crmWorkList != null) {
+                    for (CRMWork work : crmWorkList) {
+                        if ("yyyy.mm.dd".equals(work.getCRMWorkFormat())) {
+                            dateOnlyActionIds.add(work.getCRMWorkID());
                         }
-                        mAdapter.setDateOnlyActionIds(dateOnlyActionIds);  // Pass the IDs to the adapter
-                        Log.d(TAG, "Date only action IDs: " + dateOnlyActionIds);
                     }
+                    mAdapter.setDateOnlyActionIds(dateOnlyActionIds);  // Pass the IDs to the adapter
+                    Log.d(TAG, "Date only action IDs: " + dateOnlyActionIds);
                 }
-                // After fetching the action info, fetch tasks
-                scheduleCall(DailyTasks.TaskFilter.PENDING);
             }
+            // After fetching the action info, fetch tasks
+            scheduleCall(DailyTasks.TaskFilter.PENDING);
         });
     }
 
@@ -269,61 +272,58 @@ public class TasksTab extends Fragment {
     private void fetchDataFromDbAndCombine(List<Task> adapterItems, DailyTasks.TaskFilter filter, String formattedTime1, String formattedTime2) {
         Context context = getContext();
         Log.d(TAG, "Fetching tasks from database");
-        GetTasks.getWorkPlan(context, "", "", formattedTime1, formattedTime2, new OnTasksRetrieved() {
-            @Override
-            public void getResult(ApiResponseReactionPlan result) {
-                if (isAdded() && getActivity() != null) {
-                    getActivity().runOnUiThread(() -> {
-                        if (result != null && result.isSuccess() && result.getData() != null) {
-                            List<ManagerReactionWorkInPlan.ManagerReactionInPlanHeader> headers = result.getData().getManagerReactionInPlanHeaderList();
-                            for (ManagerReactionWorkInPlan.ManagerReactionInPlanHeader header : headers) {
-                                for (ManagerReactionWorkInPlan.ManagerReactionWork work : header.getManagerReactionWork()) {
-                                    String reactionWorkManagerID = work.getReactionWorkManagerID() != null ? String.valueOf(work.getReactionWorkManagerID()) : "";
+        GetTasks.getWorkPlan(context, "", "", formattedTime1, formattedTime2, result -> {
+            if (isAdded() && getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    if (result != null && result.isSuccess() && result.getData() != null) {
+                        List<ManagerReactionWorkInPlan.ManagerReactionInPlanHeader> headers = result.getData().getManagerReactionInPlanHeaderList();
+                        for (ManagerReactionWorkInPlan.ManagerReactionInPlanHeader header : headers) {
+                            for (ManagerReactionWorkInPlan.ManagerReactionWork work : header.getManagerReactionWork()) {
+                                String reactionWorkManagerID = work.getReactionWorkManagerID() != null ? String.valueOf(work.getReactionWorkManagerID()) : "";
 
-                                    if (reactionWorkManagerID.equals(UserSessionManager.getEmployeeId(getContext()))) {
-                                        String reactionHeaderID = header.getReactionHeaderID() != null ? header.getReactionHeaderID() : "";
-                                        String reactionHeaderManagerID = header.getReactionManagerID() != null ? header.getReactionManagerID() : "";
-                                        String workInPlanForCustomerID = work.getReactionWorkForCustomerID() != null ? String.valueOf(work.getReactionWorkForCustomerID()) : "";
-                                        if (workInPlanForCustomerID.equals("null") || workInPlanForCustomerID.equals("0") || workInPlanForCustomerID.equals(""))
-                                            workInPlanForCustomerID = header.getReactionForCustomerID();
-                                        String workInPlanForCustomerOrder = header.getReactionByOrderNo() != null ? header.getReactionByOrderNo() : "";
+                                if (reactionWorkManagerID.equals(UserSessionManager.getEmployeeId(getContext()))) {
+                                    String reactionHeaderID = header.getReactionHeaderID() != null ? header.getReactionHeaderID() : "";
+                                    String reactionHeaderManagerID = header.getReactionManagerID() != null ? header.getReactionManagerID() : "";
+                                    String workInPlanForCustomerID = work.getReactionWorkForCustomerID() != null ? String.valueOf(work.getReactionWorkForCustomerID()) : "";
+                                    if (workInPlanForCustomerID.equals("null") || workInPlanForCustomerID.equals("0") || workInPlanForCustomerID.equals(""))
+                                        workInPlanForCustomerID = header.getReactionForCustomerID();
+                                    String workInPlanForCustomerOrder = header.getReactionByOrderNo() != null ? header.getReactionByOrderNo() : "";
 
-                                        int workInPlanID = work.getReactionWorkID() != null ? work.getReactionWorkID() : 0;
-                                        String managerName = work.getReactionWorkManageName() != null ? work.getReactionWorkManageName() : "";
-                                        String reactionWorkActionID = work.getReactionWorkActionID() != null ? String.valueOf(work.getReactionWorkActionID()) : "";
-                                        int tempActionID = Integer.parseInt(reactionWorkActionID);
+                                    int workInPlanID = work.getReactionWorkID() != null ? work.getReactionWorkID() : 0;
+                                    String managerName = work.getReactionWorkManageName() != null ? work.getReactionWorkManageName() : "";
+                                    String reactionWorkActionID = work.getReactionWorkActionID() != null ? String.valueOf(work.getReactionWorkActionID()) : "";
+                                    int tempActionID = Integer.parseInt(reactionWorkActionID);
 
-                                        boolean isDateOnlyAction = dateOnlyActionIds.contains(tempActionID);
+                                    boolean isDateOnlyAction = dateOnlyActionIds.contains(tempActionID);
 
-                                        String workInPlanName = work.getReactionWorkActionName() != null ? work.getReactionWorkActionName() : "";
-                                        String workInPlanNote = work.getReactionWorkNote() != null ? work.getReactionWorkNote() : "";
-                                        String workInPlanForCustomerName = work.getReactionWorkForCustomerName() != null ? work.getReactionWorkForCustomerName() : "";
+                                    String workInPlanName = work.getReactionWorkActionName() != null ? work.getReactionWorkActionName() : "";
+                                    String workInPlanNote = work.getReactionWorkNote() != null ? work.getReactionWorkNote() : "";
+                                    String workInPlanForCustomerName = work.getReactionWorkForCustomerName() != null ? work.getReactionWorkForCustomerName() : "";
 
-                                        Timestamp workInPlanTerm = parseTimestamp(work.getReactionWorkTerm());
-                                        Timestamp workInPlanDoneDate = parseTimestamp(work.getReactionWorkDoneDate());
-                                        String workInPlanDone = work.getReactionWorkDone() != null ? work.getReactionWorkDone() : "";
+                                    Timestamp workInPlanTerm = parseTimestamp(work.getReactionWorkTerm());
+                                    Timestamp workInPlanDoneDate = parseTimestamp(work.getReactionWorkDoneDate());
+                                    String workInPlanDone = work.getReactionWorkDone() != null ? work.getReactionWorkDone() : "";
 
-                                        // Only include tasks whose term falls within the selected day
-                                        if (workInPlanTerm != null && convertToLocalDate(workInPlanTerm).equals(selectedDate)) {
-                                            Task task = new Task(reactionHeaderID, reactionHeaderManagerID, workInPlanForCustomerID, workInPlanForCustomerOrder, workInPlanID, reactionWorkManagerID, managerName, reactionWorkActionID, workInPlanName, workInPlanNote, workInPlanForCustomerName, workInPlanTerm, workInPlanDoneDate, workInPlanDone, isDateOnlyAction);
-                                            itemsFromDB.add(task);
-                                        }
+                                    // Only include tasks whose term falls within the selected day
+                                    if (workInPlanTerm != null && convertToLocalDate(workInPlanTerm).equals(selectedDate)) {
+                                        Task task = new Task(reactionHeaderID, reactionHeaderManagerID, workInPlanForCustomerID, workInPlanForCustomerOrder, workInPlanID, reactionWorkManagerID, managerName, reactionWorkActionID, workInPlanName, workInPlanNote, workInPlanForCustomerName, workInPlanTerm, workInPlanDoneDate, workInPlanDone, isDateOnlyAction);
+                                        itemsFromDB.add(task);
                                     }
                                 }
                             }
-
-                            Log.d(TAG, "Fetched " + itemsFromDB.size() + " tasks from database");
-                            adapterItems.addAll(itemsFromDB);
-                            updateAdapterWithFilter(adapterItems, filter);
-                            if (getActivity() instanceof DailyTasks) {
-                                ((DailyTasks) getActivity()).setAdapterTasks(mAdapter);
-                            }
-                        } else {
-                            Log.e("WorkPlan", "No data found in response or response is not successful.");
                         }
-                        isApiCallInProgress = false;
-                    });
-                }
+
+                        Log.d(TAG, "Fetched " + itemsFromDB.size() + " tasks from database");
+                        adapterItems.addAll(itemsFromDB);
+                        updateAdapterWithFilter(adapterItems, filter);
+                        if (getActivity() instanceof DailyTasks) {
+                            ((DailyTasks) getActivity()).setAdapterTasks(mAdapter);
+                        }
+                    } else {
+                        Log.e("WorkPlan", "No data found in response or response is not successful.");
+                    }
+                    isApiCallInProgress = false;
+                });
             }
         });
     }
@@ -380,12 +380,7 @@ public class TasksTab extends Fragment {
             }
         }
 
-        Collections.sort(tasksWithTime, new Comparator<Task>() {
-            @Override
-            public int compare(Task task1, Task task2) {
-                return task1.getWorkInPlanTerm().compareTo(task2.getWorkInPlanTerm());
-            }
-        });
+        Collections.sort(tasksWithTime, Comparator.comparing(Task::getWorkInPlanTerm));
 
         List<Task> finalTasks = new ArrayList<>();
         finalTasks.addAll(tasksWithoutTime);

@@ -43,6 +43,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import model.CRMWork;
 import model.Customer;
 import model.Task;
 import network.ApiResponseUpdate;
@@ -64,6 +65,7 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
 
     private ActivityTaskInfoBinding binding;
 
+
     private String taskCustomerId;
     private int taskId;
     private String taskComment, taskCustomer, taskDate, taskDone, taskDoneDate;
@@ -81,16 +83,13 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
     private EditText editPhone, editEmail, editWebsite, editAddress, editComment;
     private ImageButton callButton, emailButton, mapButton, editButton, saveButton, cancelButton;
     private CheckBox statusCheckbox;
-    private FloatingActionButton newTaskButton;
+    private FloatingActionButton newTaskButton, deleteButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityTaskInfoBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        //Toolbar toolbar = binding.toolbar;
-        //setSupportActionBar(toolbar);
 
         initializeViews();
         setListeners();
@@ -141,6 +140,7 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
         editComment = findViewById(R.id.edit_comment);
 
         statusCheckbox = findViewById(R.id.status_checkbox);
+        deleteButton = findViewById(R.id.delete_button);
     }
 
     private void setListeners() {
@@ -175,7 +175,6 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
             startActivity(intent);
         });
 
-
         emailButton.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType("text/html");
@@ -199,6 +198,8 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
 
         editButton.setOnClickListener(v -> showEditConfirmationDialog());
         newTaskButton.setOnClickListener(v -> showNewTaskDialog());
+        deleteButton.setOnClickListener(v -> deleteTask());
+        binding.deleteButton.setOnClickListener(v -> deleteTask());
     }
 
     private void showNewTaskDialog() {
@@ -208,11 +209,11 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
     }
 
     @Override
-    public void onNewTaskCreated(String action, String date, String time, String comment) {
+    public void onNewTaskCreated(CRMWork action, String date, String time, String comment) {
         createNewTask(action, date, time, comment);
     }
 
-    private void createNewTask(String action, String date, String time, String comment) {
+    private void createNewTask(CRMWork action, String date, String time, String comment) {
         String apiKey = UserSessionManager.getApiKey(this);
         String userId = UserSessionManager.getUserId(this);
 
@@ -235,8 +236,8 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
         List<ManagerReactionWorkInPlan.ManagerReactionWork> works = new ArrayList<>();
         ManagerReactionWorkInPlan.ManagerReactionWork newWork = new ManagerReactionWorkInPlan.ManagerReactionWork();
         newWork.setReactionWorkManagerID(reactionWorkManagerId);
-        newWork.setReactionWorkActionID(reactionWorkActionId);
-        newWork.setReactionWorkActionName(action);
+        newWork.setReactionWorkActionID(String.valueOf(action.getCRMWorkID()));
+        newWork.setReactionWorkActionName(action.getCRMWorkName());
         newWork.setReactionWorkTerm(date + (time.isEmpty() ? "" : " " + time));
         newWork.setReactionWorkNote(comment);
         works.add(newWork);
@@ -249,6 +250,7 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
             public void onResponse(Call<ApiResponseUpdate> call, Response<ApiResponseUpdate> response) {
                 if (response.isSuccessful()) {
                     Log.d("UpdateWorkPlan", "New task creation successful");
+                    setResult(RESULT_OK);
                 } else {
                     Log.e("UpdateWorkPlan", "New task creation failed: " + response.code());
                 }
@@ -259,6 +261,59 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
                 Log.e("UpdateWorkPlan", "Network error: " + t.getMessage());
             }
         });
+    }
+    private void deleteTask() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(TaskInfoActivity.this);
+        builder.setTitle("Delete Task")
+                .setMessage("Are you sure you want to delete this task?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    String apiKey = UserSessionManager.getApiKey(TaskInfoActivity.this);
+                    String userId = UserSessionManager.getUserId(TaskInfoActivity.this);
+
+                    if (apiKey == null || apiKey.isEmpty() || userId == null || userId.isEmpty()) {
+                        Toast.makeText(TaskInfoActivity.this, "Please login again.", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    ManagerReactionUpdateRequest taskUpdateRequest = new ManagerReactionUpdateRequest();
+                    taskUpdateRequest.setUserId(userId);
+                    taskUpdateRequest.setApiKey(apiKey);
+                    taskUpdateRequest.setAction("update");
+                    taskUpdateRequest.setLanguageCode("lt");
+
+                    ManagerReactionWorkInPlan.ManagerReactionInPlanHeader header = new ManagerReactionWorkInPlan.ManagerReactionInPlanHeader();
+                    header.setReactionHeaderID(reactionHeaderId);
+                    header.setReactionManagerID(reactionHeaderManagerId);
+                    header.setReactionForCustomerID(taskCustomerId);
+
+                    List<ManagerReactionWorkInPlan.ManagerReactionWork> works = new ArrayList<>();
+                    ManagerReactionWorkInPlan.ManagerReactionWork work = new ManagerReactionWorkInPlan.ManagerReactionWork();
+                    work.setReactionWorkID(String.valueOf(taskId));
+                    works.add(work);
+
+                    taskUpdateRequest.setManagerReactionInPlanHeaderReg(header);
+                    taskUpdateRequest.setManagerReactionWorkReg(works);
+
+                    updateWorkPlan(TaskInfoActivity.this, taskUpdateRequest, new Callback<ApiResponseUpdate>() {
+                        @Override
+                        public void onResponse(Call<ApiResponseUpdate> call, Response<ApiResponseUpdate> response) {
+                            if (response.isSuccessful()) {
+                                Toast.makeText(TaskInfoActivity.this, "Task deleted successfully", Toast.LENGTH_SHORT).show();
+                                setResult(RESULT_OK);
+                                finish();
+                            } else {
+                                Toast.makeText(TaskInfoActivity.this, "Failed to delete task", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ApiResponseUpdate> call, Throwable t) {
+                            Toast.makeText(TaskInfoActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                })
+                .setNegativeButton("No", null)
+                .show();
     }
 
 
@@ -282,7 +337,6 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
         String workDone = isChecked ? "1" : "0";
         String workDoneDate = isChecked ? getCurrentTimestamp() : null;
 
-        // Implement API call to update the task status here
         updateTaskStatus(taskId, workDone, workDoneDate);
     }
 
@@ -328,6 +382,12 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
 
         saveButton.setOnClickListener(v -> saveChanges());
         cancelButton.setOnClickListener(v -> exitEditMode());
+
+        editButton.setVisibility(View.GONE);
+        saveButton.setVisibility(View.VISIBLE);
+        cancelButton.setVisibility(View.VISIBLE);
+        deleteButton.setVisibility(View.VISIBLE);
+        newTaskButton.setVisibility(View.GONE);
     }
 
     private void saveChanges() {
@@ -516,6 +576,12 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
         editButton.setVisibility(View.VISIBLE);
         saveButton.setVisibility(View.GONE);
         cancelButton.setVisibility(View.GONE);
+
+        editButton.setVisibility(View.VISIBLE);
+        saveButton.setVisibility(View.GONE);
+        cancelButton.setVisibility(View.GONE);
+        deleteButton.setVisibility(View.GONE);
+        newTaskButton.setVisibility(View.VISIBLE);
     }
 
     private String getCurrentTimestamp() {

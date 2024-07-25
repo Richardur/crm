@@ -38,7 +38,7 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center_horizontal"
-                android:paddingTop="8dp"> <!-- Add paddingTop to lower the texts -->
+                android:paddingTop="8dp">
 
                 <TextView
                     android:id="@+id/monthYearTV"
@@ -58,7 +58,7 @@
                     android:textColor="@color/grey_60"
                     android:textSize="14sp"
                     android:gravity="center"
-                    android:text="Employee Name" />
+                    android:text="@string/subject" />
             </LinearLayout>
 
             <ImageButton
@@ -90,7 +90,6 @@
         app:tabTextAppearance="@style/TextAppearance.AppCompat.Subhead"
         app:tabTextColor="@color/grey_40">
 
-        <!-- Define TabItems here -->
         <com.google.android.material.tabs.TabItem
             android:id="@+id/tab_1"
             android:layout_width="wrap_content"
@@ -135,11 +134,11 @@
 
     </com.google.android.material.tabs.TabLayout>
 
-
     <FrameLayout
         android:id="@+id/tabFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/menu_fab"
             android:layout_width="wrap_content"
@@ -152,13 +151,11 @@
             app:srcCompat="@drawable/ic_sort"
             app:tint="@android:color/white"
             app:maxImageSize="36dp"
-            android:contentDescription="TODO" />
+            android:contentDescription="@string/task" />
+
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/view_pager2"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </FrameLayout>
-
-
-
 </LinearLayout>

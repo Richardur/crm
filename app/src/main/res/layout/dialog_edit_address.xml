@@ -9,30 +9,30 @@
         android:id="@+id/edit_street"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Street" />
+        android:hint="@string/street" />
 
     <EditText
         android:id="@+id/edit_house"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="House" />
+        android:hint="@string/house" />
 
     <EditText
         android:id="@+id/edit_post_index"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Post Index" />
+        android:hint="@string/post_index" />
 
     <EditText
         android:id="@+id/edit_city"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="City" />
+        android:hint="@string/city" />
 
     <EditText
         android:id="@+id/edit_country_code"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Country Code" />
+        android:hint="@string/country_code" />
 
 </LinearLayout>

@@ -14,6 +14,8 @@ public class UserSessionManager {
     private static final String KEY_USER_ID = "userId";
     private static final String KEY_EMPLOYEE_ID = "employeeId";
     private static final String KEY_EMPLOYEE_NAME = "employeeName";
+    private static final String KEY_REMEMBER_ME_USERNAME = "rememberMeUsername";
+    private static final String KEY_REMEMBER_ME_PASSWORD = "rememberMePassword";
 
     private static SharedPreferences sharedPreferences;
     private static SharedPreferences.Editor editor;
@@ -48,6 +50,30 @@ public class UserSessionManager {
         editor.putString(KEY_EMPLOYEE_ID, String.valueOf(employee.getEmployeID()));
         editor.putString(KEY_EMPLOYEE_NAME, employee.getEmployeName() + " " + employee.getEmploeerSurname());
         editor.commit(); // Commit the changes to save them
+    }
+
+    public static void saveRememberMeCredentials(Context context, String username, String password) {
+        init(context);
+        editor.putString(KEY_REMEMBER_ME_USERNAME, username);
+        editor.putString(KEY_REMEMBER_ME_PASSWORD, password);
+        editor.commit();
+    }
+
+    public static void clearRememberMeCredentials(Context context) {
+        init(context);
+        editor.remove(KEY_REMEMBER_ME_USERNAME);
+        editor.remove(KEY_REMEMBER_ME_PASSWORD);
+        editor.commit();
+    }
+
+    public static String getSavedUsername(Context context) {
+        init(context);
+        return sharedPreferences.getString(KEY_REMEMBER_ME_USERNAME, null);
+    }
+
+    public static String getSavedPassword(Context context) {
+        init(context);
+        return sharedPreferences.getString(KEY_REMEMBER_ME_PASSWORD, null);
     }
 
     public static String getApiKey(Context context) {
