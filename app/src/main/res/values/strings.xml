@@ -58,5 +58,25 @@
     <string name="language_switch">Switch Language</string>
     <string name="large_text">Large Text</string>
 
+    <string name="action_show_all">Show All Tasks</string>
+    <string name="action_show_completed">Show Completed Tasks</string>
+    <string name="action_show_pending">Show Pending Tasks</string>
+    <string name="action_sign_out">Sign Out</string>
+    <string name="action_language_switch">Switch Language</string>
+    <string name="action_connect_google">Connect Google Account</string>
+    <string name="action_disconnect_google">Disconnect Google Account</string>
+    <string name="action_sync_calendar">Sync Calendar</string>
+    <string name="google_account_connected">Google Account Connected</string>
+    <string name="google_account_disconnected">Google Account Disconnected</string>
+    <string name="failed_to_connect_google_account">Failed to connect Google Account</string>
+    <string name="fetch_failed_google_calendar">Failed to fetch events from Google Calendar</string>
+    <string name="connect_google_first">Please connect a Google Account first</string>
+    <string name="you_have_an_upcoming_event">You have an upcoming event</string>
+    <string name="channel_name">Event Notifications</string>
+    <string name="channel_description">Notifications for upcoming events</string>
+    <string name="filter_by_assignment">Filter by Assignment</string>
+    <string name="filter_by_status">Filter by Status</string>
+
+
 </resources>
 

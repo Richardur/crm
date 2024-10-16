@@ -63,7 +63,8 @@ public class ManagerReactionUpdateRequest {
     }
 
     public void setManagerReactionInPlanHeaderReg(ManagerReactionWorkInPlan.ManagerReactionInPlanHeader managerReactionInPlanHeader) {
-        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+        Gson gson = new GsonBuilder().disableHtmlEscaping().setLenient().create();
+
         this.managerReactionInPlanHeaderReg = gson.toJson(managerReactionInPlanHeader);
     }
 
@@ -72,7 +73,7 @@ public class ManagerReactionUpdateRequest {
     }
 
     public void setManagerReactionWorkReg(List<ManagerReactionWorkInPlan.ManagerReactionWork> managerReactionWorkList) {
-        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+        Gson gson = new GsonBuilder().disableHtmlEscaping().setLenient().create();
         this.managerReactionWorkReg = gson.toJson(managerReactionWorkList);
     }
 }

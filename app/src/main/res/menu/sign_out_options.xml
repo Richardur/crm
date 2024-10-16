@@ -5,4 +5,7 @@
     <item
         android:id="@+id/action_language_switch"
         android:title="@string/language_switch" />
+    <item android:id="@+id/action_connect_google" android:title="@string/action_connect_google"/>
+    <item android:id="@+id/action_disconnect_google" android:title="@string/action_disconnect_google"/>
+    <item android:id="@+id/action_sync_calendar" android:title="@string/action_sync_calendar"/>
 </menu>

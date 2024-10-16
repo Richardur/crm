@@ -2,6 +2,7 @@ package network;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import model.Employe;
 
@@ -41,6 +42,7 @@ public class UserSessionManager {
 
     public static void saveUserId(Context context, String userId) {
         init(context);
+        Log.d("UserSessionManager", "Saving userId: " + userId);
         editor.putString(KEY_USER_ID, userId);
         editor.commit(); // Use commit to ensure the data is saved immediately
     }
@@ -88,7 +90,9 @@ public class UserSessionManager {
 
     public static String getUserId(Context context) {
         init(context);
-        return sharedPreferences.getString(KEY_USER_ID, null);
+        String userId = sharedPreferences.getString(KEY_USER_ID, null);
+        Log.d("UserSessionManager", "Retrieved userId: " + userId);
+        return userId;
     }
 
     public static String getEmployeeId(Context context) {
@@ -101,9 +105,17 @@ public class UserSessionManager {
         return sharedPreferences.getString(KEY_EMPLOYEE_NAME, null);
     }
 
-    public static void clearSession(Context context) {
+    public static void clearSession(Context context, boolean clearRememberMe) {
         init(context);
         editor.clear();
+        if (!clearRememberMe) {
+            String username = getSavedUsername(context);
+            String password = getSavedPassword(context);
+            if (username != null && password != null) {
+                editor.putString(KEY_REMEMBER_ME_USERNAME, username);
+                editor.putString(KEY_REMEMBER_ME_PASSWORD, password);
+            }
+        }
         editor.commit();
     }
 }

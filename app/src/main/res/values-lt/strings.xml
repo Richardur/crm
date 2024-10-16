@@ -57,4 +57,24 @@
     <string name="not_completed_default">Neatlikta (numatytoji)</string>
     <string name="language_switch">Keisti kalbą</string>
     <string name="large_text">Didelis Tekstas</string>
+    <string name="action_show_all">Rodyti visas užduotis</string>
+    <string name="action_show_completed">Rodyti baigtas užduotis</string>
+    <string name="action_show_pending">Rodyti laukiančias užduotis</string>
+    <string name="action_sign_out">Atsijungti</string>
+    <string name="action_language_switch">Keisti kalbą</string>
+    <string name="action_connect_google">Prisijungti prie „Google“ paskyros</string>
+    <string name="action_disconnect_google">Atsijungti nuo „Google“ paskyros</string>
+    <string name="action_sync_calendar">Sinchronizuoti kalendorių</string>
+    <string name="google_account_connected">„Google“ paskyra prijungta</string>
+    <string name="google_account_disconnected">„Google“ paskyra atjungta</string>
+    <string name="failed_to_connect_google_account">Nepavyko prisijungti prie „Google“ paskyros</string>
+    <string name="fetch_failed_google_calendar">Nepavyko gauti įvykių iš „Google“ kalendoriaus</string>
+    <string name="connect_google_first">Pirmiausia prisijunkite prie „Google“ paskyros</string>
+    <string name="you_have_an_upcoming_event">Jūs turite artėjantį įvykį</string>
+    <string name="channel_name">Įvykių pranešimai</string>
+    <string name="channel_description">Pranešimai apie artėjančius įvykius</string>
+    <string name="filter_by_assignment">Filtruoti pagal priskyrimą</string>
+    <string name="filter_by_status">Filtruoti pagal būseną</string>
+
+
 </resources>

@@ -19,6 +19,8 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -102,6 +104,29 @@ public class AdapterTasks extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     }
 
     public void setItems(List<Task> items) {
+        // Sort the tasks, putting non-date-only (timed) tasks first, and date-only tasks at the bottom
+        Collections.sort(items, new Comparator<Task>() {
+            @Override
+            public int compare(Task task1, Task task2) {
+                boolean isTask1DateOnly = task1.isDateOnlyAction();
+                boolean isTask2DateOnly = task2.isDateOnlyAction();
+
+                // If task1 is date-only and task2 is not, task2 should come first
+                if (isTask1DateOnly && !isTask2DateOnly) {
+                    return 1; // Task2 (not date-only) comes before Task1 (date-only)
+                }
+                // If task2 is date-only and task1 is not, task1 should come first
+                else if (!isTask1DateOnly && isTask2DateOnly) {
+                    return -1; // Task1 (not date-only) comes before Task2 (date-only)
+                }
+                // If both tasks are the same type (both date-only or both not), retain their order
+                else {
+                    return 0; // Keep the original order
+                }
+            }
+        });
+
+        // Update the list in the adapter
         setTaskList(items);
         notifyDataSetChanged();
     }

@@ -8,8 +8,6 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
@@ -25,13 +23,8 @@ import com.google.android.material.tabs.TabLayout;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
-import adapter.AdapterTasks;
-import model.Task;
-import network.GoogleCalendarServiceSingleton;
 import network.UserSessionManager;
 
 public class DailyTasks extends AppCompatActivity {
@@ -41,19 +34,16 @@ public class DailyTasks extends AppCompatActivity {
     private Button pickDate;
     private TabLayout weekdays;
     private Fragment fragment;
-    private AdapterTasks adapterTasks;
-    private List<Task> allTasks = new ArrayList<>();
-    private List<Task> filteredTasks = new ArrayList<>();
     private String t1, t2;
-    private GoogleCalendarServiceSingleton calendarServiceSingleton;
-    private boolean tasksInitialized = false;
+    private AssignmentFilter assignmentFilter = AssignmentFilter.ASSIGNED_TO_ME; // Default
+    private StatusFilter statusFilter = StatusFilter.ALL_STATUS; // Default
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         SharedPreferences prefs = getSharedPreferences("Settings", MODE_PRIVATE);
-        String language = prefs.getString("My_Lang", "en");
+        String language = prefs.getString("My_Lang", "lt"); // Default to "lt" if not set
         setLocale(language);
 
         setContentView(R.layout.activity_daily_tasks);
@@ -64,8 +54,6 @@ public class DailyTasks extends AppCompatActivity {
         setMonthView();
         setTabDate(selectedDate);
 
-        calendarServiceSingleton = new GoogleCalendarServiceSingleton(this);
-
         FloatingActionButton menuFab = findViewById(R.id.menu_fab);
         ImageButton menuButton = findViewById(R.id.menu_button);
 
@@ -73,18 +61,9 @@ public class DailyTasks extends AppCompatActivity {
 
         menuButton.setOnClickListener(view -> {
             PopupMenu popup = new PopupMenu(DailyTasks.this, view);
-            popup.inflate(R.menu.sign_out_options);
+            popup.inflate(R.menu.sign_out_options); // Keep this for sign-out and language options
             popup.setOnMenuItemClickListener(item -> {
                 switch (item.getItemId()) {
-                    case R.id.action_show_all:
-                        filterTasks(TaskFilter.ALL);
-                        return true;
-                    case R.id.action_show_completed:
-                        filterTasks(TaskFilter.COMPLETED);
-                        return true;
-                    case R.id.action_show_pending:
-                        filterTasks(TaskFilter.PENDING);
-                        return true;
                     case R.id.action_sign_out:
                         signOut();
                         return true;
@@ -98,7 +77,7 @@ public class DailyTasks extends AppCompatActivity {
             popup.show();
         });
 
-        fragment = TasksTab.newInstance(t1, t2, selectedDate);
+        fragment = TasksTab.newInstance(t1, t2, selectedDate, assignmentFilter, statusFilter);
         getSupportFragmentManager().beginTransaction().replace(R.id.tabFragment, fragment).commit();
 
         pickDate.setOnClickListener(view -> {
@@ -111,23 +90,14 @@ public class DailyTasks extends AppCompatActivity {
 
     private void openCurrentMenuFunctionality() {
         PopupMenu popup = new PopupMenu(DailyTasks.this, findViewById(R.id.menu_fab));
-        popup.inflate(R.menu.menu_options);
+        popup.inflate(R.menu.menu_options);  // Load the updated menu with two options
         popup.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
-                case R.id.action_show_all:
-                    filterTasks(TaskFilter.ALL);
+                case R.id.action_filter_assignment:
+                    showAssignmentFilterPopup();  // Show the assignment filtering menu
                     return true;
-                case R.id.action_show_completed:
-                    filterTasks(TaskFilter.COMPLETED);
-                    return true;
-                case R.id.action_show_pending:
-                    filterTasks(TaskFilter.PENDING);
-                    return true;
-                case R.id.action_sign_out:
-                    signOut();
-                    return true;
-                case R.id.action_language_switch:
-                    switchLanguage();
+                case R.id.action_filter_status:
+                    showStatusFilterPopup();  // Show the completion status filtering menu
                     return true;
                 default:
                     return false;
@@ -136,14 +106,72 @@ public class DailyTasks extends AppCompatActivity {
         popup.show();
     }
 
+    // Popup menu for filtering by assignment type
+    private void showAssignmentFilterPopup() {
+        PopupMenu popup = new PopupMenu(DailyTasks.this, findViewById(R.id.menu_fab));
+        popup.getMenu().add("Tasks Assigned to Me");
+        popup.getMenu().add("Tasks Assigned by Me");
+        popup.getMenu().add("All Tasks");
+
+        popup.setOnMenuItemClickListener(item -> {
+            if (item.getTitle().equals("Tasks Assigned to Me")) {
+                assignmentFilter = AssignmentFilter.ASSIGNED_TO_ME;
+            } else if (item.getTitle().equals("Tasks Assigned by Me")) {
+                assignmentFilter = AssignmentFilter.ASSIGNED_BY_ME;
+            } else {
+                assignmentFilter = AssignmentFilter.ALL_ASSIGNMENT;
+            }
+
+            TasksTab tasksTabFragment = (TasksTab) getSupportFragmentManager().findFragmentById(R.id.tabFragment);
+            if (tasksTabFragment != null) {
+                tasksTabFragment.setAssignmentFilter(assignmentFilter);
+                tasksTabFragment.refreshTasks();
+            }
+
+            return true;
+        });
+
+        popup.show();
+    }
+
+    // Popup menu for filtering by task completion status
+    private void showStatusFilterPopup() {
+        PopupMenu popup = new PopupMenu(DailyTasks.this, findViewById(R.id.menu_fab));
+        popup.getMenu().add("Show All Tasks");
+        popup.getMenu().add("Show Completed Tasks");
+        popup.getMenu().add("Show Pending Tasks");
+
+        popup.setOnMenuItemClickListener(item -> {
+            if (item.getTitle().equals("Show All Tasks")) {
+                statusFilter = StatusFilter.ALL_STATUS;
+            } else if (item.getTitle().equals("Show Completed Tasks")) {
+                statusFilter = StatusFilter.COMPLETED;
+            } else if (item.getTitle().equals("Show Pending Tasks")) {
+                statusFilter = StatusFilter.PENDING;
+            }
+
+            TasksTab tasksTabFragment = (TasksTab) getSupportFragmentManager().findFragmentById(R.id.tabFragment);
+            if (tasksTabFragment != null) {
+                tasksTabFragment.setStatusFilter(statusFilter);
+                tasksTabFragment.refreshTasks();
+            }
+
+            return true;
+        });
+        popup.show();
+    }
+
     private void signOut() {
-        UserSessionManager.clearSession(this);
+        UserSessionManager.clearSession(this, false);
+        Intent intent = new Intent(DailyTasks.this, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
         finish();
     }
 
     private void switchLanguage() {
         SharedPreferences prefs = getSharedPreferences("Settings", MODE_PRIVATE);
-        String currentLanguage = prefs.getString("My_Lang", "en");
+        String currentLanguage = prefs.getString("My_Lang", "lt");
         String newLanguage = currentLanguage.equals("en") ? "lt" : "en";
 
         setLocale(newLanguage);
@@ -152,7 +180,6 @@ public class DailyTasks extends AppCompatActivity {
         editor.putString("My_Lang", newLanguage);
         editor.apply();
 
-        // Restart activity to apply the language change
         Intent intent = getIntent();
         finish();
         startActivity(intent);
@@ -166,61 +193,14 @@ public class DailyTasks extends AppCompatActivity {
         getBaseContext().getResources().updateConfiguration(config, getBaseContext().getResources().getDisplayMetrics());
     }
 
-    private void filterTasks(TaskFilter filter) {
-        TasksTab tasksTabFragment = (TasksTab) getSupportFragmentManager().findFragmentById(R.id.tabFragment);
-        if (tasksTabFragment != null) {
-            tasksTabFragment.refreshTasks(filter); // Trigger the API call to refresh tasks
-        }
-        if (allTasks == null || allTasks.isEmpty()) {
-            Log.e(TAG, "Task list is empty or not initialized");
-            return;
-        }
-
-        filteredTasks.clear();
-        for (Task task : allTasks) {
-            switch (filter) {
-                case ALL:
-                    filteredTasks.add(task);
-                    break;
-                case COMPLETED:
-                    if ("1".equals(task.getWorkInPlanDone())) {
-                        filteredTasks.add(task);
-                    }
-                    break;
-                case PENDING:
-                    if ("0".equals(task.getWorkInPlanDone())) {
-                        filteredTasks.add(task);
-                    }
-                    break;
-            }
-        }
-
-        Log.d(TAG, "Filtered tasks count: " + filteredTasks.size());
-        if (filteredTasks.isEmpty()) {
-            Log.w(TAG, "No tasks found for the selected filter");
-        } else {
-            for (Task t : filteredTasks) {
-                Log.d(TAG, "Filtered task: " + t.toString());
-            }
-        }
-
-        if (adapterTasks != null) {
-            adapterTasks.updateTasks(filteredTasks);
-        }
+    public enum AssignmentFilter {
+        ALL_ASSIGNMENT,
+        ASSIGNED_TO_ME,
+        ASSIGNED_BY_ME
     }
 
-    public void setAdapterTasks(AdapterTasks adapterTasks) {
-        this.adapterTasks = adapterTasks;
-        // Ensure allTasks is initially populated only once
-        if (!tasksInitialized && adapterTasks != null) {
-            allTasks = adapterTasks.getTasks();
-            tasksInitialized = true;
-            filterTasks(TaskFilter.PENDING); // Initial filter to show pending tasks
-        }
-    }
-
-    enum TaskFilter {
-        ALL,
+    public enum StatusFilter {
+        ALL_STATUS,
         COMPLETED,
         PENDING
     }
@@ -246,7 +226,6 @@ public class DailyTasks extends AppCompatActivity {
     private void setTabDate(LocalDate date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM dd");
         int dayOfWeek = selectedDate.getDayOfWeek().getValue();
-        String s = "" + dayOfWeek;
 
         String s1 = this.getResources().getString(R.string.day1);
         String s2 = this.getResources().getString(R.string.day2);
@@ -261,17 +240,23 @@ public class DailyTasks extends AppCompatActivity {
 
         for (int i = dayOfWeek; i <= 7; i++) {
             TabLayout.Tab weekday = weekdays.getTabAt(i - 1);
-            weekday.setText(st[i - 1] + "\n" + tempDate.format(formatter));
+            if (weekday != null) {
+                weekday.setText(st[i - 1] + "\n" + tempDate.format(formatter));
+            }
             tempDate = tempDate.plusDays(1);
         }
         tempDate = date;
         for (int i = dayOfWeek; i > 0; i--) {
             TabLayout.Tab weekday = weekdays.getTabAt(i - 1);
-            weekday.setText(st[i - 1] + "\n" + tempDate.format(formatter));
+            if (weekday != null) {
+                weekday.setText(st[i - 1] + "\n" + tempDate.format(formatter));
+            }
             tempDate = tempDate.minusDays(1);
         }
         dayOfWeek = selectedDate.getDayOfWeek().getValue();
-        weekdays.getTabAt(dayOfWeek - 1).select();
+        if (weekdays.getTabAt(dayOfWeek - 1) != null) {
+            weekdays.getTabAt(dayOfWeek - 1).select();
+        }
 
         weekdays.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -286,7 +271,7 @@ public class DailyTasks extends AppCompatActivity {
                 setMonthView();
                 getTimestamps();
                 getSupportFragmentManager().beginTransaction().detach(fragment).commit();
-                fragment = TasksTab.newInstance(t1, t2, selectedDate);
+                fragment = TasksTab.newInstance(t1, t2, selectedDate, assignmentFilter, statusFilter);
                 getSupportFragmentManager().beginTransaction().replace(R.id.tabFragment, fragment).commit();
             }
 
@@ -300,7 +285,7 @@ public class DailyTasks extends AppCompatActivity {
 
     private void pickDate() {
         int mYear = selectedDate.getYear();
-        int mMonth = selectedDate.getMonthValue() - 1; // Subtract 1 to match Calendar.MONTH indexing
+        int mMonth = selectedDate.getMonthValue() - 1;
         int mDay = selectedDate.getDayOfMonth();
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(this,
@@ -309,7 +294,7 @@ public class DailyTasks extends AppCompatActivity {
                     setMonthView();
                     setTabDate(selectedDate);
                     getSupportFragmentManager().beginTransaction().detach(fragment).commit();
-                    fragment = TasksTab.newInstance(t1, t2, selectedDate);
+                    fragment = TasksTab.newInstance(t1, t2, selectedDate, assignmentFilter, statusFilter);
                     getSupportFragmentManager().beginTransaction().replace(R.id.tabFragment, fragment).commit();
                 }, mYear, mMonth, mDay);
 
@@ -318,7 +303,8 @@ public class DailyTasks extends AppCompatActivity {
 
     private void getTimestamps() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-        t1 = selectedDate.atStartOfDay().toString().format(String.valueOf(formatter));
-        t2 = selectedDate.plusDays(1).atStartOfDay().toString().format(String.valueOf(formatter));
+        t1 = selectedDate.atStartOfDay().format(formatter);
+        t2 = selectedDate.plusDays(1).atStartOfDay().format(formatter);
     }
+
 }

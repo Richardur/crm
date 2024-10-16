@@ -5,13 +5,13 @@ plugins {
 android {
     signingConfigs {
         debug {
-            storeFile file('C:\\Users\\Rich\\.android\\debug.keystore')
+            storeFile file('C:\\Users\\user\\.android\\debug.keystore')
             storePassword 'android'
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
     }
-    compileSdk 32
+    compileSdk 33
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
         // Add any other exclusions or inclusions as needed
@@ -20,7 +20,7 @@ android {
     defaultConfig {
         applicationId "com.aiva.aivacrm"
         minSdk 28
-        targetSdk 32
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 

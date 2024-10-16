@@ -35,6 +35,7 @@ import com.aiva.aivacrm.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -251,16 +252,20 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
                 if (response.isSuccessful()) {
                     Log.d("UpdateWorkPlan", "New task creation successful");
                     setResult(RESULT_OK);
+                    finish();
                 } else {
                     Log.e("UpdateWorkPlan", "New task creation failed: " + response.code());
+                    finish();
                 }
             }
 
             @Override
             public void onFailure(Call<ApiResponseUpdate> call, Throwable t) {
                 Log.e("UpdateWorkPlan", "Network error: " + t.getMessage());
+                finish();
             }
         });
+        finish();
     }
     private void deleteTask() {
         AlertDialog.Builder builder = new AlertDialog.Builder(TaskInfoActivity.this);
@@ -299,18 +304,24 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
                         public void onResponse(Call<ApiResponseUpdate> call, Response<ApiResponseUpdate> response) {
                             if (response.isSuccessful()) {
                                 Toast.makeText(TaskInfoActivity.this, "Task deleted successfully", Toast.LENGTH_SHORT).show();
+                                Log.d("UpdateWorkPlan", "Task deleted successfully") ;
                                 setResult(RESULT_OK);
                                 finish();
                             } else {
                                 Toast.makeText(TaskInfoActivity.this, "Failed to delete task", Toast.LENGTH_SHORT).show();
+                                Log.e("UpdateWorkPlan", "Failed to delete task: " + response.code());
+                                finish();
                             }
                         }
 
                         @Override
                         public void onFailure(Call<ApiResponseUpdate> call, Throwable t) {
+                            Log.e("UpdateWorkPlan", "Network error: " + t.getMessage());
                             Toast.makeText(TaskInfoActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                            finish();
                         }
                     });
+                    finish();
                 })
                 .setNegativeButton("No", null)
                 .show();
@@ -848,10 +859,13 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
         OkHttpClient client = new OkHttpClient.Builder()
                 .addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
                 .build();
+        Gson gson = new GsonBuilder()
+                .setLenient()
+                .create();
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://gamyba.online/api-aiva/v1/")
-                .addConverterFactory(GsonConverterFactory.create(new Gson()))
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .client(client)
                 .build();
 

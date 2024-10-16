@@ -13,6 +13,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.aiva.aivacrm.R;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -48,8 +51,7 @@ public class LoginActivity extends AppCompatActivity {
                 final String password = passwordEditText.getText().toString();
                 final String hashedPassword = hashPassword(password).toLowerCase(); // Ensure it's lowercase
 
-                // Automatically log in with test API credentials
-                authenticateWithTestCredentials();
+                authenticate(username, hashedPassword);
 
                 // Save credentials if "Remember Me" is checked
                 if (rememberMeCheckBox.isChecked()) {
@@ -61,30 +63,21 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void authenticateWithTestCredentials() {
-        final String testUsername = "ricardas";
-        final String testPassword = "ricardas";
-        final String hashedTestPassword = hashPassword(testPassword).toLowerCase();
-
+    private void authenticate(String username, String hashedPassword) {
         ApiService service = RetrofitClientInstance.getRetrofitInstance().create(ApiService.class);
-        Call<AuthResponse> call = service.authenticate(testUsername, hashedTestPassword);
+        Call<AuthResponse> call = service.authenticate(username, hashedPassword);
         call.enqueue(new Callback<AuthResponse>() {
             @Override
             public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     String userId = response.body().getUserId();
-                    String apiKey = hashPassword(response.body().getUserId() + testUsername + response.body().getApiKey()).toLowerCase();
-                    UserSessionManager.saveUsername(LoginActivity.this, testUsername);
+                    Log.d("LoginActivity", "Received userId: " + userId);
+                    String apiKey = hashPassword(response.body().getUserId() + username + response.body().getApiKey()).toLowerCase();
+                    UserSessionManager.saveUsername(LoginActivity.this, username);
                     UserSessionManager.saveApiKey(LoginActivity.this, apiKey);
-                    UserSessionManager.saveUserId(LoginActivity.this, response.body().getUserId());
+                    UserSessionManager.saveUserId(LoginActivity.this, userId);
 
-                    // Proceed with the entered employee credentials
-                    final EditText usernameEditText = findViewById(R.id.username);
-                    final EditText passwordEditText = findViewById(R.id.password);
-                    String username = usernameEditText.getText().toString();
-                    String password = passwordEditText.getText().toString();
-                    String hashedPassword = hashPassword(password).toLowerCase();
-                    getEmployeeDetails(username, hashedPassword);
+                    getEmployeeDetails(userId, hashedPassword);
                 } else {
                     Toast.makeText(LoginActivity.this, "Login failed", Toast.LENGTH_LONG).show();
                 }
@@ -97,28 +90,43 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void getEmployeeDetails(String username, String hashedPassword) {
+    private void getEmployeeDetails(String userId, String hashedPassword) {
         String apiKey = UserSessionManager.getApiKey(this);
         if (apiKey == null || apiKey.isEmpty()) {
             Log.e("GetTasks", "API Key not found. Please login again.");
             return;
         }
-        String userId = UserSessionManager.getUserId(this);
-        if (userId == null || userId.isEmpty()) {
-            Log.e("GetTasks", "User ID not found. Please login again.");
-            return;
-        }
+
+        Log.d("LoginActivity", "Fetching details for userId: " + userId);
 
         ApiService service = RetrofitClientInstance.getRetrofitInstance().create(ApiService.class);
 
-        Call<EmployeResponse> call = service.getEmployeeDetails(userId, apiKey, "*", "", "select", "", "1", "");
+        // Create the JSON object for the where clause
+        JSONObject whereClauseJson = new JSONObject();
+        try {
+            whereClauseJson.put("employeID", userId);
+        } catch (JSONException e) {
+            Log.e("LoginActivity", "Failed to create where clause JSON", e);
+            return;
+        }
+
+        String whereClause = whereClauseJson.toString();
+        Log.d("LoginActivity", "Using where clause: " + whereClause);
+
+        Call<EmployeResponse> call = service.getEmployeeDetails(userId, apiKey, "*", "", "select", whereClause, "1", "");
         call.enqueue(new Callback<EmployeResponse>() {
             @Override
             public void onResponse(Call<EmployeResponse> call, Response<EmployeResponse> response) {
+                Log.d("LoginActivity", "API response: " + response.raw());
+
                 if (response.isSuccessful() && response.body() != null) {
                     EmployeResponse employeeResponse = response.body();
-                    if (employeeResponse.getData() != null && !employeeResponse.getData().getEmploye().isEmpty()) {
-                        Employe employee = employeeResponse.getData().getEmploye().get(0); // Assuming you're interested in the first employee
+                    Log.d("LoginActivity", "Employee response received: " + employeeResponse);
+
+                    // Handle the case where data might be an empty array or null
+                    if (employeeResponse.getData() != null && employeeResponse.getData().getEmploye() != null
+                            && !employeeResponse.getData().getEmploye().isEmpty()) {
+                        Employe employee = employeeResponse.getData().getEmploye().get(0);
                         Log.d("LoginActivity", "Employee received: ID = " + employee.getEmployeID() + ", Name = " + employee.getEmployeName());
 
                         if (employee.getEmployeID() == 0) {
@@ -147,6 +155,9 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
+
+
+
 
     private String hashPassword(String password) {
         try {

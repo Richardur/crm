@@ -93,6 +93,7 @@ public class TaskListActivity extends AppCompatActivity {
                                         work.getReactionWorkID(),
                                         work.getReactionWorkManagerID().toString(),
                                         work.getReactionWorkManageName(),
+                                        work.getReactionWorkDoneByID().toString(),
                                         work.getReactionWorkActionID().toString(),
                                         work.getReactionWorkActionName(),
                                         work.getReactionWorkNote(),

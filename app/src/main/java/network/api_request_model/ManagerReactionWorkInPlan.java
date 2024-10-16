@@ -180,16 +180,17 @@ public class ManagerReactionWorkInPlan {
             this.reactionWorkManagerID = reactionWorkManagerID;
         }
 
+        public void setReactionWorkActionID(Integer reactionWorkActionID) {
+            this.reactionWorkActionID = reactionWorkActionID;
+        }
+
+
         public String getReactionWorkDoneDate() {
             return reactionWorkDoneDate;
         }
 
         public void setReactionWorkDoneDate(String reactionWorkDoneDate) {
             this.reactionWorkDoneDate = reactionWorkDoneDate;
-        }
-
-        public void setReactionWorkActionID(Integer reactionWorkActionID) {
-            this.reactionWorkActionID = reactionWorkActionID;
         }
 
         @SerializedName("reactionWorkDoneDate")

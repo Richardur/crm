@@ -13,6 +13,7 @@ public class Task implements Parcelable {
     private int workInPlanID;
     private String reactionWorkManagerID;
     private String managerName;
+    private String reactionWorkDoneByID;
     private String reactionWorkActionID;
     private String workInPlanName;
     private String workInPlanNote;
@@ -38,7 +39,7 @@ public class Task implements Parcelable {
 
     public Task(String reactionHeaderID, String reactionHeaderManagerID, String workInPlanForCustomerID,
                 String workInPlanForCustomerOrder, int workInPlanID, String reactionWorkManagerID,
-                String managerName, String reactionWorkActionID, String workInPlanName, String workInPlanNote,
+                String managerName, String reactionWorkDoneByID, String reactionWorkActionID, String workInPlanName, String workInPlanNote,
                 String workInPlanForCustomerName, Timestamp workInPlanTerm, Timestamp workInPlanDoneDate, String workInPlanDone, boolean isDateOnlyAction) {
         this.reactionHeaderID = reactionHeaderID;
         this.reactionHeaderManagerID = reactionHeaderManagerID;
@@ -47,6 +48,7 @@ public class Task implements Parcelable {
         this.workInPlanID = workInPlanID;
         this.reactionWorkManagerID = reactionWorkManagerID;
         this.managerName = managerName;
+        this.reactionWorkDoneByID = reactionWorkDoneByID;
         this.reactionWorkActionID = reactionWorkActionID;
         this.workInPlanName = workInPlanName;
         this.workInPlanNote = workInPlanNote;
@@ -131,10 +133,20 @@ public class Task implements Parcelable {
     }
 
     // Getter methods for all fields...
+    public String getReactionWorkDoneByID() {
+        return reactionWorkDoneByID;
+    }
+
+    public void setReactionWorkDoneByID(String reactionWorkDoneByID) {
+        this.reactionWorkDoneByID = reactionWorkDoneByID;
+    }
+
+
 
     public String getReactionHeaderID() {
         return reactionHeaderID;
     }
+
 
     public String getReactionHeaderManagerID() {
         return reactionHeaderManagerID;
