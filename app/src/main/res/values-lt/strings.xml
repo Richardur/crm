@@ -75,6 +75,8 @@
     <string name="channel_description">Pranešimai apie artėjančius įvykius</string>
     <string name="filter_by_assignment">Filtruoti pagal priskyrimą</string>
     <string name="filter_by_status">Filtruoti pagal būseną</string>
+    <string name="representative">Atstovas</string>
+    <string name="assigned_to_employee_name">Vykdytojas:</string>
 
 
 </resources>

@@ -76,6 +76,8 @@
     <string name="channel_description">Notifications for upcoming events</string>
     <string name="filter_by_assignment">Filter by Assignment</string>
     <string name="filter_by_status">Filter by Status</string>
+    <string name="representative">Representative</string>
+    <string name="assigned_to_employee_name">Assigned to:</string>
 
 
 </resources>

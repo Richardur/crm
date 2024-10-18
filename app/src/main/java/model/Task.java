@@ -14,6 +14,7 @@ public class Task implements Parcelable {
     private String reactionWorkManagerID;
     private String managerName;
     private String reactionWorkDoneByID;
+    private String reactionWorkDoneByName;
     private String reactionWorkActionID;
     private String workInPlanName;
     private String workInPlanNote;
@@ -39,7 +40,7 @@ public class Task implements Parcelable {
 
     public Task(String reactionHeaderID, String reactionHeaderManagerID, String workInPlanForCustomerID,
                 String workInPlanForCustomerOrder, int workInPlanID, String reactionWorkManagerID,
-                String managerName, String reactionWorkDoneByID, String reactionWorkActionID, String workInPlanName, String workInPlanNote,
+                String managerName, String reactionWorkDoneByID, String reactionWorkDoneByName, String reactionWorkActionID, String workInPlanName, String workInPlanNote,
                 String workInPlanForCustomerName, Timestamp workInPlanTerm, Timestamp workInPlanDoneDate, String workInPlanDone, boolean isDateOnlyAction) {
         this.reactionHeaderID = reactionHeaderID;
         this.reactionHeaderManagerID = reactionHeaderManagerID;
@@ -49,6 +50,7 @@ public class Task implements Parcelable {
         this.reactionWorkManagerID = reactionWorkManagerID;
         this.managerName = managerName;
         this.reactionWorkDoneByID = reactionWorkDoneByID;
+        this.reactionWorkDoneByName = reactionWorkDoneByName;
         this.reactionWorkActionID = reactionWorkActionID;
         this.workInPlanName = workInPlanName;
         this.workInPlanNote = workInPlanNote;
@@ -67,6 +69,8 @@ public class Task implements Parcelable {
         workInPlanID = in.readInt();
         reactionWorkManagerID = in.readString();
         managerName = in.readString();
+        reactionWorkDoneByID = in.readString();
+        reactionWorkDoneByName = in.readString();
         reactionWorkActionID = in.readString();
         workInPlanName = in.readString();
         workInPlanNote = in.readString();
@@ -106,6 +110,8 @@ public class Task implements Parcelable {
         dest.writeInt(workInPlanID);
         dest.writeString(reactionWorkManagerID);
         dest.writeString(managerName);
+        dest.writeString(reactionWorkDoneByID);
+        dest.writeString(reactionWorkDoneByName);
         dest.writeString(reactionWorkActionID);
         dest.writeString(workInPlanName);
         dest.writeString(workInPlanNote);
@@ -142,6 +148,13 @@ public class Task implements Parcelable {
     }
 
 
+    public String getReactionWorkDoneByName() {
+        return reactionWorkDoneByName;
+    }
+
+    public void setReactionWorkDoneByName(String reactionWorkDoneByName) {
+        this.reactionWorkDoneByName = reactionWorkDoneByName;
+    }
 
     public String getReactionHeaderID() {
         return reactionHeaderID;

@@ -46,11 +46,14 @@ import java.util.Locale;
 
 import model.CRMWork;
 import model.Customer;
+import model.Employe;
 import model.Task;
 import network.ApiResponseUpdate;
 import network.ApiService;
 import network.CustomerUpdateRequest;
+import network.EmployeResponse;
 import network.ManagerReactionUpdateRequest;
+import network.RetrofitClientInstance;
 import network.UserSessionManager;
 import network.api_request_model.ApiResponseGetCustomer;
 import network.api_request_model.ManagerReactionWorkInPlan;
@@ -85,6 +88,11 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
     private ImageButton callButton, emailButton, mapButton, editButton, saveButton, cancelButton;
     private CheckBox statusCheckbox;
     private FloatingActionButton newTaskButton, deleteButton;
+    private TextView taskAssignee;
+
+    private String newAssigneeId;
+    private List<Employe> employeeList; // Add this line
+    private Task task; // Also declare task as a member variable
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,7 +103,7 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
         initializeViews();
         setListeners();
 
-        Task task = getIntent().getParcelableExtra("Task");
+        task = getIntent().getParcelableExtra("Task"); // Assign to the member variable
         if (task != null) {
             extractTaskData(task);
             setTaskInfo(task);
@@ -142,6 +150,8 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
 
         statusCheckbox = findViewById(R.id.status_checkbox);
         deleteButton = findViewById(R.id.delete_button);
+
+        taskAssignee = findViewById(R.id.task_assignee);
     }
 
     private void setListeners() {
@@ -197,10 +207,144 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
             }
         });
 
+        taskAssignee.setOnClickListener(v -> {
+            // Prompt the user if they want to reassign the task
+            showReassignConfirmationDialog();
+        });
+
         editButton.setOnClickListener(v -> showEditConfirmationDialog());
         newTaskButton.setOnClickListener(v -> showNewTaskDialog());
         deleteButton.setOnClickListener(v -> deleteTask());
         binding.deleteButton.setOnClickListener(v -> deleteTask());
+    }
+
+    private void showReassignConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(TaskInfoActivity.this);
+        builder.setTitle("Reassign Task");
+        builder.setMessage("Do you want to reassign this task?");
+        builder.setPositiveButton("Yes", (dialog, which) -> {
+            // Fetch the employee list and show the pop-up
+            getEmployeeListAndShowPopup();
+        });
+        builder.setNegativeButton("No", null);
+        builder.show();
+    }
+
+    private void getEmployeeListAndShowPopup() {
+        // Show a progress dialog or loader if desired
+        String apiKey = UserSessionManager.getApiKey(this);
+        String userId = UserSessionManager.getUserId(this);
+
+        if (apiKey == null || apiKey.isEmpty() || userId == null || userId.isEmpty()) {
+            Toast.makeText(this, "Please login again.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        ApiService service = RetrofitClientInstance.getRetrofitInstance().create(ApiService.class);
+
+        Call<EmployeResponse> call = service.getEmployeeDetails(userId, apiKey, "*", "lt", "select", "", "", "");
+        call.enqueue(new Callback<EmployeResponse>() {
+            @Override
+            public void onResponse(Call<EmployeResponse> call, Response<EmployeResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    employeeList = response.body().getData().getEmploye();
+                    if (employeeList != null && !employeeList.isEmpty()) {
+                        showEmployeeSelectionPopup(employeeList);
+                    }
+                } else {
+                    Toast.makeText(TaskInfoActivity.this, "Failed to get employees", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<EmployeResponse> call, Throwable t) {
+                Toast.makeText(TaskInfoActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void showEmployeeSelectionPopup(List<Employe> employees) {
+        List<String> employeeNames = new ArrayList<>();
+        for (Employe employee : employees) {
+            employeeNames.add(employee.getEmployeName() + " " + employee.getEmploeerSurname());
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(TaskInfoActivity.this);
+        builder.setTitle("Select Employee");
+        builder.setItems(employeeNames.toArray(new String[0]), (dialog, which) -> {
+            Employe selectedEmployee = employees.get(which);
+            // Update the task assignment
+            reassignTask(selectedEmployee);
+        });
+        builder.show();
+    }
+
+    private void reassignTask(Employe selectedEmployee) {
+        String newAssigneeId = String.valueOf(selectedEmployee.getEmployeID());
+        String newAssigneeName = String.valueOf(selectedEmployee.getEmployeName()+" "+selectedEmployee.getEmploeerSurname());
+
+        String apiKey = UserSessionManager.getApiKey(TaskInfoActivity.this);
+        String userId = UserSessionManager.getUserId(TaskInfoActivity.this);
+
+        if (apiKey == null || apiKey.isEmpty() || userId == null || userId.isEmpty()) {
+            Toast.makeText(TaskInfoActivity.this, "Please login again.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        ManagerReactionUpdateRequest taskUpdateRequest = new ManagerReactionUpdateRequest();
+        taskUpdateRequest.setUserId(userId);
+        taskUpdateRequest.setApiKey(apiKey);
+        taskUpdateRequest.setAction("update");
+        taskUpdateRequest.setLanguageCode("lt");
+
+        // Ensure reactionHeaderManagerId is not null or empty
+        if (reactionHeaderManagerId == null || reactionHeaderManagerId.isEmpty()) {
+            reactionHeaderManagerId = UserSessionManager.getEmployeeId(this);
+        }
+
+        ManagerReactionWorkInPlan.ManagerReactionInPlanHeader header = new ManagerReactionWorkInPlan.ManagerReactionInPlanHeader();
+        header.setReactionHeaderID(reactionHeaderId);
+        header.setReactionManagerID(reactionHeaderManagerId); // Must not be null or empty
+        header.setReactionForCustomerID(taskCustomerId);
+
+        List<ManagerReactionWorkInPlan.ManagerReactionWork> works = new ArrayList<>();
+        ManagerReactionWorkInPlan.ManagerReactionWork work = new ManagerReactionWorkInPlan.ManagerReactionWork();
+        work.setReactionWorkID(String.valueOf(taskId));
+        work.setReactionWorkManagerID(reactionWorkManagerId); // Ensure this is set
+        work.setReactionWorkDoneByID(Integer.valueOf(newAssigneeId));
+        work.setReactionWorkDoneByName(newAssigneeName);
+        work.setReactionWorkActionID(reactionWorkActionId); // Ensure this is set
+        work.setReactionWorkActionName(taskName); // Ensure this is set
+        work.setReactionWorkNote(taskComment); // Ensure this is set
+        work.setReactionWorkTerm(taskDate); // Ensure this is set
+        // Add any other necessary fields
+
+        works.add(work);
+        taskUpdateRequest.setManagerReactionInPlanHeaderReg(header);
+        taskUpdateRequest.setManagerReactionWorkReg(works);
+
+        updateWorkPlan(this, taskUpdateRequest, new Callback<ApiResponseUpdate>() {
+            @Override
+            public void onResponse(Call<ApiResponseUpdate> call, Response<ApiResponseUpdate> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(TaskInfoActivity.this, "Task reassigned successfully", Toast.LENGTH_SHORT).show();
+                    // Update the task object with new assignee details
+                    task.setReactionWorkDoneByID(newAssigneeId);
+                    task.setReactionWorkDoneByName(selectedEmployee.getEmployeName() + " " + selectedEmployee.getEmploeerSurname());
+
+                    // Update the UI
+                    taskAssignee.setText("Assigned to: " + task.getReactionWorkDoneByName());
+                } else {
+                    Toast.makeText(TaskInfoActivity.this, "Failed to reassign task", Toast.LENGTH_SHORT).show();
+                    Log.e("ReassignTask", "Failed with code: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseUpdate> call, Throwable t) {
+                Toast.makeText(TaskInfoActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void showNewTaskDialog() {
@@ -352,7 +496,50 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
     }
 
     private void updateTaskStatus(int taskId, String workDone, String workDoneDate) {
-        // Implement the API call to update the task status
+        String apiKey = UserSessionManager.getApiKey(this);
+        String userId = UserSessionManager.getUserId(this);
+
+        if (apiKey == null || apiKey.isEmpty() || userId == null || userId.isEmpty()) {
+            Toast.makeText(this, "Please login again.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        ManagerReactionUpdateRequest taskUpdateRequest = new ManagerReactionUpdateRequest();
+        taskUpdateRequest.setUserId(userId);
+        taskUpdateRequest.setApiKey(apiKey);
+        taskUpdateRequest.setAction("update");
+        taskUpdateRequest.setLanguageCode("lt");
+
+        ManagerReactionWorkInPlan.ManagerReactionInPlanHeader header = new ManagerReactionWorkInPlan.ManagerReactionInPlanHeader();
+        header.setReactionHeaderID(reactionHeaderId);
+        header.setReactionManagerID(reactionHeaderManagerId);
+        header.setReactionForCustomerID(taskCustomerId);
+
+        List<ManagerReactionWorkInPlan.ManagerReactionWork> works = new ArrayList<>();
+        ManagerReactionWorkInPlan.ManagerReactionWork work = new ManagerReactionWorkInPlan.ManagerReactionWork();
+        work.setReactionWorkID(String.valueOf(taskId));
+        work.setReactionWorkDone(workDone);
+        work.setReactionWorkDoneDate(workDoneDate);
+
+        works.add(work);
+        taskUpdateRequest.setManagerReactionInPlanHeaderReg(header);
+        taskUpdateRequest.setManagerReactionWorkReg(works);
+
+        updateWorkPlan(this, taskUpdateRequest, new Callback<ApiResponseUpdate>() {
+            @Override
+            public void onResponse(Call<ApiResponseUpdate> call, Response<ApiResponseUpdate> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(TaskInfoActivity.this, "Task status updated", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(TaskInfoActivity.this, "Failed to update task status", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseUpdate> call, Throwable t) {
+                Toast.makeText(TaskInfoActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void showEditConfirmationDialog() {
@@ -632,6 +819,30 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
         boolean isCompleted = "1".equals(task.getWorkInPlanDone()) && task.getWorkInPlanDoneDate() != null;
         statusCheckbox.setChecked(isCompleted);
         statusTextView.setText(isCompleted ? "Completed" : "Not completed");
+
+
+
+        // Use the passed fields directly to display the assignee's name
+        String assignedEmployeeName;
+                if (task.getReactionWorkDoneByID()==null || task.getReactionWorkDoneByID().equals("")){ assignedEmployeeName = task.getManagerName();}
+                else assignedEmployeeName = task.getReactionWorkDoneByName();
+
+
+        taskAssignee.setText("Assigned to: " + assignedEmployeeName);
+    }
+    private String getEmployeeNameById(String employeeId) {
+        if (employeeList != null) {
+            for (Employe employee : employeeList) {
+                if (String.valueOf(employee.getEmployeID()).equals(employeeId)) {
+                    return employee.getEmployeName() + " " + employee.getEmploeerSurname();
+                }
+            }
+        }
+        // Fallback to reactionWorkDoneByName if available
+        if (task != null && task.getReactionWorkDoneByName() != null) {
+            return task.getReactionWorkDoneByName();
+        }
+        return "Unknown";
     }
 
     public void getCustomerCredentials(Task task) {

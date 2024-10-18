@@ -261,7 +261,7 @@ public class TasksTab extends Fragment {
 
                                 String reactionWorkManagerID = work.getReactionWorkManagerID() != null ? String.valueOf(work.getReactionWorkManagerID()) : "";
                                 String reactionWorkDoneByID = work.getReactionWorkDoneByID() != null ? String.valueOf(work.getReactionWorkDoneByID()) : "";
-
+                                String reactionWorkDoneByName = work.getReactionWorkDoneByName() != null ? String.valueOf(work.getReactionWorkDoneByName()) : "";
                                 String reactionHeaderID = header.getReactionHeaderID() != null ? header.getReactionHeaderID() : "";
                                 String reactionHeaderManagerID = header.getReactionManagerID() != null ? header.getReactionManagerID() : "";
                                 String workInPlanForCustomerID = work.getReactionWorkForCustomerID() != null ? String.valueOf(work.getReactionWorkForCustomerID()) : "";
@@ -308,6 +308,7 @@ public class TasksTab extends Fragment {
                                                 reactionWorkManagerID,
                                                 managerName,
                                                 reactionWorkDoneByID,
+                                                reactionWorkDoneByName,
                                                 reactionWorkActionID,
                                                 workInPlanName,
                                                 workInPlanNote,

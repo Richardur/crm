@@ -39,14 +39,7 @@
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
                 android:textColor="@color/purple_500" />
 
-            <Spinner
-                android:id="@+id/contact_person_spinner"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:padding="8dp"
-                android:textSize="16sp"
-                android:textColor="@android:color/black" />
+
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -92,7 +85,18 @@
                 android:text="@string/action"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
                 android:textColor="@color/purple_500" />
-
+            <TextView
+                android:id="@+id/task_assignee"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:text="@string/assigned_to_employee_name"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
+                android:textColor="@color/grey_90"
+                android:drawableEnd="@drawable/ic_arrow_drop_down"
+                android:drawablePadding="8dp"
+                android:clickable="true"
+                android:focusable="true" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -236,6 +240,37 @@
                 android:background="@color/grey_10" />
 
             <LinearLayout
+            android:id="@+id/representative_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/spacing_xlarge"
+            android:layout_marginRight="@dimen/spacing_xlarge"
+            android:layout_marginTop="@dimen/spacing_large"
+            android:orientation="horizontal"
+            android:gravity="start">
+
+            <TextView
+                android:id="@+id/representative_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/representative"
+                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                android:textColor="@color/purple_500"
+                android:textStyle="bold"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="16dp" />
+
+            <Spinner
+                android:id="@+id/contact_person_spinner"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_gravity="center_vertical"
+                android:padding="6dp"
+                android:background="@drawable/spinner_background" />
+        </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/spacing_xlarge"
@@ -290,6 +325,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:orientation="vertical">
+
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -430,6 +466,8 @@
                 android:layout_marginRight="@dimen/spacing_xlarge"
                 android:layout_marginTop="@dimen/spacing_large"
                 android:orientation="horizontal">
+
+
 
                 <LinearLayout
                     android:id="@+id/order_layout"
