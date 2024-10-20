@@ -112,6 +112,19 @@
             android:layout_width="0dp"
             android:layout_height="@dimen/spacing_large" />
 
+        <!-- Google Sign-In Button -->
+        <com.google.android.gms.common.SignInButton
+            android:id="@+id/google_sign_in_button"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_marginLeft="-4dp"
+            android:layout_marginRight="-4dp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="@dimen/spacing_medium" />
+
+        <!-- Existing Sign In Button -->
         <Button
             android:id="@+id/loginButton"
             android:layout_width="match_parent"
@@ -135,7 +148,6 @@
             android:layout_marginTop="@dimen/spacing_medium"
             android:gravity="center"
             android:orientation="horizontal">
-
         </LinearLayout>
 
         <View

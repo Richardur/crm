@@ -5,48 +5,34 @@ import android.content.Context;
 import com.aiva.aivacrm.R;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.http.HttpRequestFactory;
-import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.Events;
-import com.google.api.client.json.gson.GsonFactory;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
-import okhttp3.logging.HttpLoggingInterceptor;
-
 public class GoogleCalendarService {
+
     private static final String APPLICATION_NAME = "Aiva CRM";
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private static final List<String> SCOPES = Collections.singletonList(CalendarScopes.CALENDAR_READONLY);
 
-    public static Boolean getIsInitialized() {
-        return isInitialized;
-    }
-
     private static Boolean isInitialized = false;
     private final Context context;
     private String userAccountName;
-
     private GoogleAccountCredential credential;
     private Calendar calendarService;
 
@@ -57,74 +43,35 @@ public class GoogleCalendarService {
         } catch (GeneralSecurityException | IOException e) {
             e.printStackTrace();
         }
-        initializeService();
     }
 
-    public void setApiKey(String apiKey) {
-        // Set the apiKey in the calendarService when it becomes available
-        userAccountName = apiKey;
+    public static Boolean getIsInitialized() {
+        return isInitialized;
     }
 
     private Calendar initializeCalendar() throws GeneralSecurityException, IOException {
-        // Initialize the Google Calendar API with OAuth 2.0 credentials
         HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
 
         credential = GoogleAccountCredential.usingOAuth2(
                         context, Collections.singleton(CalendarScopes.CALENDAR))
                 .setBackOff(new ExponentialBackOff());
 
+        // Get the last signed-in Google account
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(context);
         if (account != null) {
             credential.setSelectedAccountName(account.getEmail());
+            userAccountName = account.getEmail();  // Save the user account name for later use
         }
 
+        // Build the Calendar service object
         return new Calendar.Builder(httpTransport, JSON_FACTORY, credential)
                 .setApplicationName(APPLICATION_NAME)
                 .build();
     }
 
-    private void initializeService() {
-        try {
-            // Initialize HTTP transport using GoogleNetHttpTransport
-            HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-
-            // Create a Gson instance for JSON processing
-            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").create();
-
-            // Configure OkHttp with logging interceptor (optional)
-            OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
-            OkHttpClient httpClient = httpClientBuilder.build();
-
-            // Retrieve the access token from Google Sign-In
-            GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(context);
-            String accessToken = null;
-            if (account != null) {
-                accessToken = account.getIdToken();
-                userAccountName = account.getEmail();
-            }
-
-            // Now you can manually make HTTP requests to the Google Calendar API
-            String calendarApiUrl = "https://www.googleapis.com/calendar/v3/calendars/primary/events";
-            Request request = new Request.Builder()
-                    .url(calendarApiUrl)
-                    .header("Authorization", "Bearer " + accessToken)
-                    .build();
-
-            Response response = httpClient.newCall(request).execute();
-            if (response.isSuccessful()) {
-                ResponseBody responseBody = response.body();
-                isInitialized = true;
-                if (responseBody != null) {
-                    String json = responseBody.string();
-                }
-            } else {
-                String errorMessage = response.message();
-                int errorCode = response.code();
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    // Set API Key (this method can be removed if API key isn't required)
+    public void setApiKey(String apiKey) {
+        userAccountName = apiKey;
     }
 
     public List<Event> getCalendarEvents() throws IOException {
@@ -133,12 +80,15 @@ public class GoogleCalendarService {
         }
 
         DateTime now = new DateTime(System.currentTimeMillis());
+
+        // Fetch events from the primary calendar
         Events events = calendarService.events().list("primary")
                 .setMaxResults(10)
                 .setTimeMin(now)
                 .setOrderBy("startTime")
                 .setSingleEvents(true)
                 .execute();
+
         return events.getItems();
     }
 
@@ -148,6 +98,8 @@ public class GoogleCalendarService {
         }
         if (userAccountName != null && !userAccountName.isEmpty()) {
             credential.setSelectedAccountName(userAccountName);
+
+            // Fetch events between startTime and endTime
             Events events = calendarService.events().list("primary")
                     .setMaxResults(10)
                     .setTimeMin(startTime)
@@ -155,9 +107,15 @@ public class GoogleCalendarService {
                     .setOrderBy("startTime")
                     .setSingleEvents(true)
                     .execute();
+
             return events;
         } else {
             return null;
         }
+    }
+
+    // Method to initialize Gson for parsing JSON data (though Google Calendar API already handles it)
+    private Gson initializeGson() {
+        return new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").create();
     }
 }

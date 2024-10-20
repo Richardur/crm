@@ -25,7 +25,9 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.aiva.aivacrm.R;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.util.DateTime;
+import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.Event;
 
 import java.sql.Timestamp;
@@ -81,6 +83,9 @@ public class TasksTab extends Fragment {
 
     private DailyTasks.AssignmentFilter assignmentFilter = DailyTasks.AssignmentFilter.ASSIGNED_TO_ME; // Default
     private DailyTasks.StatusFilter statusFilter = DailyTasks.StatusFilter.ALL_STATUS; // Default
+
+    private GoogleAccountCredential mCredential;
+    private static final String[] SCOPES = { CalendarScopes.CALENDAR_READONLY };
 
     public TasksTab() {
         // Required empty public constructor

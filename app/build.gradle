@@ -1,6 +1,17 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:7.4.2"  // This is the classpath declaration
+    }
+}
+
 plugins {
     id 'com.android.application'
 }
+
 
 android {
     signingConfigs {
@@ -13,8 +24,9 @@ android {
     }
     compileSdk 33
     packagingOptions {
-        exclude 'META-INF/DEPENDENCIES'
-        // Add any other exclusions or inclusions as needed
+        resources {
+            excludes += ['META-INF/DEPENDENCIES']
+        }
     }
 
     defaultConfig {
@@ -26,7 +38,7 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
-    buildFeatures{
+    buildFeatures {
         viewBinding = true
     }
 
@@ -40,6 +52,7 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    namespace 'com.aiva.aivacrm'
 }
 
 dependencies {
@@ -52,22 +65,19 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
-    // third party dependencies -------------------------------------------------------------------
-    implementation 'com.balysv:material-ripple:1.0.2'                  // ripple effect
-    implementation 'com.google.code.gson:gson:2.8.6'              // json parser
-    implementation 'com.squareup.retrofit2:retrofit:2.5.0'        // http client
-    implementation 'com.squareup.retrofit2:converter-gson:2.5.0'  // json converter
-    implementation 'com.squareup.okhttp3:logging-interceptor:4.9.0' // http client logger
-    //implementation 'com.google.http-client:google-http-client-gson:1.39.3' // http client
+    // Third-party dependencies -------------------------------------------------------------------
+    implementation 'com.balysv:material-ripple:1.0.2'                  // Ripple effect
+    implementation 'com.google.code.gson:gson:2.8.6'              // JSON parser
+    implementation 'com.squareup.retrofit2:retrofit:2.5.0'        // HTTP client
+    implementation 'com.squareup.retrofit2:converter-gson:2.5.0'  // JSON converter
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.9.0' // HTTP client logger
 
-    implementation 'com.google.api-client:google-api-client-android:1.32.1'
-    implementation 'com.google.android.gms:play-services-auth:20.7.0'
-    //implementation 'com.google.android.gms:play-services-base:20.7.0'
+    // Google API Client and Calendar Integration -------------------------------------------------
+    implementation 'com.google.api-client:google-api-client-android:1.34.1'
+    implementation 'com.google.api-client:google-api-client-jackson2:1.34.1'
+    implementation 'com.google.android.gms:play-services-auth:21.2.0'
     implementation 'com.google.apis:google-api-services-calendar:v3-rev20211026-1.32.1'
     implementation 'com.fasterxml.jackson.core:jackson-core:2.13.0'
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.13.0'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.0'
-
-
-
 }

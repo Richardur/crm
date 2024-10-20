@@ -9,15 +9,24 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.aiva.aivacrm.R;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.Scope;
+import com.google.android.gms.tasks.Task;
+import com.google.api.services.calendar.CalendarScopes;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import model.Employe;
 import network.ApiService;
@@ -31,6 +40,10 @@ import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
+    private GoogleSignInClient mGoogleSignInClient;
+    private static final int RC_SIGN_IN = 100;
+    private GoogleSignInAccount googleAccount;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,15 +53,36 @@ public class LoginActivity extends AppCompatActivity {
         final EditText passwordEditText = findViewById(R.id.password);
         final CheckBox rememberMeCheckBox = findViewById(R.id.remember_me);
         Button loginButton = findViewById(R.id.loginButton);
+        SignInButton signInButton = findViewById(R.id.google_sign_in_button);
+        signInButton.setSize(SignInButton.SIZE_WIDE);
+        signInButton.setColorScheme(SignInButton.COLOR_DARK);
 
         // Load saved credentials if "Remember Me" was checked
         loadSavedCredentials(usernameEditText, passwordEditText, rememberMeCheckBox);
 
+        // Set up Google Sign-In options
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .requestScopes(new Scope(CalendarScopes.CALENDAR_READONLY))
+                .build();
+
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        // Remove automatic navigation to DailyTasks upon Google Sign-In
+        // Allow the user to stay on the login screen after signing in with Google
+
+        // Regular sign-in with username/password
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 final String username = usernameEditText.getText().toString();
                 final String password = passwordEditText.getText().toString();
+
+                if (username.isEmpty() || password.isEmpty()) {
+                    Toast.makeText(LoginActivity.this, "Please enter username and password", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 final String hashedPassword = hashPassword(password).toLowerCase(); // Ensure it's lowercase
 
                 authenticate(username, hashedPassword);
@@ -61,6 +95,62 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
+
+        // Google Sign-in button click listener
+        signInButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                signInWithGoogle();
+            }
+        });
+
+        // Optionally, check if the user is already authenticated via backend and proceed
+        // Uncomment the following lines if you want to automatically log in users who have valid sessions
+        /*
+        if (isUserSignedIn()) {
+            // User is already signed in to backend, proceed to main activity
+            startActivity(new Intent(LoginActivity.this, DailyTasks.class));
+            finish();
+        }
+        */
+    }
+
+    private boolean isUserSignedIn() {
+        String apiKey = UserSessionManager.getApiKey(this);
+        String userId = UserSessionManager.getUserId(this);
+        return apiKey != null && !apiKey.isEmpty() && userId != null && !userId.isEmpty();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == RC_SIGN_IN) {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            handleSignInResult(task);
+        }
+    }
+
+    private void signInWithGoogle() {
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        try {
+            googleAccount = completedTask.getResult(ApiException.class);
+            if (googleAccount != null) {
+                // Signed in successfully with Google, but stay on the login screen
+                Log.d("LoginActivity", "Google Sign-In successful: " + googleAccount.getEmail());
+                Toast.makeText(this, "Google Sign-In successful", Toast.LENGTH_SHORT).show();
+
+                // You can store the googleAccount if needed for later use
+                // For example, store it in a variable or shared preferences
+            }
+        } catch (ApiException e) {
+            Log.w("LoginActivity", "signInResult:failed code=" + e.getStatusCode());
+            Toast.makeText(this, "Google Sign-In failed.", Toast.LENGTH_LONG).show();
+        }
     }
 
     private void authenticate(String username, String hashedPassword) {
@@ -136,6 +226,8 @@ public class LoginActivity extends AppCompatActivity {
 
                         // Save employee details
                         UserSessionManager.saveEmployeeDetails(LoginActivity.this, employee);
+
+                        // Proceed to the main activity after successful authentication
                         startActivity(new Intent(LoginActivity.this, DailyTasks.class));
                         finish();
                     } else {
@@ -155,9 +247,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
-
-
-
 
     private String hashPassword(String password) {
         try {

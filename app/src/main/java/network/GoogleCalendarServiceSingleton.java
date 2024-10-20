@@ -4,9 +4,9 @@ import android.content.Context;
 
 public class GoogleCalendarServiceSingleton {
     private static GoogleCalendarServiceSingleton instance;
-    private static GoogleCalendarService calendarService;
+    private final GoogleCalendarService calendarService;
 
-    public GoogleCalendarServiceSingleton(Context context) {
+    private GoogleCalendarServiceSingleton(Context context) {
         calendarService = new GoogleCalendarService(context);
     }
 
@@ -19,15 +19,5 @@ public class GoogleCalendarServiceSingleton {
 
     public GoogleCalendarService getCalendarService() {
         return calendarService;
-    }
-
-    public void setApiKey(String apiKey) {
-        if (calendarService != null) {
-            calendarService.setApiKey(apiKey);
-        }
-    }
-
-    public Boolean getIsInitialized() {
-        return calendarService != null && calendarService.getIsInitialized();
     }
 }
