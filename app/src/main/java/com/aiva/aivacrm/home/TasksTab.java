@@ -8,6 +8,15 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+import androidx.work.Data;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.WorkRequest;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
@@ -56,6 +65,7 @@ import network.UserSessionManager;
 import network.api_request_model.ApiResponseReactionPlan;
 import network.api_request_model.ManagerReactionWorkInPlan;
 import network.api_response.CRMWorkResponse;
+import util.NotificationWorker;
 
 public class TasksTab extends Fragment {
     private boolean isApiCallInProgress = false;
@@ -86,6 +96,7 @@ public class TasksTab extends Fragment {
 
     private GoogleAccountCredential mCredential;
     private static final String[] SCOPES = { CalendarScopes.CALENDAR_READONLY };
+    private Map<String, CRMWork> crmWorkMap = new HashMap<>();
 
     public TasksTab() {
         // Required empty public constructor
@@ -187,17 +198,22 @@ public class TasksTab extends Fragment {
                 List<CRMWork> crmWorkList = result.getData().getCrmWorkList();
                 if (crmWorkList != null) {
                     for (CRMWork work : crmWorkList) {
+                        crmWorkMap.put(String.valueOf(work.getCRMWorkID()), work);
+
                         if ("yyyy.mm.dd".equals(work.getCRMWorkFormat())) {
                             dateOnlyActionIds.add(work.getCRMWorkID());
                         }
                     }
-                    mAdapter.setDateOnlyActionIds(dateOnlyActionIds);  // Pass the IDs to the adapter
-                    Log.d(TAG, "Date only action IDs: " + dateOnlyActionIds);
+                    mAdapter.setDateOnlyActionIds(dateOnlyActionIds);
                 }
             }
             // After fetching the action info, fetch tasks
             scheduleCall();
         });
+    }
+
+    private CRMWork getCRMWorkById(String crmWorkId) {
+        return crmWorkMap.get(crmWorkId);
     }
 
     public void refreshTasks() {
@@ -278,6 +294,8 @@ public class TasksTab extends Fragment {
                                 String workInPlanForCustomerOrder = header.getReactionByOrderNo() != null ? header.getReactionByOrderNo() : "";
 
                                 int workInPlanID = work.getReactionWorkID() != null ? work.getReactionWorkID() : 0;
+                                Log.d("TasksTab", "Fetched task from database with workInPlanID: " + workInPlanID);
+
                                 String managerName = work.getReactionWorkManageName() != null ? work.getReactionWorkManageName() : "";
                                 String reactionWorkActionID = work.getReactionWorkActionID() != null ? String.valueOf(work.getReactionWorkActionID()) : "";
                                 int tempActionID = Integer.parseInt(reactionWorkActionID);
@@ -329,6 +347,11 @@ public class TasksTab extends Fragment {
                             }
                         }
 
+                        for (Task task : itemsFromDB) {
+                            // Schedule notification for each task
+                            scheduleTaskNotification(task);
+                        }
+
                         Log.d(TAG, "Fetched " + itemsFromDB.size() + " tasks from database");
                         adapterItems.addAll(itemsFromDB);
 
@@ -341,6 +364,51 @@ public class TasksTab extends Fragment {
                 });
             }
         });
+    }
+
+    private void scheduleTaskNotification(Task task) {
+        // Skip scheduling if the task is already completed
+        if ("1".equals(task.getWorkInPlanDone())) {
+            return;
+        }
+
+        // Get the CRMWorkRemindTime from the CRMWork associated with this task
+        // Assuming you have a method to fetch CRMWork details based on reactionWorkActionID
+        CRMWork crmWork = getCRMWorkById(task.getReactionWorkActionID());
+        if (crmWork == null) {
+            return;
+        }
+
+        long remindTimeInMillis = crmWork.getRemindTimeInMillis();
+
+        // Calculate the trigger time
+        long taskTimeInMillis = task.getWorkInPlanTerm().getTime();
+        long currentTimeInMillis = System.currentTimeMillis();
+        long delay = taskTimeInMillis - remindTimeInMillis - currentTimeInMillis;
+
+        if (delay <= 0) {
+            // If the delay is negative or zero, skip scheduling
+            return;
+        }
+
+        // Prepare input data for the worker
+        Data inputData = new Data.Builder()
+                .putString(NotificationWorker.TASK_NAME_KEY, task.getWorkInPlanName())
+                .putInt(NotificationWorker.TASK_ID_KEY, task.getWorkInPlanID())
+                .build();
+
+        // Create a OneTimeWorkRequest
+        OneTimeWorkRequest notificationWork = new OneTimeWorkRequest.Builder(NotificationWorker.class)
+                .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+                .setInputData(inputData)
+                .build();
+
+        // Enqueue the work
+        WorkManager.getInstance(getContext()).enqueueUniqueWork(
+                "task_notification_" + task.getWorkInPlanID(),
+                ExistingWorkPolicy.REPLACE,
+                notificationWork
+        );
     }
 
     private LocalDate convertToLocalDate(Timestamp timestamp) {

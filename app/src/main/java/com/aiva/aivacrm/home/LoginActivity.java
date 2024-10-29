@@ -1,6 +1,9 @@
 package com.aiva.aivacrm.home;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -26,7 +29,10 @@ import org.json.JSONObject;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import model.Employe;
 import network.ApiService;
@@ -44,6 +50,18 @@ public class LoginActivity extends AppCompatActivity {
     private static final int RC_SIGN_IN = 100;
     private GoogleSignInAccount googleAccount;
 
+
+    // Notification permission launcher for Android 13+
+    private final ActivityResultLauncher<String> requestNotificationPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    Toast.makeText(this, "Notification permission granted", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Notification permission is required for reminders", Toast.LENGTH_LONG).show();
+                }
+            });
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,13 +75,18 @@ public class LoginActivity extends AppCompatActivity {
         signInButton.setSize(SignInButton.SIZE_WIDE);
         signInButton.setColorScheme(SignInButton.COLOR_DARK);
 
+        // Check and request notification permission
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {  // Android 13+ check
+            checkAndRequestNotificationPermission();
+        }
+
         // Load saved credentials if "Remember Me" was checked
         loadSavedCredentials(usernameEditText, passwordEditText, rememberMeCheckBox);
 
         // Set up Google Sign-In options
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
-                .requestScopes(new Scope(CalendarScopes.CALENDAR_READONLY))
+                .requestScopes(new Scope(CalendarScopes.CALENDAR))
                 .build();
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
@@ -119,6 +142,12 @@ public class LoginActivity extends AppCompatActivity {
         String apiKey = UserSessionManager.getApiKey(this);
         String userId = UserSessionManager.getUserId(this);
         return apiKey != null && !apiKey.isEmpty() && userId != null && !userId.isEmpty();
+    }
+
+    private void checkAndRequestNotificationPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+        }
     }
 
     @Override

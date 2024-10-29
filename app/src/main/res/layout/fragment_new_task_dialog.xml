@@ -64,6 +64,20 @@
             android:layout_height="wrap_content" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <CheckBox
+        android:id="@+id/addToCalendarCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add to my Google Calendar"
+        android:layout_marginBottom="16dp" />
+
+    <CheckBox
+        android:id="@+id/sendInviteCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Send invite to representative"
+        android:layout_marginBottom="16dp" />
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/createButton"
         style="@style/MyButtonStyle"

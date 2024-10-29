@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -46,13 +47,17 @@ public class NewTaskDialogFragment extends DialogFragment {
     private List<CRMWork> actionList = new ArrayList<>();
     private ArrayAdapter<String> actionAdapter;
     private boolean isDateOnly = false;
+    private CheckBox addToCalendarCheckBox;
+    private CheckBox sendInviteCheckBox;
 
     public interface OnNewTaskCreatedListener {
-        void onNewTaskCreated(CRMWork action, String date, String time, String comment);
+
+        void onNewTaskCreated(CRMWork action, String date, String time, String comment, boolean addToCalendar, boolean sendInvite);
     }
 
     public static NewTaskDialogFragment newInstance(OnNewTaskCreatedListener listener) {
         NewTaskDialogFragment fragment = new NewTaskDialogFragment();
+
         fragment.listener = listener;
         return fragment;
     }
@@ -73,6 +78,9 @@ public class NewTaskDialogFragment extends DialogFragment {
 
         dateEditText.setOnClickListener(v -> showDatePickerDialog());
         timeEditText.setOnClickListener(v -> showTimePickerDialog());
+
+        addToCalendarCheckBox = view.findViewById(R.id.addToCalendarCheckBox);
+        sendInviteCheckBox = view.findViewById(R.id.sendInviteCheckBox);
 
         fetchActions();
 
@@ -96,7 +104,9 @@ public class NewTaskDialogFragment extends DialogFragment {
             String date = dateEditText.getText().toString();
             String time = timeEditText.getText().toString();
             String comment = commentEditText.getText().toString();
-            listener.onNewTaskCreated(selectedAction, date, time, comment);
+            boolean addToCalendar = addToCalendarCheckBox.isChecked();
+            boolean sendInvite = sendInviteCheckBox.isChecked();
+            listener.onNewTaskCreated(selectedAction, date, time, comment, addToCalendar, sendInvite);
             dismiss();
         });
 

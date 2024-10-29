@@ -4,6 +4,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class Task implements Parcelable {
     private String reactionHeaderID;
@@ -29,6 +33,7 @@ public class Task implements Parcelable {
     private String repSurname;
     private String repPhone;
     private String repEmail;
+
 
     public boolean isDateOnlyAction() {
         return isDateOnlyAction;
@@ -59,6 +64,7 @@ public class Task implements Parcelable {
         this.workInPlanDoneDate = workInPlanDoneDate;
         this.workInPlanDone = workInPlanDone;
         this.isDateOnlyAction = isDateOnlyAction;
+
     }
 
     protected Task(Parcel in) {
@@ -82,6 +88,7 @@ public class Task implements Parcelable {
         repSurname = in.readString();
         repPhone = in.readString();
         repEmail = in.readString();
+
     }
 
     public static final Creator<Task> CREATOR = new Creator<Task>() {
@@ -95,6 +102,27 @@ public class Task implements Parcelable {
             return new Task[size];
         }
     };
+
+
+
+    public void setWorkInPlanDone(String workInPlanDone) {
+        this.workInPlanDone = workInPlanDone;
+    }
+
+    public void setWorkInPlanDoneDate(String workInPlanDoneDateStr) {
+        if (workInPlanDoneDateStr == null) {
+            this.workInPlanDoneDate = null;
+        } else {
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                Date date = sdf.parse(workInPlanDoneDateStr);
+                this.workInPlanDoneDate = new Timestamp(date.getTime());
+            } catch (ParseException e) {
+                e.printStackTrace();
+                this.workInPlanDoneDate = null;
+            }
+        }
+    }
 
     @Override
     public int describeContents() {
@@ -136,6 +164,7 @@ public class Task implements Parcelable {
         dest.writeString(repSurname);
         dest.writeString(repPhone);
         dest.writeString(repEmail);
+
     }
 
     // Getter methods for all fields...

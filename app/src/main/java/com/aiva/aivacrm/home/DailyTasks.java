@@ -3,9 +3,12 @@ package com.aiva.aivacrm.home;
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import android.app.DatePickerDialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -45,6 +48,7 @@ public class DailyTasks extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("Settings", MODE_PRIVATE);
         String language = prefs.getString("My_Lang", "lt"); // Default to "lt" if not set
         setLocale(language);
+
 
         setContentView(R.layout.activity_daily_tasks);
 
@@ -87,6 +91,8 @@ public class DailyTasks extends AppCompatActivity {
             weekdays.getTabAt(dayOfWeek - 1).select();
         });
     }
+
+
 
     private void openCurrentMenuFunctionality() {
         PopupMenu popup = new PopupMenu(DailyTasks.this, findViewById(R.id.menu_fab));

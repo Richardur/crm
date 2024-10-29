@@ -2,6 +2,8 @@ package model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.concurrent.TimeUnit;
+
 public class CRMWork {
 
     @SerializedName("CRMWorkID")
@@ -81,4 +83,39 @@ public class CRMWork {
     public void setCRMWorkCategory(String CRMWorkCategory) {
         this.CRMWorkCategory = CRMWorkCategory;
     }
+
+    public long getRemindTimeInMillis() {
+        if (this.CRMWorkRemindTime == null) {
+            // Handle the null case, perhaps return a default value or log a warning
+            return 0;
+        }
+
+        String timeString = this.CRMWorkRemindTime.trim().toLowerCase();
+
+        if (timeString.endsWith("d")) {
+            String numStr = timeString.substring(0, timeString.length() - 1);
+            int days = parseNumber(numStr);
+            return TimeUnit.DAYS.toMillis(days);
+        } else if (timeString.endsWith("h")) {
+            String numStr = timeString.substring(0, timeString.length() - 1);
+            int hours = parseNumber(numStr);
+            return TimeUnit.HOURS.toMillis(hours);
+        } else if (timeString.endsWith("min") || timeString.endsWith("m")) {  // Handles both "min" and "m"
+            String numStr = timeString.replaceAll("[^0-9]", ""); // Extract digits only
+            int minutes = parseNumber(numStr);
+            return TimeUnit.MINUTES.toMillis(minutes);
+        } else {
+            // Default to 0 if format is unrecognized
+            return 0;
+        }
+    }
+
+    private int parseNumber(String numStr) {
+        numStr = numStr.replaceAll("[^0-9]", ""); // Remove non-digit characters
+        if (numStr.isEmpty()) {
+            return 0; // Default value if no digits are found
+        }
+        return Integer.parseInt(numStr);
+    }
+
 }

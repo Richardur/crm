@@ -28,7 +28,7 @@ public class GoogleCalendarService {
 
     private static final String APPLICATION_NAME = "Aiva CRM";
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
-    private static final List<String> SCOPES = Collections.singletonList(CalendarScopes.CALENDAR_READONLY);
+    private static final List<String> SCOPES = Collections.singletonList(CalendarScopes.CALENDAR);
 
     private static Boolean isInitialized = false;
     private final Context context;
@@ -72,6 +72,9 @@ public class GoogleCalendarService {
     // Set API Key (this method can be removed if API key isn't required)
     public void setApiKey(String apiKey) {
         userAccountName = apiKey;
+    }
+    public com.google.api.services.calendar.Calendar getCalendarService() {
+        return calendarService;
     }
 
     public List<Event> getCalendarEvents() throws IOException {

@@ -231,7 +231,7 @@ public class GetTasks {
             }
 
             HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-            interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+            interceptor.setLevel(HttpLoggingInterceptor.Level.NONE);
             OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
 
             Gson gson = new GsonBuilder()

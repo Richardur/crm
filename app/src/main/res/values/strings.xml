@@ -78,6 +78,11 @@
     <string name="filter_by_status">Filter by Status</string>
     <string name="representative">Representative</string>
     <string name="assigned_to_employee_name">Assigned to:</string>
+    <string name="invitation_subject">Invitation: %1$s</string>
+    <string name="invitation_body">Please find the attached invitation to %1$s. Open it in Google Calendar.\n\nComment: %2$s</string>
+    <string name="send_email_using">Send email using:</string>
+    <string name="invite_send_failure">Failed to send invite email.</string>
+    <string name="no_rep_email_available">Representative email is not available.</string>
 
 
 </resources>

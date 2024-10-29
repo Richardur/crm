@@ -103,6 +103,7 @@ public class TaskListActivity extends AppCompatActivity {
                                         parseTimestamp(work.getReactionWorkDoneDate()),
                                         work.getReactionWorkDone(),
                                         dateOnlyActionIds.contains(work.getReactionWorkActionID())
+
                                 );
                                 tasks.add(task);
                             }
