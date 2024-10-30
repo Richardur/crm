@@ -1,7 +1,6 @@
 package com.aiva.aivacrm.home;
 
 import android.app.DatePickerDialog;
-import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,11 +10,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TimePicker;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,6 +25,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import model.CRMWork;
+import model.Customer;
 import network.ApiService;
 import network.RetrofitClientInstance;
 import network.UserSessionManager;
@@ -49,16 +46,19 @@ public class NewTaskDialogFragment extends DialogFragment {
     private boolean isDateOnly = false;
     private CheckBox addToCalendarCheckBox;
     private CheckBox sendInviteCheckBox;
+    private List<Customer.CustomerContactPerson> contactPersons;
+    private int selectedRepIndex;
+
 
     public interface OnNewTaskCreatedListener {
-
-        void onNewTaskCreated(CRMWork action, String date, String time, String comment, boolean addToCalendar, boolean sendInvite);
+        void onNewTaskCreated(CRMWork action, String date, String time, String comment, boolean addToCalendar, boolean sendInvite, Customer.CustomerContactPerson selectedRep);
     }
 
-    public static NewTaskDialogFragment newInstance(OnNewTaskCreatedListener listener) {
+    public static NewTaskDialogFragment newInstance(OnNewTaskCreatedListener listener, List<Customer.CustomerContactPerson> contactPersons, int selectedRepIndex) {
         NewTaskDialogFragment fragment = new NewTaskDialogFragment();
-
         fragment.listener = listener;
+        fragment.contactPersons = contactPersons;
+        fragment.selectedRepIndex = selectedRepIndex;
         return fragment;
     }
 
@@ -71,6 +71,31 @@ public class NewTaskDialogFragment extends DialogFragment {
         dateEditText = view.findViewById(R.id.dateEditText);
         timeEditText = view.findViewById(R.id.timeEditText);
         commentEditText = view.findViewById(R.id.commentEditText);
+        addToCalendarCheckBox = view.findViewById(R.id.addToCalendarCheckBox);
+        sendInviteCheckBox = view.findViewById(R.id.sendInviteCheckBox);
+        Spinner repSpinner = view.findViewById(R.id.repSpinner);
+
+        // Disable sendInviteCheckBox initially
+        sendInviteCheckBox.setEnabled(false);
+
+        // Enable sendInviteCheckBox only if addToCalendarCheckBox is checked
+        addToCalendarCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            sendInviteCheckBox.setEnabled(isChecked);
+            if (!isChecked) {
+                sendInviteCheckBox.setChecked(false);
+            }
+        });
+        List<String> repNames = new ArrayList<>();
+        for (Customer.CustomerContactPerson contactPerson : contactPersons) {
+            String nameWithType = contactPerson.getContactPersonName() + " " + contactPerson.getContactPersonSurname();
+            repNames.add(nameWithType);
+        }
+
+        ArrayAdapter<String> repAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, repNames);
+        repAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        repSpinner.setAdapter(repAdapter);
+
+        repSpinner.setSelection(selectedRepIndex);
 
         actionAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, new ArrayList<>());
         actionAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -78,9 +103,6 @@ public class NewTaskDialogFragment extends DialogFragment {
 
         dateEditText.setOnClickListener(v -> showDatePickerDialog());
         timeEditText.setOnClickListener(v -> showTimePickerDialog());
-
-        addToCalendarCheckBox = view.findViewById(R.id.addToCalendarCheckBox);
-        sendInviteCheckBox = view.findViewById(R.id.sendInviteCheckBox);
 
         fetchActions();
 
@@ -106,7 +128,8 @@ public class NewTaskDialogFragment extends DialogFragment {
             String comment = commentEditText.getText().toString();
             boolean addToCalendar = addToCalendarCheckBox.isChecked();
             boolean sendInvite = sendInviteCheckBox.isChecked();
-            listener.onNewTaskCreated(selectedAction, date, time, comment, addToCalendar, sendInvite);
+            Customer.CustomerContactPerson selectedRep = contactPersons.get(repSpinner.getSelectedItemPosition());
+            listener.onNewTaskCreated(selectedAction, date, time, comment, addToCalendar, sendInvite, selectedRep);
             dismiss();
         });
 

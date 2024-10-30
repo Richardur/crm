@@ -40,7 +40,7 @@
     <string name="sign_out">Sign Out</string>
     <string name="all_tasks">All Tasks</string>
     <string name="completed">Completed</string>
-    <string name="not_completed">Not Completed (default)</string>
+    <string name="not_completed">Not completed</string>
     <string name="welcome_message">Welcome to Aiva CRM</string>
     <string name="login_prompt">Enter your AIVA9001 login credentials</string>
     <string name="remember_me">Remember Me</string>
@@ -54,10 +54,8 @@
     <string name="client">Client</string>
     <string name="sample_comment">Sample Comment</string>
     <string name="colon">:</string>
-    <string name="not_completed_default">Not Completed (default)</string>
     <string name="language_switch">Switch Language</string>
     <string name="large_text">Large Text</string>
-
     <string name="action_show_all">Show All Tasks</string>
     <string name="action_show_completed">Show Completed Tasks</string>
     <string name="action_show_pending">Show Pending Tasks</string>
@@ -81,9 +79,50 @@
     <string name="invitation_subject">Invitation: %1$s</string>
     <string name="invitation_body">Please find the attached invitation to %1$s. Open it in Google Calendar.\n\nComment: %2$s</string>
     <string name="send_email_using">Send email using:</string>
-    <string name="invite_send_failure">Failed to send invite email.</string>
+    <string name="invite_send_failure">Failed to send invite.</string>
     <string name="no_rep_email_available">Representative email is not available.</string>
-
+    <string name="add_to_calendar">Add to my Google Calendar</string>
+    <string name="send_invite">Send invite to representative</string>
+    <string name="reassign_task">Reassign Task</string>
+    <string name="reassign_confirmation_message">Do you want to reassign this task?</string>
+    <string name="select_employee">Select Employee</string>
+    <string name="unknown_organizer">Unknown Organizer</string>
+    <string name="unassigned">Unassigned</string>
+    <string name="phone_number_not_assigned">Phone number is not assigned</string>
+    <string name="send_email">Send Email</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="please_login_again">Please login again.</string>
+    <string name="task_reassigned_successfully">Task reassigned successfully</string>
+    <string name="failed_to_reassign_task">Failed to reassign task</string>
+    <string name="failed_to_get_employees">Failed to get employees</string>
+    <string name="network_error">Network error: </string>
+    <string name="delete_task">Delete Task</string>
+    <string name="delete_task_confirmation">Are you sure you want to delete this task?</string>
+    <string name="task_deleted_successfully">Task deleted successfully</string>
+    <string name="failed_to_delete_task">Failed to delete task</string>
+    <string name="google_calendar_not_available">Google Calendar service is not available.</string>
+    <string name="failed_to_add_event_to_google_calendar">Failed to add event to Google Calendar.</string>
+    <string name="failed_to_parse_date_and_time">Failed to parse date and time.</string>
+    <string name="edit_confirmation_title">Edit?</string>
+    <string name="create_new_task">Create new task?</string>
+    <string name="create_same_task_confirmation">Do you want to create the same task for the selected client?</string>
+    <string name="task_type_1">Task Type 1</string>
+    <string name="task_type_2">Task Type 2</string>
+    <string name="task_type_3">Task Type 3</string>
+    <string name="select_task_type">Select Task Type</string>
+    <string name="task_status_updated">Task status updated</string>
+    <string name="failed_to_update_task_status">Failed to update task status</string>
+    <string name="complete_task_confirmation">Complete the task?</string>
+    <string name="mark_task_not_completed_confirmation">Mark the task as not completed?</string>
+    <string name="failed_to_create_new_task">Failed to create new task</string>
+    <string name="assigned_to">Assigned to: %1$s</string>
+    <string name="unknown">Unknown</string>
+    <string name="event_added_to_google_calendar">Event added to Google Calendar</string>
+    <string name="add_comment">Add Comment</string>
+    <string name="optional_comment">Optional Comment</string>
+    <string name="event_not_found">Event not found in Google Calendar.</string>
+    <string name="event_deleted">Event deleted from Google Calendar.</string>
+    <string name="event_delete_failed">Failed to delete event.</string>
 
 </resources>
-

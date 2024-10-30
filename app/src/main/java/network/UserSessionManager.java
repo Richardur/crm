@@ -15,6 +15,7 @@ public class UserSessionManager {
     private static final String KEY_USER_ID = "userId";
     private static final String KEY_EMPLOYEE_ID = "employeeId";
     private static final String KEY_EMPLOYEE_NAME = "employeeName";
+    private static final String KEY_EMPLOYEE_EMAIL = "employeeEmail";
     private static final String KEY_REMEMBER_ME_USERNAME = "rememberMeUsername";
     private static final String KEY_REMEMBER_ME_PASSWORD = "rememberMePassword";
 
@@ -51,6 +52,7 @@ public class UserSessionManager {
         init(context);
         editor.putString(KEY_EMPLOYEE_ID, String.valueOf(employee.getEmployeID()));
         editor.putString(KEY_EMPLOYEE_NAME, employee.getEmployeName() + " " + employee.getEmploeerSurname());
+        editor.putString(KEY_EMPLOYEE_EMAIL, employee.getEmployeMail());
         editor.commit(); // Commit the changes to save them
     }
 
@@ -71,6 +73,10 @@ public class UserSessionManager {
     public static String getSavedUsername(Context context) {
         init(context);
         return sharedPreferences.getString(KEY_REMEMBER_ME_USERNAME, null);
+    }
+    public static String getEmployeeMail(Context context) {
+        init(context);
+        return sharedPreferences.getString(KEY_EMPLOYEE_EMAIL, null);
     }
 
     public static String getSavedPassword(Context context) {
