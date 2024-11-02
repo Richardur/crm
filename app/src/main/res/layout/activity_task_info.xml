@@ -28,157 +28,220 @@
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:paddingTop="24dp">
+            android:paddingTop="24dp"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp">
 
             <TextView
                 android:id="@+id/client_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_large"
                 android:text="@string/customer"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
-                android:textColor="@color/purple_500" />
+                android:textAppearance="@style/TextAppearance.Material3.DisplaySmall"
+                android:layout_marginTop="@dimen/spacing_xlarge"
+                android:textColor="@color/purple_500"
+                android:layout_gravity="center_horizontal" />
 
-
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_medium"
-                android:gravity="center"
-                android:orientation="horizontal">
-
-                <ImageButton
-                    android:id="@+id/call_button"
-                    android:layout_width="?android:attr/actionBarSize"
-                    android:layout_height="?android:attr/actionBarSize"
-                    android:layout_margin="@dimen/spacing_middle"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_call"
-                    app:tint="@color/red_A200" />
-
-                <ImageButton
-                    android:id="@+id/email_button"
-                    android:layout_width="?android:attr/actionBarSize"
-                    android:layout_height="?android:attr/actionBarSize"
-                    android:layout_margin="@dimen/spacing_middle"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    app:srcCompat="@drawable/ic_email"
-                    app:tint="@color/red_A200" />
-
-                <ImageButton
-                    android:id="@+id/map_button"
-                    android:layout_width="?android:attr/actionBarSize"
-                    android:layout_height="?android:attr/actionBarSize"
-                    android:layout_margin="@dimen/spacing_middle"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_navigation"
-                    app:tint="@color/red_A200" />
-            </LinearLayout>
 
             <TextView
                 android:id="@+id/action"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
                 android:text="@string/action"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
-                android:textColor="@color/purple_500" />
-            <TextView
-                android:id="@+id/task_assignee"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_small"
-                android:text="@string/assigned_to_employee_name"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
-                android:textColor="@color/grey_90"
-                android:drawableEnd="@drawable/ic_arrow_drop_down"
-                android:drawablePadding="8dp"
-                android:clickable="true"
-                android:focusable="true" />
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                android:textColor="@color/purple_500"
+                android:layout_gravity="center"
+                android:layout_marginTop="@dimen/spacing_large" />
 
             <LinearLayout
+                android:id="@+id/assignee_manager_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_large"
-                android:orientation="vertical">
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/grey_10" />
+                android:orientation="vertical"
+                android:layout_marginTop="@dimen/spacing_xsmall">
 
                 <LinearLayout
+                    android:id="@+id/assignee_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:paddingBottom="@dimen/spacing_small"
-                    android:paddingTop="@dimen/spacing_large">
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="16dp">
 
-                    <LinearLayout
+                    <!-- Assignee TextView -->
+                    <TextView
+                        android:id="@+id/task_assignee"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:text="@string/assigned_to_employee_name"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                        android:textColor="@color/grey_90"
+                        android:drawablePadding="8dp"
                         android:clickable="true"
-                        android:gravity="top|center"
-                        android:orientation="vertical">
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        app:drawableEndCompat="@drawable/ic_arrow_drop_down" /> <!-- Added to center text and drawable vertically -->
 
-                        <TextView
-                            android:id="@+id/status_title"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/status"
-                            android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                            android:textColor="@color/purple_500" />
-
-                        <TextView
-                            android:id="@+id/status"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/spacing_xsmall"
-                            android:text="@string/not_completed"
-                            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                            android:textColor="@color/grey_60" />
-
-                        <CheckBox
-                            android:id="@+id/status_checkbox"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:scaleX="1.4"
-                            android:scaleY="1.4"
-                            android:buttonTint="@color/red_A200" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
+                    <!-- Reassign Task Button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/reassign_button"
+                        style="@style/Widget.MaterialComponents.Button.TextButton.Medium"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/red_A200"
+                        android:text="@string/reassign_task"
+                        app:iconPadding="8dp"
+                        android:contentDescription="@string/reassign_task"
                         android:background="?attr/selectableItemBackgroundBorderless"
-                        android:clickable="true"
-                        android:gravity="top|center"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/due_date_title"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/due_date"
-                            android:clickable="true"
-                            android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                            android:textColor="@color/purple_500" />
-
-                        <TextView
-                            android:id="@+id/due_date"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/spacing_xsmall"
-                            android:text="2023-01-01 00:00"
-                            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                            android:textColor="@color/grey_60" />
-                    </LinearLayout>
+                        android:padding="8dp"
+                        android:layout_marginRight="@dimen/spacing_large"
+                        android:minHeight="0dp"
+                         />
                 </LinearLayout>
+
+
+                <!-- Client Manager (Initially GONE) -->
+                <TextView
+                    android:id="@+id/client_manager"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/client_manager_name"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                    android:textColor="@color/grey_90"
+                    android:layout_marginTop="4dp"
+                    android:visibility="gone"/>
+                <!-- android:visibility="gone" -->
+
+         </LinearLayout>
+
+
+         <LinearLayout
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:layout_marginTop="@dimen/spacing_medium"
+             android:orientation="vertical">
+
+             <View
+                 android:layout_width="match_parent"
+                 android:layout_height="1dp"
+                 android:background="@color/grey_10" />
+
+             <LinearLayout
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:orientation="vertical"
+                 android:paddingTop="@dimen/spacing_large"
+                 android:paddingBottom="@dimen/spacing_small">
+
+                 <!-- Due Date Section -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingTop="@dimen/spacing_medium"
+                        android:paddingBottom="@dimen/spacing_medium">
+
+                        <!-- Due Date Icon -->
+                        <ImageView
+                            android:id="@+id/due_date_icon"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_calendar"
+                            android:contentDescription="@string/due_date_icon"
+                            app:tint="@color/purple_500" />
+
+                        <!-- Due Date Texts -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/due_date_title"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/due_date"
+                                android:textStyle="bold"
+                                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                                android:textColor="@color/purple_500" />
+
+                            <TextView
+                                android:id="@+id/due_date"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="April 30, 2024, 5:00 PM"
+                                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                                android:textColor="@color/grey_90"
+                                android:layout_marginTop="@dimen/spacing_xsmall" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Status Section -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingTop="@dimen/spacing_medium"
+                        android:paddingBottom="@dimen/spacing_medium">
+
+                        <!-- Status Icon -->
+                        <ImageView
+                            android:id="@+id/status_icon"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_status_not_completed"
+                            android:contentDescription="@string/status_icon"
+                            app:tint="@color/purple_500" />
+
+                        <!-- Spacer for consistent spacing between icon and texts/buttons -->
+                        <Space
+                            android:layout_width="16dp"
+                            android:layout_height="0dp" />
+
+                        <!-- Status Text and Button Container -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_weight="1"
+                            android:gravity="center_vertical">
+
+                            <!-- Status Text -->
+                            <TextView
+                                android:id="@+id/status"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/not_completed"
+                                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                                android:textColor="@color/grey_60" />
+
+                            <!-- Status Button -->
+                            <Button
+                                android:id="@+id/status_button"
+                                style="@style/Widget.Material3.Button.TextButton.Medium"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/green_800"
+                                android:text="@string/mark_as_completed"
+                                app:iconPadding="8dp"
+                                android:contentDescription="@string/mark_as_completed"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:padding="8dp"
+                                android:layout_marginRight="@dimen/spacing_large"
+                                 />
+                        </LinearLayout>
+                    </LinearLayout>
+
+
+                </LinearLayout>
+
 
                 <View
                     android:layout_width="match_parent"
@@ -197,7 +260,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/comment"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textStyle="bold"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                     android:textColor="@color/purple_500" />
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -223,10 +287,10 @@
                     android:id="@+id/comment"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/spacing_xlarge"
-                    android:layout_marginRight="@dimen/spacing_xlarge"
+                    android:layout_marginLeft="@dimen/spacing_large"
+                    android:layout_marginRight="@dimen/spacing_large"
                     android:layout_marginTop="@dimen/spacing_small"
-                    android:gravity="center"
+                    android:gravity="left"
                     android:lineSpacingExtra="2dp"
                     android:text="@string/sample_paragraph"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
@@ -240,218 +304,433 @@
                 android:background="@color/grey_10" />
 
             <LinearLayout
-            android:id="@+id/representative_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/spacing_xlarge"
-            android:layout_marginRight="@dimen/spacing_xlarge"
-            android:layout_marginTop="@dimen/spacing_large"
-            android:orientation="horizontal"
-            android:gravity="start">
+                android:id="@+id/representative_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/spacing_large"
+                android:layout_marginRight="@dimen/spacing_large"
+                android:layout_marginTop="@dimen/spacing_large"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-            <TextView
-                android:id="@+id/representative_title"
+                <!-- Representative Title -->
+                <TextView
+                    android:id="@+id/representative_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/representative"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                    android:textColor="@color/purple_500"
+                    android:textStyle="bold"
+                    android:layout_marginRight="16dp" />
+
+                <!-- Container for Spinner and Arrow -->
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                    <!-- Spinner -->
+                    <Spinner
+                        android:id="@+id/contact_person_spinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="6dp"
+                        android:background="@drawable/spinner_background"
+                        android:spinnerMode="dropdown"
+                       />
+
+                    <!-- Arrow Indicator -->
+                    <ImageView
+                        android:id="@+id/spinner_arrow"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_gravity="end|center_vertical"
+                        android:src="@drawable/ic_arrow_drop_down"
+                        android:contentDescription="@string/spinner_arrow_description"
+                        android:clickable="false"
+                        android:focusable="false"
+                        android:padding="6dp"
+                        android:layout_marginEnd="2dp"
+                        app:tint="@color/purple_500"
+                        />
+                </FrameLayout>
+
+            </LinearLayout>
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/representative"
-                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                android:textColor="@color/purple_500"
-                android:textStyle="bold"
-                android:layout_gravity="center_vertical"
-                android:layout_marginRight="16dp" />
-
-            <Spinner
-                android:id="@+id/contact_person_spinner"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_gravity="center_vertical"
-                android:padding="6dp"
-                android:background="@drawable/spinner_background" />
-        </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/spacing_xlarge"
-                android:layout_marginRight="@dimen/spacing_xlarge"
                 android:layout_marginTop="@dimen/spacing_large"
+                android:gravity="center"
                 android:orientation="horizontal">
 
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                <ImageButton
+                    android:id="@+id/call_button"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_margin="@dimen/spacing_mlarge"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_call"
+                    app:tint="@color/red_A200" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/phone"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                        android:textColor="@color/purple_500"
-                        android:textStyle="bold" />
+                <ImageButton
+                    android:id="@+id/email_button"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_margin="@dimen/spacing_mlarge"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    app:srcCompat="@drawable/ic_email"
+                    app:tint="@color/red_A200" />
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/phone_layout"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:visibility="gone"
-                        app:boxBackgroundColor="@color/grey_50">
-
-                        <androidx.appcompat.widget.AppCompatEditText
-                            android:id="@+id/edit_phone"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/spacing_small"
-                            android:inputType="phone"
-                            android:paddingTop="@dimen/spacing_medium"
-                            android:paddingBottom="@dimen/spacing_medium" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <TextView
-                        android:id="@+id/phone"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_small"
-                        android:text="@string/phone"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                        android:textColor="@color/grey_60"
-                        android:visibility="visible" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/email"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                        android:textColor="@color/purple_500"
-                        android:textStyle="bold" />
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/email_layout"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:visibility="gone"
-                        app:boxBackgroundColor="@color/grey_50">
-
-                        <androidx.appcompat.widget.AppCompatEditText
-                            android:id="@+id/edit_email"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/spacing_small"
-                            android:inputType="textEmailAddress"
-                            android:paddingTop="@dimen/spacing_medium"
-                            android:paddingBottom="@dimen/spacing_medium" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <TextView
-                        android:id="@+id/email"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_small"
-                        android:text="@string/email"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                        android:textColor="@color/grey_60" />
-                </LinearLayout>
+                <ImageButton
+                    android:id="@+id/map_button"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_margin="@dimen/spacing_mlarge"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_navigation"
+                    app:tint="@color/red_A200" />
             </LinearLayout>
 
-            <LinearLayout
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/contact_info_card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/spacing_xlarge"
-                android:layout_marginRight="@dimen/spacing_xlarge"
-                android:layout_marginTop="@dimen/spacing_large"
-                android:orientation="horizontal">
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                app:cardElevation="4dp"
+                app:cardCornerRadius="8dp">
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:orientation="vertical">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <!-- Header with Title and Arrow Indicator -->
+                    <!-- Contact Info Header -->
+                    <LinearLayout
+                        android:id="@+id/contact_info_header_container"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/website"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                        android:textColor="@color/purple_500"
-                        android:textStyle="bold" />
+                        android:orientation="vertical">
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/website_layout"
-                        android:layout_width="wrap_content"
+                        <!-- Header with Title and Arrow Indicator -->
+                        <LinearLayout
+                            android:id="@+id/contact_info_header"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:paddingStart="16dp"
+                            android:paddingEnd="16dp"
+                            android:background="?attr/selectableItemBackground">
+
+                            <TextView
+                                android:id="@+id/contact_info_title"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/contact_info"
+                                android:textColor="@color/purple_500"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                                android:textStyle="bold" />
+
+                            <!-- Container for Arrow Indicator -->
+                            <FrameLayout
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:layout_gravity="center_vertical">
+
+                                <ImageView
+                                    android:id="@+id/contact_info_toggle"
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_arrow_down"
+                                    app:tint="@color/purple_500"
+                                    android:contentDescription="@string/toggle_contact_info"
+                                    android:transitionName="arrow_transition" />
+                            </FrameLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Collapsible Content Area -->
+                    <LinearLayout
+                        android:id="@+id/contact_info_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:orientation="vertical"
                         android:visibility="gone"
-                        app:boxBackgroundColor="@color/grey_50">
+                        android:padding="16dp">
 
-                        <androidx.appcompat.widget.AppCompatEditText
-                            android:id="@+id/edit_website"
-                            android:layout_width="wrap_content"
+                        <!-- Phone Section -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/spacing_small"
-                            android:inputType="textUri"
-                            android:paddingTop="@dimen/spacing_medium"
-                            android:paddingBottom="@dimen/spacing_medium" />
-                    </com.google.android.material.textfield.TextInputLayout>
+                            android:orientation="horizontal">
 
-                    <TextView
-                        android:id="@+id/website"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_small"
-                        android:text="@string/website"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                        android:textColor="@color/grey_60" />
-                </LinearLayout>
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
 
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/phone"
+                                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                                    android:textColor="@color/purple_500"
+                                    android:textStyle="bold" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/address"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                        android:textColor="@color/purple_500"
-                        android:textStyle="bold" />
+                                <com.google.android.material.textfield.TextInputLayout
+                                    android:id="@+id/phone_layout"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:visibility="gone"
+                                    app:boxBackgroundColor="@color/grey_50">
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/address_layout"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:visibility="gone"
-                        app:boxBackgroundColor="@color/grey_50">
+                                    <androidx.appcompat.widget.AppCompatEditText
+                                        android:id="@+id/edit_phone"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="@dimen/spacing_small"
+                                        android:inputType="phone"
+                                        android:paddingTop="@dimen/spacing_medium"
+                                        android:paddingBottom="@dimen/spacing_medium" />
+                                </com.google.android.material.textfield.TextInputLayout>
 
-                        <androidx.appcompat.widget.AppCompatEditText
-                            android:id="@+id/edit_address"
-                            android:layout_width="wrap_content"
+                                <TextView
+                                    android:id="@+id/phone"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="@dimen/spacing_small"
+                                    android:text="@string/phone"
+                                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                                    android:textColor="@color/grey_60" />
+                            </LinearLayout>
+
+                            <!-- Email Section -->
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/email"
+                                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                                    android:textColor="@color/purple_500"
+                                    android:textStyle="bold" />
+
+                                <com.google.android.material.textfield.TextInputLayout
+                                    android:id="@+id/email_layout"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:visibility="gone"
+                                    app:boxBackgroundColor="@color/grey_50">
+
+                                    <androidx.appcompat.widget.AppCompatEditText
+                                        android:id="@+id/edit_email"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="@dimen/spacing_small"
+                                        android:inputType="textEmailAddress"
+                                        android:paddingTop="@dimen/spacing_medium"
+                                        android:paddingBottom="@dimen/spacing_medium" />
+                                </com.google.android.material.textfield.TextInputLayout>
+
+                                <TextView
+                                    android:id="@+id/email"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="@dimen/spacing_small"
+                                    android:text="@string/email"
+                                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                                    android:textColor="@color/grey_60" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <!-- Website Section -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/spacing_small"
-                            android:paddingTop="@dimen/spacing_medium"
-                            android:paddingBottom="@dimen/spacing_medium" />
-                    </com.google.android.material.textfield.TextInputLayout>
+                            android:layout_marginBottom="16dp"
+                            android:orientation="horizontal">
 
-                    <TextView
-                        android:id="@+id/address"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_small"
-                        android:text="@string/address"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                        android:textColor="@color/grey_60" />
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/website"
+                                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                                    android:textColor="@color/purple_500"
+                                    android:textStyle="bold" />
+
+                                <com.google.android.material.textfield.TextInputLayout
+                                    android:id="@+id/website_layout"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:visibility="gone"
+                                    app:boxBackgroundColor="@color/grey_50">
+
+                                    <androidx.appcompat.widget.AppCompatEditText
+                                        android:id="@+id/edit_website"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="@dimen/spacing_small"
+                                        android:inputType="textUri"
+                                        android:paddingTop="@dimen/spacing_medium"
+                                        android:paddingBottom="@dimen/spacing_medium" />
+                                </com.google.android.material.textfield.TextInputLayout>
+
+                                <TextView
+                                    android:id="@+id/website"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="@dimen/spacing_small"
+                                    android:text="@string/website"
+                                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                                    android:textColor="@color/grey_60" />
+                            </LinearLayout>
+
+                            <!-- Address Section -->
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/address"
+                                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                                    android:textColor="@color/purple_500"
+                                    android:textStyle="bold" />
+
+                                <com.google.android.material.textfield.TextInputLayout
+                                    android:id="@+id/address_layout"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:visibility="gone"
+                                    app:boxBackgroundColor="@color/grey_50">
+
+                                    <androidx.appcompat.widget.AppCompatEditText
+                                        android:id="@+id/edit_address"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="@dimen/spacing_small"
+                                        android:paddingTop="@dimen/spacing_medium"
+                                        android:paddingBottom="@dimen/spacing_medium" />
+                                </com.google.android.material.textfield.TextInputLayout>
+
+                                <TextView
+                                    android:id="@+id/address"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="@dimen/spacing_small"
+                                    android:text="@string/address"
+                                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                                    android:textColor="@color/grey_60" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+
+
+
+
+                        <!-- Edit Representative Info Layout (Initially Hidden) -->
+                        <LinearLayout
+                            android:id="@+id/edit_representative_layout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:paddingTop="16dp"
+                            android:paddingBottom="16dp"
+                            android:visibility="gone"> <!-- Initially hidden; toggle as needed -->
+
+                            <TextView
+                                android:id="@+id/edit_representative_info_title"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/edit_representative_info"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                                android:textStyle="bold"
+                                android:textColor="@color/purple_500" />
+
+                            <!-- Edit Representative Name Section -->
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/edit_rep_name_layout"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                app:boxBackgroundColor="@color/grey_50">
+
+                                <androidx.appcompat.widget.AppCompatEditText
+                                    android:id="@+id/edit_rep_name"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:hint="@string/rep_name"
+                                    android:inputType="textPersonName"
+                                    android:paddingTop="@dimen/spacing_medium"
+                                    android:paddingBottom="@dimen/spacing_medium" />
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                            <!-- Edit Representative Email Section -->
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/edit_rep_email_layout"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                app:boxBackgroundColor="@color/grey_50">
+
+                                <androidx.appcompat.widget.AppCompatEditText
+                                    android:id="@+id/edit_rep_email"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:hint="@string/rep_email"
+                                    android:inputType="textEmailAddress"
+                                    android:paddingTop="@dimen/spacing_medium"
+                                    android:paddingBottom="@dimen/spacing_medium" />
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                            <!-- Edit Representative Phone Section -->
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/edit_rep_phone_layout"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                app:boxBackgroundColor="@color/grey_50">
+
+                                <androidx.appcompat.widget.AppCompatEditText
+                                    android:id="@+id/edit_rep_phone"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:hint="@string/rep_phone"
+                                    android:inputType="phone"
+                                    android:paddingTop="@dimen/spacing_medium"
+                                    android:paddingBottom="@dimen/spacing_medium" />
+                            </com.google.android.material.textfield.TextInputLayout>
+                        </LinearLayout>
+
+                    </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+
+
+
+
+
 
             <View
                 android:layout_width="match_parent"
@@ -459,118 +738,152 @@
                 android:layout_marginTop="@dimen/spacing_large"
                 android:background="@color/grey_10" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/spacing_xlarge"
-                android:layout_marginRight="@dimen/spacing_xlarge"
-                android:layout_marginTop="@dimen/spacing_large"
-                android:orientation="horizontal">
 
 
-
-                <LinearLayout
-                    android:id="@+id/order_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:clickable="true"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/order_title"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/order_title"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                        android:textColor="@color/red_A200" />
-
-                    <TextView
-                        android:id="@+id/order"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_medium"
-                        android:text="@string/order"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                        android:textColor="@color/grey_60" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/spacing_xxlarge" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/edit_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end|right"
-        android:layout_margin="@dimen/spacing_smlarge"
-        android:clickable="true"
-        app:backgroundTint="@color/red_A200"
-        app:fabSize="normal"
-        app:srcCompat="@drawable/ic_edit"
-        app:tint="@android:color/white"
-        app:maxImageSize="36dp" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/save_button"
-        android:visibility="gone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end|right"
-        android:layout_margin="@dimen/spacing_smlarge"
-        android:clickable="true"
-        app:backgroundTint="@color/green_500"
-        app:fabSize="normal"
-        app:srcCompat="@drawable/ic_done"
-        app:tint="@android:color/white"
-        app:maxImageSize="36dp" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/cancel_button"
-        android:visibility="gone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|left"
-        android:layout_margin="@dimen/spacing_smlarge"
-        android:clickable="true"
-        app:backgroundTint="@color/red_500"
-        app:fabSize="normal"
-        app:srcCompat="@drawable/ic_close"
-        app:tint="@android:color/white"
-        app:maxImageSize="36dp" />
+    <!-- BottomAppBar -->
+    <!-- Bottom Toolbar -->
+    <LinearLayout
+        android:id="@+id/bottom_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_gravity="bottom"
+        android:background="?attr/colorSurface"
+        android:orientation="horizontal"
+        android:elevation="4dp"
+        android:gravity="center_vertical">
 
+        <!-- Normal Mode Buttons -->
+        <LinearLayout
+            android:id="@+id/normal_mode_buttons"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Edit Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/edit_button"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/EDIT"
+                android:textColor="@color/purple_500"
+                app:icon="@drawable/ic_edit"
+                app:iconTint="@color/purple_500"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                android:textAllCaps="false"
+                android:gravity="center" />
+
+            <!-- Spacer -->
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
+            <!-- Order Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/order_button"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/order_info"
+                android:textColor="@color/purple_500"
+                app:icon="@drawable/ic_order"
+                app:iconTint="@null"
+                app:iconGravity="textEnd"
+                app:iconPadding="8dp"
+                android:textAllCaps="false"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+        <!-- Edit Mode Buttons -->
+        <LinearLayout
+            android:id="@+id/edit_mode_buttons"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="gone">
+
+            <!-- Cancel Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/cancel_button"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/cancel"
+                android:textColor="@color/red_A200"
+                app:icon="@drawable/ic_close"
+                app:iconTint="@color/red_A200"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                android:textAllCaps="false"
+                android:gravity="center" />
+
+            <!-- Spacer -->
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
+            <!-- Delete Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/delete_button"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/delete_task"
+                android:textColor="@color/red_A200"
+                app:icon="@drawable/ic_delete"
+                app:iconTint="@color/red_A200"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                android:textAllCaps="false"
+                android:gravity="center" />
+
+            <!-- Spacer -->
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
+            <!-- Save Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/save_button"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/save_task"
+                android:textColor="@color/green_500"
+                app:icon="@drawable/ic_done"
+                app:iconTint="@color/green_500"
+                app:iconGravity="textEnd"
+                app:iconPadding="8dp"
+                android:textAllCaps="false"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- New Task FAB -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/new_task_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|left"
-        android:layout_margin="@dimen/spacing_smlarge"
-        android:clickable="true"
-        app:backgroundTint="@color/red_A200"
-        app:fabSize="normal"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="28dp"
         app:srcCompat="@drawable/ic_add"
+        android:contentDescription="@string/new_task"
         app:tint="@android:color/white"
-        app:maxImageSize="36dp" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/delete_button"
-        android:visibility="gone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_toStartOf="@id/cancel_button"
-        android:layout_margin="@dimen/spacing_smlarge"
-        android:clickable="true"
         app:backgroundTint="@color/red_A200"
-        app:fabSize="normal"
-        app:srcCompat="@drawable/ic_delete"
-        app:tint="@android:color/white"
         app:maxImageSize="36dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

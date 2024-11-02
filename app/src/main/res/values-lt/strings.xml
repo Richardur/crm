@@ -39,8 +39,8 @@
     <string name="cancel">Atšaukti</string>
     <string name="sign_out">Atsijungti</string>
     <string name="all_tasks">Visos Užduotys</string>
-    <string name="completed">Užbaigta</string>
-    <string name="not_completed">Neužbaigta (numatytoji)</string>
+    <string name="completed">Atlikta</string>
+    <string name="not_completed">Neatlikta</string>
     <string name="welcome_message">Sveiki atvykę į Aiva CRM</string>
     <string name="login_prompt">Įveskite savo AIVA9001 prisijungimo duomenis</string>
     <string name="remember_me">Prisiminti mane</string>
@@ -83,7 +83,7 @@
     <string name="no_rep_email_available">Atstovo el. paštas neprieinamas.</string>
     <string name="add_to_calendar">Pridėti į mano Google kalendorių</string>
     <string name="send_invite">Siųsti kvietimą atstovui</string>
-    <string name="reassign_task">Peradresuoti užduotį</string>
+    <string name="reassign_task">PERDUOTI</string>
     <string name="reassign_confirmation_message">Ar norite peradresuoti šią užduotį?</string>
     <string name="select_employee">Pasirinkti darbuotoją</string>
     <string name="unknown_organizer">Nežinomas organizatorius</string>
@@ -124,5 +124,23 @@
     <string name="event_not_found">Įvykis nerastas Google kalendoriuje.</string>
     <string name="event_deleted">Įvykis ištrintas iš Google kalendoriaus.</string>
     <string name="event_delete_failed">Nepavyko ištrinti įvykio.</string>
+    <string name="client_manager_name">Užsakymo vadovas:</string>
+    <string name="due_date_icon">Due date icon</string>
+    <string name="status_icon">status icon</string>
+    <string name="status_completed_icon">status completed icon</string>
+    <string name="status_not_completed_icon">status not completed icon</string>
+    <string name="mark_as_completed">ATLIKTI</string>
+    <string name="mark_as_uncompleted">PAŽYMĖTI NEATLIKTA</string>
+    <string name="separator_colon">:</string>
+    <string name="spinner_arrow_description">spinner arrow</string>
+    <string name="toggle_contact_info">toggle contact info</string>
+    <string name="order_info">UŽSAKYMAS</string>
 
+    <string name="contact_info">Kontaktinė informacija</string>
+    <string name="save_task">Išsaugoti užduotį</string>
+    <string name="representative_info">Atstovo informacija</string>
+    <string name="rep_name">Atstovo vardas</string>
+    <string name="rep_email">Atstovo el. paštas</string>
+    <string name="rep_phone">Atstovo telefonas</string>
+    <string name="edit_representative_info">Redaguoti atstovo informaciją</string>
 </resources>

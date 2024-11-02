@@ -124,5 +124,26 @@
     <string name="event_not_found">Event not found in Google Calendar.</string>
     <string name="event_deleted">Event deleted from Google Calendar.</string>
     <string name="event_delete_failed">Failed to delete event.</string>
+    <string name="client_manager_name">Client Manager</string>
+    <string name="separator_colon">:</string>
+
+    <string name="due_date_icon">Due date icon</string>
+    <string name="status_icon">status icon</string>
+    <string name="mark_as_completed">MARK AS COMPLETED</string>
+    <string name="mark_as_uncompleted">MARK AS NOT COMPLETED</string>
+
+    <string name="status_completed_icon">status completed icon</string>
+    <string name="status_not_completed_icon">status not completed icon</string>
+    <string name="spinner_arrow_description">spinner arrow</string>
+
+    <string name="toggle_contact_info">toggle contact info</string>
+    <string name="contact_info">Contact info</string>
+    <string name="save_task">Save Task</string>
+    <string name="representative_info">Representative Information</string>
+    <string name="rep_name">Representative Name</string>
+    <string name="rep_email">Representative Email</string>
+    <string name="rep_phone">Representative Phone</string>
+    <string name="edit_representative_info">Edit Representative Information</string>
+    <string name="order_info">ORDER INFO </string>
 
 </resources>
