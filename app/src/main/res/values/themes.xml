@@ -9,7 +9,7 @@
 
 
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/colorSecondary</item>
+        <item name="colorSecondary">@color/colorAccent</item>
         <item name="colorSecondaryVariant">@color/colorSecondaryVariant</item>
         <item name="colorOnSecondary">@color/colorOnSecondary</item>
 
@@ -21,6 +21,12 @@
 
         <!-- Customize your theme here. -->
         <item name="buttonStyle">@style/Widget.AivaCRM.Button</item>
+    </style>
+
+    <style name="Button.Primary" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/colorPrimary</item>
+        <item name="android:textColor">@color/colorOnPrimary</item>
+        <item name="cornerRadius">16dp</item>
     </style>
 
     <!-- NoActionBar Theme -->

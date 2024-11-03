@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="1417.3"
+    android:viewportHeight="2200"> <!-- Adjusted viewportHeight -->
+
+    <!-- Group to apply translation and scaling -->
+    <group
+        android:translateX="-13"
+        android:translateY="-1800"
+        android:scaleX="1"
+        android:scaleY="1.9">
+
+    <!-- Logo Path -->
+    <path
+        android:pathData="M794.8,1384.4c-15.3-27.9-44.5-45.2-76.3-45.2s-31.1,4.4-44.4,12.1c-13.1,7.9-24.3,19.2-31.9,33.1l-183.9,327.8h107.1l153.1-272.8,133.1,229.6h-83.5v-73h-93.4v73h0v39.9c0,1.8,1.4,3.2,3.2,3.2h306.5l-189.7-327.8Z"
+        android:fillColor="@color/colorPrimary"/>
+
+    <!-- Logo Circle -->
+    <path
+        android:pathData="M678.9,1545.9
+                              a40.9,40.9 0 1,0 81.8,0
+                              a40.9,40.9 0 1,0 -81.8,0"
+        android:fillColor="@color/colorPrimary"/>
+</group>
+    </vector>

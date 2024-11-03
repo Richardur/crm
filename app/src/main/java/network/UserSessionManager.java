@@ -74,6 +74,7 @@ public class UserSessionManager {
         init(context);
         return sharedPreferences.getString(KEY_REMEMBER_ME_USERNAME, null);
     }
+
     public static String getEmployeeMail(Context context) {
         init(context);
         return sharedPreferences.getString(KEY_EMPLOYEE_EMAIL, null);
@@ -123,5 +124,13 @@ public class UserSessionManager {
             }
         }
         editor.commit();
+    }
+
+    // **New Method to Check if User is Logged In**
+    public static boolean isUserLoggedIn(Context context) {
+        init(context);
+        String apiKey = sharedPreferences.getString(KEY_API_KEY, null);
+        String userId = sharedPreferences.getString(KEY_USER_ID, null);
+        return apiKey != null && !apiKey.isEmpty() && userId != null && !userId.isEmpty();
     }
 }

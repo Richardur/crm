@@ -6,7 +6,7 @@
     <color name="colorOnPrimary">#FFFFFF</color> <!-- White text/icons on Primary -->
 
     <!-- Secondary Brand Colors -->
-    <color name="colorSecondary">#1565C0</color>
+    <color name="colorSecondary">#512DA8</color>
     <color name="colorSecondaryVariant">#115293</color>
     <color name="colorOnSecondary">#FFFFFF</color> <!-- White text/icons on Secondary -->
 

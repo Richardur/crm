@@ -168,7 +168,7 @@ public class DailyTasks extends AppCompatActivity {
     }
 
     private void signOut() {
-        UserSessionManager.clearSession(this, false);
+        UserSessionManager.clearSession(this, true);
         Intent intent = new Intent(DailyTasks.this, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);

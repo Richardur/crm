@@ -7,7 +7,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -17,10 +16,10 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.api.services.calendar.CalendarScopes;
 
 import org.json.JSONException;
@@ -50,7 +49,6 @@ public class LoginActivity extends AppCompatActivity {
     private static final int RC_SIGN_IN = 100;
     private GoogleSignInAccount googleAccount;
 
-
     // Notification permission launcher for Android 13+
     private final ActivityResultLauncher<String> requestNotificationPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -61,7 +59,6 @@ public class LoginActivity extends AppCompatActivity {
                 }
             });
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,10 +67,8 @@ public class LoginActivity extends AppCompatActivity {
         final EditText usernameEditText = findViewById(R.id.username);
         final EditText passwordEditText = findViewById(R.id.password);
         final CheckBox rememberMeCheckBox = findViewById(R.id.remember_me);
-        Button loginButton = findViewById(R.id.loginButton);
-        SignInButton signInButton = findViewById(R.id.google_sign_in_button);
-        signInButton.setSize(SignInButton.SIZE_WIDE);
-        signInButton.setColorScheme(SignInButton.COLOR_DARK);
+        MaterialButton loginButton = findViewById(R.id.loginButton);
+        MaterialButton connectGoogleButton = findViewById(R.id.connect_google_button);
 
         // Check and request notification permission
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {  // Android 13+ check
@@ -86,27 +81,28 @@ public class LoginActivity extends AppCompatActivity {
         // Set up Google Sign-In options
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
-                .requestScopes(new Scope(CalendarScopes.CALENDAR))
+                .requestScopes(new com.google.android.gms.common.api.Scope(CalendarScopes.CALENDAR))
                 .build();
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-
-        // Remove automatic navigation to DailyTasks upon Google Sign-In
-        // Allow the user to stay on the login screen after signing in with Google
 
         // Regular sign-in with username/password
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final String username = usernameEditText.getText().toString();
-                final String password = passwordEditText.getText().toString();
+                final String username = usernameEditText.getText().toString().trim();
+                final String password = passwordEditText.getText().toString().trim();
 
                 if (username.isEmpty() || password.isEmpty()) {
                     Toast.makeText(LoginActivity.this, "Please enter username and password", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                final String hashedPassword = hashPassword(password).toLowerCase(); // Ensure it's lowercase
+                final String hashedPassword = hashPassword(password);
+                if (hashedPassword == null) {
+                    Toast.makeText(LoginActivity.this, "Error processing password", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
                 authenticate(username, hashedPassword);
 
@@ -119,23 +115,27 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        // Google Sign-in button click listener
-        signInButton.setOnClickListener(new View.OnClickListener() {
+        // "Connect to Google" button click listener
+        connectGoogleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 signInWithGoogle();
             }
         });
 
-        // Optionally, check if the user is already authenticated via backend and proceed
-        // Uncomment the following lines if you want to automatically log in users who have valid sessions
-        /*
-        if (isUserSignedIn()) {
-            // User is already signed in to backend, proceed to main activity
-            startActivity(new Intent(LoginActivity.this, DailyTasks.class));
-            finish();
+        // **Auto-Login Implementation**
+        // If "Remember Me" is checked and credentials are saved, perform auto-login
+        if (rememberMeCheckBox.isChecked()) {
+            String savedUsername = UserSessionManager.getSavedUsername(this);
+            String savedPassword = UserSessionManager.getSavedPassword(this);
+            if (savedUsername != null && savedPassword != null) {
+                // Optionally, show a loading indicator here
+                final String hashedPassword = hashPassword(savedPassword);
+                if (hashedPassword != null) {
+                    authenticate(savedUsername, hashedPassword);
+                }
+            }
         }
-        */
     }
 
     private boolean isUserSignedIn() {
@@ -173,8 +173,7 @@ public class LoginActivity extends AppCompatActivity {
                 Log.d("LoginActivity", "Google Sign-In successful: " + googleAccount.getEmail());
                 Toast.makeText(this, "Google Sign-In successful", Toast.LENGTH_SHORT).show();
 
-                // You can store the googleAccount if needed for later use
-                // For example, store it in a variable or shared preferences
+                // TODO: Implement any additional logic if needed, such as linking accounts
             }
         } catch (ApiException e) {
             Log.w("LoginActivity", "signInResult:failed code=" + e.getStatusCode());
@@ -191,20 +190,27 @@ public class LoginActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     String userId = response.body().getUserId();
                     Log.d("LoginActivity", "Received userId: " + userId);
-                    String apiKey = hashPassword(response.body().getUserId() + username + response.body().getApiKey()).toLowerCase();
+
+                    String apiKey = hashPassword(response.body().getUserId() + username + response.body().getApiKey());
+                    if (apiKey == null) {
+                        Toast.makeText(LoginActivity.this, "Error processing API key", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
                     UserSessionManager.saveUsername(LoginActivity.this, username);
                     UserSessionManager.saveApiKey(LoginActivity.this, apiKey);
                     UserSessionManager.saveUserId(LoginActivity.this, userId);
 
                     getEmployeeDetails(userId, hashedPassword);
                 } else {
-                    Toast.makeText(LoginActivity.this, "Login failed", Toast.LENGTH_LONG).show();
+                    Toast.makeText(LoginActivity.this, "Login failed: " + response.message(), Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(Call<AuthResponse> call, Throwable t) {
                 Toast.makeText(LoginActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                Log.e("LoginActivity", "API call failed", t);
             }
         });
     }
@@ -213,6 +219,7 @@ public class LoginActivity extends AppCompatActivity {
         String apiKey = UserSessionManager.getApiKey(this);
         if (apiKey == null || apiKey.isEmpty()) {
             Log.e("GetTasks", "API Key not found. Please login again.");
+            Toast.makeText(this, "Session expired. Please login again.", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -226,6 +233,7 @@ public class LoginActivity extends AppCompatActivity {
             whereClauseJson.put("employeID", userId);
         } catch (JSONException e) {
             Log.e("LoginActivity", "Failed to create where clause JSON", e);
+            Toast.makeText(this, "Internal error. Please try again.", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -250,22 +258,24 @@ public class LoginActivity extends AppCompatActivity {
 
                         if (employee.getEmployeID() == 0) {
                             Log.e("LoginActivity", "Received employee with invalid ID");
+                            Toast.makeText(LoginActivity.this, "Invalid employee data.", Toast.LENGTH_LONG).show();
                             return;
                         }
 
                         // Save employee details
                         UserSessionManager.saveEmployeeDetails(LoginActivity.this, employee);
 
-                        // Proceed to the main activity after successful authentication
-                        startActivity(new Intent(LoginActivity.this, DailyTasks.class));
+                        // **Start SplashActivity before navigating to DailyTasks**
+                        Intent splashIntent = new Intent(LoginActivity.this, SplashActivity.class);
+                        startActivity(splashIntent);
                         finish();
                     } else {
                         Log.e("LoginActivity", "No employee data found in response.");
-                        Toast.makeText(LoginActivity.this, "No employee details found", Toast.LENGTH_LONG).show();
+                        Toast.makeText(LoginActivity.this, "No employee details found.", Toast.LENGTH_LONG).show();
                     }
                 } else {
                     Log.e("LoginActivity", "Failed to get employee details: " + response.code() + " - " + response.message());
-                    Toast.makeText(LoginActivity.this, "Failed to get employee details", Toast.LENGTH_LONG).show();
+                    Toast.makeText(LoginActivity.this, "Failed to retrieve employee details.", Toast.LENGTH_LONG).show();
                 }
             }
 

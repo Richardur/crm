@@ -19,6 +19,19 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AivaCRM"
         android:usesCleartextTraffic="true">
+
+        <!-- SplashActivity -->
+        <activity
+            android:name=".home.SplashActivity"
+            android:theme="@style/Theme.AivaCRM.NoActionBar"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".home.TaskInfoActivity"
             android:exported="false"
@@ -42,11 +55,7 @@
         <activity android:name=".home.LoginActivity"
             android:theme="@style/Theme.AivaCRM.NoActionBar"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <!-- Required for Google Sign-In -->
         <meta-data

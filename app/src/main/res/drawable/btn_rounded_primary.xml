@@ -6,7 +6,7 @@
                 <shape android:shape="rectangle">
                     <corners android:bottomLeftRadius="30dp" android:bottomRightRadius="30dp" android:topLeftRadius="30dp" android:topRightRadius="30dp" />
                     <stroke android:width="2dp" android:color="@color/grey_20" />
-                    <solid android:color="@color/red_A200" />
+                    <solid android:color="@color/colorPrimary" />
                     <padding android:bottom="0dp" android:left="0dp" android:right="0dp" android:top="0dp" />
                     <size android:width="110dp" android:height="40dp" />
                 </shape>
@@ -19,7 +19,7 @@
                 <shape android:shape="rectangle">
                     <corners android:bottomLeftRadius="30dp" android:bottomRightRadius="30dp" android:topLeftRadius="30dp" android:topRightRadius="30dp" />
                     <stroke android:width="2dp" android:color="@color/grey_20" />
-                    <solid android:color="@color/red_A200" />
+                    <solid android:color="@color/colorPrimary" />
                     <padding android:bottom="0dp" android:left="0dp" android:right="0dp" android:top="0dp" />
                     <size android:width="110dp" android:height="40dp" />
                 </shape>
@@ -32,7 +32,7 @@
                 <shape android:shape="rectangle">
                     <corners android:bottomLeftRadius="30dp" android:bottomRightRadius="30dp" android:topLeftRadius="30dp" android:topRightRadius="30dp" />
                     <stroke android:width="2dp" android:color="@android:color/white" />
-                    <solid android:color="@color/red_A200" />
+                    <solid android:color="@color/colorPrimary" />
                     <padding android:bottom="0dp" android:left="0dp" android:right="0dp" android:top="0dp" />
                     <size android:width="110dp" android:height="40dp" />
                 </shape>
