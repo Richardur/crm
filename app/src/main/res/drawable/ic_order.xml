@@ -7,13 +7,13 @@
 
     <!-- Document Body with Folded Corner -->
     <path
-        android:fillColor="@color/purple_500"
+        android:fillColor="@color/colorAccent"
         android:pathData="M4,4h11l5,5v11H4V4z"
         android:translateY="1"/>
 
     <!-- Folded Corner -->
     <path
-        android:fillColor="@color/purple_700"
+        android:fillColor="@color/colorSecondaryVariant"
         android:pathData="M15,4v5h5L15,4z"
         android:translateY="1"/>
 

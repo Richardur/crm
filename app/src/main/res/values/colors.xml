@@ -1,13 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Primary Brand Colors -->
+    <color name="colorPrimary">#2E7D32</color>
+    <color name="colorPrimaryVariant">#60AD5E</color>
+    <color name="colorOnPrimary">#FFFFFF</color> <!-- White text/icons on Primary -->
 
+    <!-- Secondary Brand Colors -->
+    <color name="colorSecondary">#1565C0</color>
+    <color name="colorSecondaryVariant">#115293</color>
+    <color name="colorOnSecondary">#FFFFFF</color> <!-- White text/icons on Secondary -->
 
-    <color name="colorPrimary">#1976D2</color>
-    <color name="colorPrimaryDark">#1565C0</color>
-    <color name="colorPrimaryLight">#1E88E5</color>
-    <color name="colorAccent">#FF4081</color>
-    <color name="colorAccentDark">#F50057</color>
-    <color name="colorAccentLight">#FF80AB</color>
+    <!-- Accent Color -->
+    <color name="colorAccent">#512DA8</color>
+
+    <!-- Error and Success Colors -->
+    <color name="colorError">#D32F2F</color> <!-- Red for errors -->
+    <color name="colorSuccess">#388E3C</color> <!-- Green for success -->
+
+    <!-- Neutral Colors -->
+    <color name="darkGrey">#424242</color> <!-- For dark text/icons -->
+    <color name="mediumGrey">#757575</color> <!-- For medium text/icons -->
+    <color name="lightGrey">#BDBDBD</color> <!-- For light backgrounds/dividers -->
+
+    <!-- Background Colors -->
+    <color name="colorBackground">#FAFAFA</color> <!-- White background -->
+    <color name="colorSurface">#F5F5F5</color> <!-- White surface -->
+    <color name="colorOnSurface">#424242</color> <!-- Dark Grey text on Surface -->
+    <color name="colorOnBackground">#424242</color> <!-- Dark Grey text on Background -->
+
+    <!-- Define white color explicitly -->
+    <color name="white">#FFFFFF</color>
+
+    <color name="textPrimary">#212121</color>
+    <color name="textSecondary">#757575</color>
+    <color name="divider">#E0E0E0</color>
+
 
     <color name="overlay_dark_5">#0C000000</color>
     <color name="overlay_dark_10">#1A000000</color>
@@ -322,6 +349,11 @@
     <color name="grey_1000">#1a1a1a</color>
 
 
+
+
+    <color name="unassigned">#9E9E9E</color> <!-- Using mediumGrey -->
+
+
     <!--for random color generator -->
     <array name="mdcolor_random">
         <item type="color">#e91e63</item>
@@ -339,5 +371,7 @@
         <item type="color">#607d8b</item>
         <item type="color">#ff9800</item>
     </array>
+
+
 
 </resources>

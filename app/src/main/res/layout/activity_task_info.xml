@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
+    xmlns:style="http://schemas.android.com/tools"
+    android:background="@color/colorBackground"
     android:fitsSystemWindows="true"
     android:orientation="vertical">
 
@@ -39,8 +40,8 @@
                 android:text="@string/customer"
                 android:textAppearance="@style/TextAppearance.Material3.DisplaySmall"
                 android:layout_marginTop="@dimen/spacing_xlarge"
-                android:textColor="@color/purple_500"
-                android:layout_gravity="center_horizontal" />
+                android:layout_gravity="center_horizontal"
+                android:textColor="@color/colorPrimary"/>
 
 
             <TextView
@@ -50,7 +51,7 @@
                 android:text="@string/action"
                 android:textStyle="bold"
                 android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
-                android:textColor="@color/purple_500"
+                android:textColor="@color/colorPrimaryVariant"
                 android:layout_gravity="center"
                 android:layout_marginTop="@dimen/spacing_large" />
 
@@ -77,20 +78,19 @@
                         android:layout_weight="1"
                         android:text="@string/assigned_to_employee_name"
                         android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-                        android:textColor="@color/grey_90"
-                        android:drawablePadding="8dp"
+                        android:textColor="@color/textPrimary"
                         android:clickable="true"
                         android:focusable="true"
                         android:gravity="center_vertical"
-                        app:drawableEndCompat="@drawable/ic_arrow_drop_down" /> <!-- Added to center text and drawable vertically -->
+                         /> <!-- Added to center text and drawable vertically -->
 
                     <!-- Reassign Task Button -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/reassign_button"
-                        style="@style/Widget.MaterialComponents.Button.TextButton.Medium"
+                        style="@style/Widget.Material3.Button.TextButton.Medium"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/red_A200"
+                        android:textColor="@color/colorAccent"
                         android:text="@string/reassign_task"
                         app:iconPadding="8dp"
                         android:contentDescription="@string/reassign_task"
@@ -101,19 +101,39 @@
                          />
                 </LinearLayout>
 
-
+                <LinearLayout
+                    android:id="@+id/manager_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    >
                 <!-- Client Manager (Initially GONE) -->
                 <TextView
-                    android:id="@+id/client_manager"
+                    android:id="@+id/client_manager_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/client_manager_name"
                     android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                     android:textColor="@color/grey_90"
                     android:layout_marginTop="4dp"
+                    android:textStyle="italic"
                     android:visibility="gone"/>
-                <!-- android:visibility="gone" -->
 
+                    <TextView
+                        android:id="@+id/client_manager"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                        android:textColor="@color/grey_90"
+                        android:layout_marginTop="4dp"
+                        android:visibility="gone"
+                        android:gravity="right"
+                        android:textStyle="italic"
+                        />
+
+                <!-- android:visibility="gone" -->
+                </LinearLayout>
          </LinearLayout>
 
 
@@ -126,7 +146,7 @@
              <View
                  android:layout_width="match_parent"
                  android:layout_height="1dp"
-                 android:background="@color/grey_10" />
+                 android:background="@color/divider" />
 
              <LinearLayout
                  android:layout_width="match_parent"
@@ -151,7 +171,7 @@
                             android:layout_height="24dp"
                             android:src="@drawable/ic_calendar"
                             android:contentDescription="@string/due_date_icon"
-                            app:tint="@color/purple_500" />
+                            app:tint="@color/colorPrimary" />
 
                         <!-- Due Date Texts -->
                         <LinearLayout
@@ -168,7 +188,7 @@
                                 android:text="@string/due_date"
                                 android:textStyle="bold"
                                 android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                                android:textColor="@color/purple_500" />
+                                android:textColor="@color/colorPrimaryVariant" />
 
                             <TextView
                                 android:id="@+id/due_date"
@@ -176,9 +196,24 @@
                                 android:layout_height="wrap_content"
                                 android:text="April 30, 2024, 5:00 PM"
                                 android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                                android:textColor="@color/grey_90"
+                                android:textColor="@color/textPrimary"
                                 android:layout_marginTop="@dimen/spacing_xsmall" />
                         </LinearLayout>
+
+                        <Button
+                            android:id="@+id/reschedule_button"
+                            style="@style/Widget.Material3.Button.TextButton.Medium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/red_A200"
+                            android:text="@string/reschedule"
+                            app:iconPadding="8dp"
+                            android:contentDescription="@string/reschedule"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:padding="8dp"
+                            android:layout_marginRight="@dimen/spacing_large"
+                            android:visibility="gone"
+                            />
                     </LinearLayout>
 
                     <!-- Status Section -->
@@ -197,7 +232,7 @@
                             android:layout_height="24dp"
                             android:src="@drawable/ic_status_not_completed"
                             android:contentDescription="@string/status_icon"
-                            app:tint="@color/purple_500" />
+                            app:tint="@color/colorPrimary" />
 
                         <!-- Spacer for consistent spacing between icon and texts/buttons -->
                         <Space
@@ -220,7 +255,7 @@
                                 android:layout_weight="1"
                                 android:text="@string/not_completed"
                                 android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                                android:textColor="@color/grey_60" />
+                                android:textColor="@color/textSecondary" />
 
                             <!-- Status Button -->
                             <Button
@@ -228,7 +263,7 @@
                                 style="@style/Widget.Material3.Button.TextButton.Medium"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textColor="@color/green_800"
+                                android:textColor="@color/colorAccent"
                                 android:text="@string/mark_as_completed"
                                 app:iconPadding="8dp"
                                 android:contentDescription="@string/mark_as_completed"
@@ -246,9 +281,16 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="@color/grey_10" />
+                    android:background="@color/divider" />
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/comment_section"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center"
+                >
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -262,7 +304,7 @@
                     android:text="@string/comment"
                     android:textStyle="bold"
                     android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                    android:textColor="@color/purple_500" />
+                    android:textColor="@color/colorPrimaryVariant" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/comment_layout"
@@ -294,14 +336,15 @@
                     android:lineSpacingExtra="2dp"
                     android:text="@string/sample_paragraph"
                     android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
-                    android:textColor="@color/grey_90" />
+                    android:textColor="@color/textPrimary" />
             </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginTop="@dimen/spacing_large"
-                android:background="@color/grey_10" />
+                android:background="@color/divider" />
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/representative_layout"
@@ -320,9 +363,10 @@
                     android:layout_height="wrap_content"
                     android:text="@string/representative"
                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                    android:textColor="@color/purple_500"
+                    android:textColor="@color/colorPrimaryVariant"
                     android:textStyle="bold"
                     android:layout_marginRight="16dp" />
+
 
                 <!-- Container for Spinner and Arrow -->
                 <FrameLayout
@@ -352,11 +396,14 @@
                         android:focusable="false"
                         android:padding="6dp"
                         android:layout_marginEnd="2dp"
-                        app:tint="@color/purple_500"
+                        app:tint="@color/colorPrimary"
                         />
                 </FrameLayout>
 
+
             </LinearLayout>
+
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -371,7 +418,7 @@
                     android:layout_margin="@dimen/spacing_mlarge"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_call"
-                    app:tint="@color/red_A200" />
+                    app:tint="@color/colorAccent" />
 
                 <ImageButton
                     android:id="@+id/email_button"
@@ -380,7 +427,7 @@
                     android:layout_margin="@dimen/spacing_mlarge"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     app:srcCompat="@drawable/ic_email"
-                    app:tint="@color/red_A200" />
+                    app:tint="@color/colorAccent" />
 
                 <ImageButton
                     android:id="@+id/map_button"
@@ -389,7 +436,7 @@
                     android:layout_margin="@dimen/spacing_mlarge"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_navigation"
-                    app:tint="@color/red_A200" />
+                    app:tint="@color/colorAccent" />
             </LinearLayout>
 
 
@@ -399,6 +446,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
+                android:background="@color/colorBackground"
                 app:cardElevation="4dp"
                 app:cardCornerRadius="8dp">
 
@@ -413,6 +461,7 @@
                         android:id="@+id/contact_info_header_container"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:background="@color/colorBackground"
                         android:orientation="vertical">
 
                         <!-- Header with Title and Arrow Indicator -->
@@ -432,7 +481,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="@string/contact_info"
-                                android:textColor="@color/purple_500"
+                                android:textColor="@color/colorPrimaryVariant"
                                 android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
                                 android:textStyle="bold" />
 
@@ -448,7 +497,7 @@
                                     android:layout_height="24dp"
                                     android:layout_gravity="center"
                                     android:src="@drawable/ic_arrow_down"
-                                    app:tint="@color/purple_500"
+                                    app:tint="@color/colorPrimary"
                                     android:contentDescription="@string/toggle_contact_info"
                                     android:transitionName="arrow_transition" />
                             </FrameLayout>
@@ -456,13 +505,15 @@
                     </LinearLayout>
 
                     <!-- Collapsible Content Area -->
+
                     <LinearLayout
                         android:id="@+id/contact_info_content"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:visibility="gone"
-                        android:padding="16dp">
+                        android:padding="8dp">
+
 
                         <!-- Phone Section -->
                         <LinearLayout
@@ -481,7 +532,7 @@
                                     android:layout_height="wrap_content"
                                     android:text="@string/phone"
                                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                                    android:textColor="@color/purple_500"
+                                    android:textColor="@color/colorPrimaryVariant"
                                     android:textStyle="bold" />
 
                                 <com.google.android.material.textfield.TextInputLayout
@@ -508,7 +559,7 @@
                                     android:layout_marginTop="@dimen/spacing_small"
                                     android:text="@string/phone"
                                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                                    android:textColor="@color/grey_60" />
+                                    android:textColor="@color/textSecondary" />
                             </LinearLayout>
 
                             <!-- Email Section -->
@@ -523,7 +574,7 @@
                                     android:layout_height="wrap_content"
                                     android:text="@string/email"
                                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                                    android:textColor="@color/purple_500"
+                                    android:textColor="@color/colorPrimaryVariant"
                                     android:textStyle="bold" />
 
                                 <com.google.android.material.textfield.TextInputLayout
@@ -550,7 +601,7 @@
                                     android:layout_marginTop="@dimen/spacing_small"
                                     android:text="@string/email"
                                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                                    android:textColor="@color/grey_60" />
+                                    android:textColor="@color/textSecondary" />
                             </LinearLayout>
                         </LinearLayout>
 
@@ -572,7 +623,7 @@
                                     android:layout_height="wrap_content"
                                     android:text="@string/website"
                                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                                    android:textColor="@color/purple_500"
+                                    android:textColor="@color/colorPrimaryVariant"
                                     android:textStyle="bold" />
 
                                 <com.google.android.material.textfield.TextInputLayout
@@ -599,7 +650,7 @@
                                     android:layout_marginTop="@dimen/spacing_small"
                                     android:text="@string/website"
                                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                                    android:textColor="@color/grey_60" />
+                                    android:textColor="@color/textSecondary" />
                             </LinearLayout>
 
                             <!-- Address Section -->
@@ -614,7 +665,7 @@
                                     android:layout_height="wrap_content"
                                     android:text="@string/address"
                                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                                    android:textColor="@color/purple_500"
+                                    android:textColor="@color/colorPrimaryVariant"
                                     android:textStyle="bold" />
 
                                 <com.google.android.material.textfield.TextInputLayout
@@ -640,11 +691,21 @@
                                     android:layout_marginTop="@dimen/spacing_small"
                                     android:text="@string/address"
                                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                                    android:textColor="@color/grey_60" />
+                                    android:textColor="@color/textSecondary" />
                             </LinearLayout>
                         </LinearLayout>
 
-
+                        <TextView
+                            android:id="@+id/representative_status"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/rep_status_default"
+                            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                            android:textColor="@color/textSecondary"
+                            android:gravity="center"
+                            android:layout_marginLeft="8dp"
+                            android:layout_marginBottom="@dimen/spacing_xxxlarge"
+                            />
 
 
 
@@ -665,7 +726,7 @@
                                 android:text="@string/edit_representative_info"
                                 android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
                                 android:textStyle="bold"
-                                android:textColor="@color/purple_500" />
+                                android:textColor="@color/colorPrimary" />
 
                             <!-- Edit Representative Name Section -->
                             <com.google.android.material.textfield.TextInputLayout
@@ -736,11 +797,24 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginTop="@dimen/spacing_large"
-                android:background="@color/grey_10" />
+                android:background="@color/divider" />
 
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/sync_with_google_calendar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:text="@string/sync_with_g_calendar"
+                android:textColor="@color/textPrimary"
+                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                android:layout_marginTop="@dimen/spacing_medium"
+                app:buttonTint="@color/purple_700"
+                android:visibility="gone"
+                />
 
 
         </LinearLayout>
+
     </androidx.core.widget.NestedScrollView>
 
 
@@ -762,6 +836,7 @@
             android:id="@+id/normal_mode_buttons"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@color/colorSurface"
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
@@ -772,9 +847,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="@string/EDIT"
-                android:textColor="@color/purple_500"
+                android:textColor="@color/colorAccent"
                 app:icon="@drawable/ic_edit"
-                app:iconTint="@color/purple_500"
+                app:iconTint="@color/colorAccent"
                 app:iconGravity="textStart"
                 app:iconPadding="8dp"
                 android:textAllCaps="false"
@@ -793,7 +868,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="@string/order_info"
-                android:textColor="@color/purple_500"
+                android:textColor="@color/colorAccent"
                 app:icon="@drawable/ic_order"
                 app:iconTint="@null"
                 app:iconGravity="textEnd"
@@ -819,9 +894,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="@string/cancel"
-                android:textColor="@color/red_A200"
+                android:textColor="@color/colorError"
                 app:icon="@drawable/ic_close"
-                app:iconTint="@color/red_A200"
+                app:iconTint="@color/colorError"
                 app:iconGravity="textStart"
                 app:iconPadding="8dp"
                 android:textAllCaps="false"
@@ -840,9 +915,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="@string/delete_task"
-                android:textColor="@color/red_A200"
+                android:textColor="@color/colorError"
                 app:icon="@drawable/ic_delete"
-                app:iconTint="@color/red_A200"
+                app:iconTint="@color/colorError"
                 app:iconGravity="textStart"
                 app:iconPadding="8dp"
                 android:textAllCaps="false"
@@ -883,7 +958,7 @@
         app:srcCompat="@drawable/ic_add"
         android:contentDescription="@string/new_task"
         app:tint="@android:color/white"
-        app:backgroundTint="@color/red_A200"
+        app:backgroundTint="@color/colorPrimary"
         app:maxImageSize="36dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

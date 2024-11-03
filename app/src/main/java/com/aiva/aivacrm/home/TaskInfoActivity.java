@@ -17,6 +17,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
@@ -26,12 +27,12 @@ import androidx.work.WorkManager;
 import android.text.SpannableString;
 import android.text.style.UnderlineSpan;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.RotateAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -45,7 +46,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.model.Event;
@@ -60,12 +63,15 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -138,7 +144,10 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
     private TextView dueDateTitleTextView;
     private TextView statusTitleTextView;
     private TextView taskAssignee;
+    private TextView clientManagerNameTextView;
     private TextView clientManagerTextView;
+    private TextView representativeStatus;
+
 
     private MaterialButton editButton;
     private MaterialButton orderButton;
@@ -173,6 +182,7 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
 
     private Button statusButton;
     private Button reassignButton;
+    private Button rescheduleButton;
 
     private ImageView statusIcon;
 
@@ -197,6 +207,11 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
     private ImageView contactInfoToggle;
     private LinearLayout contactInfoContent;
     private boolean isContactInfoExpanded = false;
+
+    private MaterialCheckBox syncGoogleCalendarCheckbox;
+    private boolean initialSyncWithGoogleCalendarState;
+
+    private LinearLayout commentSection;
 
 
     @Override
@@ -236,8 +251,213 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
 
     }
 
-    //Edit task
+    // ============================
+    //      UI Initialization
+    // ============================
 
+    private void initializeViews() {
+        // Initialize UI components
+        normalModeButtons = findViewById(R.id.normal_mode_buttons);
+        editModeButtons = findViewById(R.id.edit_mode_buttons);
+        newTaskButton = findViewById(R.id.new_task_button);
+        commentSection = findViewById(R.id.comment_section);
+
+        // TextViews
+        clientNameTextView = findViewById(R.id.client_name);
+        actionTextView = findViewById(R.id.action);
+        dueDateTextView = findViewById(R.id.due_date);
+        dueDateTitleTextView = findViewById(R.id.due_date_title);
+        commentTextView = findViewById(R.id.comment);
+        statusTextView = findViewById(R.id.status);
+        phoneTextView = findViewById(R.id.phone);
+        emailTextView = findViewById(R.id.email);
+        websiteTextView = findViewById(R.id.website);
+        addressTextView = findViewById(R.id.address);
+        taskAssignee = findViewById(R.id.task_assignee);
+        clientManagerNameTextView = findViewById(R.id.client_manager_name);
+        clientManagerTextView = findViewById(R.id.client_manager);
+        representativeStatus = findViewById(R.id.representative_status);
+
+        // Buttons
+        editButton = findViewById(R.id.edit_button);
+        orderButton = findViewById(R.id.order_button);
+        saveButton = findViewById(R.id.save_button);
+        cancelButton = findViewById(R.id.cancel_button);
+        deleteButton = findViewById(R.id.delete_button);
+        statusButton = findViewById(R.id.status_button);
+        reassignButton = findViewById(R.id.reassign_button);
+        rescheduleButton = findViewById(R.id.reschedule_button);
+
+        // Input Layouts
+        phoneLayout = findViewById(R.id.phone_layout);
+        emailLayout = findViewById(R.id.email_layout);
+        websiteLayout = findViewById(R.id.website_layout);
+        addressLayout = findViewById(R.id.address_layout);
+        commentLayout = findViewById(R.id.comment_layout);
+
+        // Editable fields
+        editPhone = findViewById(R.id.edit_phone);
+        editEmail = findViewById(R.id.edit_email);
+        editWebsite = findViewById(R.id.edit_website);
+        editAddress = findViewById(R.id.edit_address);
+        editComment = findViewById(R.id.edit_comment);
+
+        // Action Buttons
+        callButton = findViewById(R.id.call_button);
+        emailButton = findViewById(R.id.email_button);
+        mapButton = findViewById(R.id.map_button);
+
+        // ImageViews
+        statusIcon = findViewById(R.id.status_icon);
+
+        // Layouts
+        //representativeInfoLayout = findViewById(R.id.representative_info_layout);
+        //editRepresentativeLayout = findViewById(R.id.edit_representative_layout);
+
+        contactInfoCard = findViewById(R.id.contact_info_card);
+        contactInfoHeader = findViewById(R.id.contact_info_header);
+        contactInfoToggle = findViewById(R.id.contact_info_toggle);
+        contactInfoContent = findViewById(R.id.contact_info_content);
+
+        syncGoogleCalendarCheckbox = findViewById(R.id.sync_with_google_calendar);
+    }
+
+    // ============================
+    //         Event Listeners
+    // ============================
+
+    private void setListeners() {
+
+        callButton.setOnClickListener(v -> {
+            if (!repPhone.equals(getString(R.string.unassigned))) {
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                intent.setData(Uri.parse("tel:" + phoneTextView.getText().toString()));
+                startActivity(intent);
+            } else {
+                showCustomToast(getString(R.string.phone_number_not_assigned), false);
+            }
+        });
+        orderButton.setOnClickListener(v -> {
+            Intent intent = new Intent(TaskInfoActivity.this, TaskListActivity.class);
+            intent.putExtra("selectedTaskId", taskId);
+            intent.putExtra("clientId", taskCustomerId);
+            intent.putExtra("orderId", order);
+            startActivity(intent);
+        });
+
+
+        emailButton.setOnClickListener(v -> {
+            String email = emailTextView.getText().toString().trim();
+            if (email.isEmpty()) {
+                showCustomToast(getString(R.string.error_email_empty), false); // Show error toast if email is empty
+            } else {
+                Intent intent = new Intent(Intent.ACTION_SEND);
+                intent.setType("text/html");
+                intent.putExtra(Intent.EXTRA_EMAIL, new String[]{email});
+                startActivity(Intent.createChooser(intent, getString(R.string.send_email)));
+            }
+        });
+
+        mapButton.setOnClickListener(v -> {
+            String address = addressTextView.getText().toString().trim();
+            if (address.isEmpty()) {
+                showCustomToast(getString(R.string.error_address_empty), false); // Show error toast if address is empty
+            } else {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse("geo:0,0?q=" + address));
+                startActivity(intent);
+            }
+        });
+
+
+      /*  statusCheckbox.setOnClickListener(v -> {
+            if (statusCheckbox.isChecked()) {
+                showStatusConfirmationDialog(getString(R.string.complete_task_confirmation), true);
+            } else {
+                showStatusConfirmationDialog(getString(R.string.mark_task_not_completed_confirmation), false);
+            }
+        });
+
+       */
+        // Set Listener for the status Button
+        statusButton.setOnClickListener(v -> {
+            boolean isCurrentlyCompleted = statusTextView.getText().toString().equals(getString(R.string.completed));
+            String title = isCurrentlyCompleted ? getString(R.string.mark_task_not_completed_confirmation)
+                    : getString(R.string.complete_task_confirmation);
+            showStatusConfirmationDialog(title, !isCurrentlyCompleted);
+        });
+
+        reassignButton.setOnClickListener(v -> {
+            // Prompt the user if they want to reassign the task
+            showReassignConfirmationDialog();
+        });
+
+        editButton.setOnClickListener(v -> showEditConfirmationDialog());
+        newTaskButton.setOnClickListener(v -> showNewTaskDialog());
+        deleteButton.setOnClickListener(v -> deleteTask());
+        binding.deleteButton.setOnClickListener(v -> deleteTask());
+    }
+
+    //Set up the toggle functionality for contact information.
+    private void setupContactInfoToggle() {
+        contactInfoHeader.setOnClickListener(v -> {
+            toggleContactInfo();
+        });
+    }
+    // ============================
+    //      UI Interaction Methods
+    // ============================
+
+    private void showCustomToast(String message, boolean isSuccess) {
+        LayoutInflater inflater = getLayoutInflater();
+        // Inflate the appropriate layout based on the type
+        View layout = inflater.inflate(
+                isSuccess ? R.layout.toast_success : R.layout.toast_error,
+                findViewById(android.R.id.content),
+                false
+        );
+
+        // Set the text of the custom Toast
+        TextView textView = layout.findViewById(R.id.toast_message);
+        textView.setText(message);
+
+        // Create the Toast and set its properties
+        Toast toast = new Toast(getApplicationContext());
+        toast.setDuration(Toast.LENGTH_LONG);
+        toast.setView(layout);
+        toast.show();
+    }
+
+
+    //Toggle the visibility of contact information content.
+    private void toggleContactInfo() {
+        if (isContactInfoExpanded) {
+            // Collapse
+            contactInfoContent.setVisibility(View.GONE);
+            rotateArrow(contactInfoToggle, 180f, 0f);
+            contactInfoToggle.setImageResource(R.drawable.ic_arrow_down);
+            isContactInfoExpanded = false;
+        } else {
+            // Expand
+            contactInfoContent.setVisibility(View.VISIBLE);
+            rotateArrow(contactInfoToggle, 0f, 180f);
+            contactInfoToggle.setImageResource(R.drawable.ic_arrow_up);
+            isContactInfoExpanded = true;
+        }
+    }
+    private void updateCommentSectionVisibility(String comment) {
+        if (comment == null || comment.trim().isEmpty()) {
+            commentSection.setVisibility(View.GONE);
+        } else {
+            commentSection.setVisibility(View.VISIBLE);
+        }
+    }
+
+    //==========================================================================================
+    // Task Management Methods
+    //==========================================================================================
+
+    // Show confirmation dialog before entering edit mode
     private void showEditConfirmationDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(TaskInfoActivity.this);
         builder.setTitle(R.string.edit_confirmation_title);
@@ -246,6 +466,7 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
         builder.show();
     }
 
+    // Enter edit mode to allow task modifications
     private void enterEditMode() {
         // Hide the normal mode buttons and FAB
         normalModeButtons.setVisibility(View.GONE);
@@ -253,11 +474,22 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
 
         // Show the edit mode buttons
         editModeButtons.setVisibility(View.VISIBLE);
+        rescheduleButton.setVisibility(View.VISIBLE);
+        syncGoogleCalendarCheckbox.setVisibility(View.VISIBLE);
 
         // Set up listeners for the buttons
         saveButton.setOnClickListener(v -> saveChanges());
         cancelButton.setOnClickListener(v -> exitEditMode());
         deleteButton.setOnClickListener(v -> deleteTask());
+
+        boolean isDateOnly = isDateOnlyTask(task);
+        rescheduleButton.setOnClickListener(v -> {
+            if (isDateOnly) {
+                showDatePickerDialog(true);
+            } else {
+                showDateTimePicker();
+            }
+        });
 
         // Hide or show UI elements as needed
         phoneTextView.setVisibility(View.GONE);
@@ -279,9 +511,18 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
         commentTextView.setVisibility(View.GONE);
         editComment.setText(commentTextView.getText().toString());
         commentLayout.setVisibility(View.VISIBLE);
+        commentSection.setVisibility(View.VISIBLE);
 
-        dueDateTitleTextView.setOnClickListener(v -> showDateTimePicker());
-        dueDateTextView.setOnClickListener(v -> showDateTimePicker());
+        // Initialize the checkbox state
+        String eventId = getGoogleCalendarEventId(this, task.getWorkInPlanID());
+        boolean isInGoogleCalendar = (eventId != null);
+        syncGoogleCalendarCheckbox.setChecked(isInGoogleCalendar);
+
+        // Store the initial state
+        initialSyncWithGoogleCalendarState = isInGoogleCalendar;
+
+        //dueDateTitleTextView.setOnClickListener(v -> showDateTimePicker());
+        //dueDateTextView.setOnClickListener(v -> showDateTimePicker());
 
         // If you moved the representative info under an expansion panel,
         // adjust the visibility of related views accordingly.
@@ -289,6 +530,7 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
         //editRepresentativeLayout.setVisibility(View.VISIBLE);
     }
 
+    // Save changes made in edit mode
     private void saveChanges() {
         // Retrieve and format edited fields
         String editedPhone = editPhone.getText().toString();
@@ -302,6 +544,21 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
         websiteTextView.setText(editedWebsite);
         addressTextView.setText(editedAddress);
         commentTextView.setText(editedComment);
+        updateCommentSectionVisibility(editedComment);
+
+        // Get the current state of the checkbox
+        boolean currentSyncWithGoogleCalendarState = syncGoogleCalendarCheckbox.isChecked();
+
+        if (initialSyncWithGoogleCalendarState != currentSyncWithGoogleCalendarState) {
+            // The state has changed
+            if (currentSyncWithGoogleCalendarState) {
+                // Checkbox was unchecked and is now checked - add event to Google Calendar
+                addTaskToGoogleCalendar();
+            } else {
+                // Checkbox was checked and is now unchecked - delete event from Google Calendar
+                deleteGoogleCalendarEvent(true);
+            }
+        }
 
         exitEditMode();
 
@@ -309,7 +566,7 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
         String userId = UserSessionManager.getUserId(this);
         if (apiKey == null || apiKey.isEmpty() || userId == null || userId.isEmpty()) {
             Log.e("UpdateWorkPlan", "Missing API Key or User ID. Please login again.");
-            Toast.makeText(this, getString(R.string.please_login_again), Toast.LENGTH_LONG).show();
+            showCustomToast(getString(R.string.please_login_again), false);
             return;
         }
 
@@ -336,25 +593,31 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
         String newDueDate = dueDateTextView.getText().toString();
         if (!newDueDate.equals(taskDate)) {
             try {
-                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+                boolean isDateOnly = isDateOnlyTask(task);
+                SimpleDateFormat inputFormat;
+                if (isDateOnly) {
+                    inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                } else {
+                    inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+                }
                 SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
-                Date parsedDate = inputFormat.parse(newDueDate); // Parse with HH:mm format
-                String formattedDate = outputFormat.format(parsedDate); // Reformat to HH:mm:ss
+                Date parsedDate = inputFormat.parse(newDueDate);
+                String formattedDate = outputFormat.format(parsedDate);
 
-                Timestamp newTermTimestamp = Timestamp.valueOf(formattedDate); // Convert to Timestamp
-                work.setReactionWorkTerm(formattedDate); // Set formatted date to work object
+                Timestamp newTermTimestamp = Timestamp.valueOf(formattedDate);
+                work.setReactionWorkTerm(formattedDate);
                 taskChanged = true;
 
                 // Update Google Calendar if an event exists
                 String eventId = getGoogleCalendarEventId(this, task.getWorkInPlanID());
                 Log.d("TaskInfoActivity", "Retrieved Event ID for updating: " + eventId);
                 if (eventId != null) {
-                    updateGoogleCalendarEvent(eventId, newTermTimestamp); // Update Google Calendar event
+                    updateGoogleCalendarEvent(eventId, newTermTimestamp);
                 }
             } catch (ParseException | IllegalArgumentException e) {
                 Log.e("UpdateWorkPlan", "Date formatting error for newDueDate: " + newDueDate, e);
-                Toast.makeText(this, "Invalid date format. Please enter date as yyyy-MM-dd HH:mm.", Toast.LENGTH_SHORT).show();
+                showCustomToast(getString(R.string.invalid_date_format), false);
                 return;
             }
         }
@@ -402,14 +665,17 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
                         if (eventId != null) {
                             updateGoogleCalendarEvent(eventId, task.getWorkInPlanTerm());
                         }
+                        runOnUiThread(() -> showCustomToast(getString(R.string.task_updated_successfully), true));
                     } else {
                         Log.e("UpdateWorkPlan", "Work plan update failed: " + response.code());
+                        runOnUiThread(() -> showCustomToast(getString(R.string.failed_to_update_task), false));
                     }
                 }
 
                 @Override
                 public void onFailure(Call<ApiResponseUpdate> call, Throwable t) {
                     Log.e("UpdateWorkPlan", "Network error while updating work plan: " + t.getMessage());
+                    runOnUiThread(() -> showCustomToast(getString(R.string.network_error), false));
                 }
             });
         }
@@ -420,22 +686,29 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
                 public void onResponse(Call<ApiResponseUpdate> call, Response<ApiResponseUpdate> response) {
                     if (response.isSuccessful()) {
                         Log.d("UpdateCustomer", "Customer update successful.");
+                        runOnUiThread(() -> showCustomToast(getString(R.string.customer_updated_successfully), true));
                     } else {
                         Log.e("UpdateCustomer", "Customer update failed: " + response.code());
+                        runOnUiThread(() -> showCustomToast(getString(R.string.failed_to_update_customer), false));
                     }
                 }
 
                 @Override
                 public void onFailure(Call<ApiResponseUpdate> call, Throwable t) {
                     Log.e("UpdateCustomer", "Network error while updating customer: " + t.getMessage());
+                    runOnUiThread(() -> showCustomToast(getString(R.string.network_error), false));
                 }
             });
         }
     }
 
+
+    // Exit edit mode and revert UI changes
     private void exitEditMode() {
         // Hide the edit mode buttons
         editModeButtons.setVisibility(View.GONE);
+        rescheduleButton.setVisibility(View.GONE);
+        syncGoogleCalendarCheckbox.setVisibility(View.GONE);
 
         // Show the normal mode buttons and FAB
         normalModeButtons.setVisibility(View.VISIBLE);
@@ -457,173 +730,51 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
         commentTextView.setVisibility(View.VISIBLE);
         commentLayout.setVisibility(View.GONE);
 
+        updateCommentSectionVisibility(commentTextView.getText().toString());
+
         // If you moved the representative info under an expansion panel,
         // adjust the visibility of related views accordingly.
         //representativeInfoLayout.setVisibility(View.VISIBLE);
         //editRepresentativeLayout.setVisibility(View.GONE);
 
         // Remove listeners if necessary
-        dueDateTitleTextView.setOnClickListener(null);
-        dueDateTextView.setOnClickListener(null);
+        //dueDateTitleTextView.setOnClickListener(null);
+        //dueDateTextView.setOnClickListener(null);
     }
 
-    //UI methods
 
-    private void initializeViews() {
-        // Initialize UI components
-        normalModeButtons = findViewById(R.id.normal_mode_buttons);
-        editModeButtons = findViewById(R.id.edit_mode_buttons);
-        newTaskButton = findViewById(R.id.new_task_button);
-
-        // TextViews
-        clientNameTextView = findViewById(R.id.client_name);
-        actionTextView = findViewById(R.id.action);
-        dueDateTextView = findViewById(R.id.due_date);
-        dueDateTitleTextView = findViewById(R.id.due_date_title);
-        commentTextView = findViewById(R.id.comment);
-        statusTextView = findViewById(R.id.status);
-        phoneTextView = findViewById(R.id.phone);
-        emailTextView = findViewById(R.id.email);
-        websiteTextView = findViewById(R.id.website);
-        addressTextView = findViewById(R.id.address);
-        taskAssignee = findViewById(R.id.task_assignee);
-        clientManagerTextView = findViewById(R.id.client_manager);
-
-        // Buttons
-        editButton = findViewById(R.id.edit_button);
-        orderButton = findViewById(R.id.order_button);
-        saveButton = findViewById(R.id.save_button);
-        cancelButton = findViewById(R.id.cancel_button);
-        deleteButton = findViewById(R.id.delete_button);
-        statusButton = findViewById(R.id.status_button);
-        reassignButton = findViewById(R.id.reassign_button);
-
-        // Input Layouts
-        phoneLayout = findViewById(R.id.phone_layout);
-        emailLayout = findViewById(R.id.email_layout);
-        websiteLayout = findViewById(R.id.website_layout);
-        addressLayout = findViewById(R.id.address_layout);
-        commentLayout = findViewById(R.id.comment_layout);
-
-        // Editable fields
-        editPhone = findViewById(R.id.edit_phone);
-        editEmail = findViewById(R.id.edit_email);
-        editWebsite = findViewById(R.id.edit_website);
-        editAddress = findViewById(R.id.edit_address);
-        editComment = findViewById(R.id.edit_comment);
-
-        // Action Buttons
-        callButton = findViewById(R.id.call_button);
-        emailButton = findViewById(R.id.email_button);
-        mapButton = findViewById(R.id.map_button);
-
-        // ImageViews
-        statusIcon = findViewById(R.id.status_icon);
-
-        // Layouts
-        //representativeInfoLayout = findViewById(R.id.representative_info_layout);
-        //editRepresentativeLayout = findViewById(R.id.edit_representative_layout);
-
-        contactInfoCard = findViewById(R.id.contact_info_card);
-        contactInfoHeader = findViewById(R.id.contact_info_header);
-        contactInfoToggle = findViewById(R.id.contact_info_toggle);
-        contactInfoContent = findViewById(R.id.contact_info_content);
+    // Show dialog to select task type
+    private void showTaskTypeSelectionDialog() {
+        // List of task types
+        String[] taskTypes = {
+                getString(R.string.task_type_1),
+                getString(R.string.task_type_2),
+                getString(R.string.task_type_3)
+        };
+        AlertDialog.Builder builder = new AlertDialog.Builder(TaskInfoActivity.this);
+        builder.setTitle(R.string.select_task_type);
+        builder.setItems(taskTypes, (dialogInterface, i) -> {
+            String selectedTaskType = taskTypes[i];
+            showDateTimeSelectionDialog(selectedTaskType);
+        });
+        builder.show();
     }
 
-    private void setListeners() {
-        callButton.setOnClickListener(v -> {
-            if (!repPhone.equals(getString(R.string.unassigned))) {
-                Intent intent = new Intent(Intent.ACTION_DIAL);
-                intent.setData(Uri.parse("tel:" + phoneTextView.getText().toString()));
-                startActivity(intent);
-            } else {
-                Toast.makeText(TaskInfoActivity.this, R.string.phone_number_not_assigned, Toast.LENGTH_SHORT).show();
-            }
-        });
-        orderButton.setOnClickListener(v -> {
-            Intent intent = new Intent(TaskInfoActivity.this, TaskListActivity.class);
-            intent.putExtra("selectedTaskId", taskId);
-            intent.putExtra("clientId", taskCustomerId);
-            intent.putExtra("orderId", order);
-            startActivity(intent);
-        });
+    // Show DateTime picker dialog
+    private void showDatePickerDialog(boolean isDateOnly) {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
 
-
-        emailButton.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_SEND);
-            intent.setType("text/html");
-            intent.putExtra(Intent.EXTRA_EMAIL, new String[]{emailTextView.getText().toString()});
-            startActivity(Intent.createChooser(intent, getString(R.string.send_email)));
-        });
-
-        mapButton.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse("geo:0,0?q=" + addressTextView.getText().toString()));
-            startActivity(intent);
-        });
-
-      /*  statusCheckbox.setOnClickListener(v -> {
-            if (statusCheckbox.isChecked()) {
-                showStatusConfirmationDialog(getString(R.string.complete_task_confirmation), true);
-            } else {
-                showStatusConfirmationDialog(getString(R.string.mark_task_not_completed_confirmation), false);
-            }
-        });
-
-       */
-        // Set Listener for the status Button
-        statusButton.setOnClickListener(v -> {
-            boolean isCurrentlyCompleted = statusTextView.getText().toString().equals(getString(R.string.completed));
-            String title = isCurrentlyCompleted ? getString(R.string.mark_task_not_completed_confirmation)
-                    : getString(R.string.complete_task_confirmation);
-            showStatusConfirmationDialog(title, !isCurrentlyCompleted);
-        });
-
-        reassignButton.setOnClickListener(v -> {
-            // Prompt the user if they want to reassign the task
-            showReassignConfirmationDialog();
-        });
-
-        editButton.setOnClickListener(v -> showEditConfirmationDialog());
-        newTaskButton.setOnClickListener(v -> showNewTaskDialog());
-        deleteButton.setOnClickListener(v -> deleteTask());
-        binding.deleteButton.setOnClickListener(v -> deleteTask());
+        DatePickerDialog datePickerDialog = new DatePickerDialog(TaskInfoActivity.this, (view, year1, monthOfYear, dayOfMonth) -> {
+            String dateString = String.format(Locale.getDefault(), "%04d-%02d-%02d", year1, monthOfYear + 1, dayOfMonth);
+            dueDateTextView.setText(dateString);
+        }, year, month, day);
+        datePickerDialog.show();
     }
 
-    private void setupContactInfoToggle() {
-        contactInfoHeader.setOnClickListener(v -> {
-            toggleContactInfo();
-        });
-    }
-
-    private void toggleContactInfo() {
-        if (isContactInfoExpanded) {
-            // Collapse
-            contactInfoContent.setVisibility(View.GONE);
-            rotateArrow(contactInfoToggle, 180f, 0f);
-            contactInfoToggle.setImageResource(R.drawable.ic_arrow_down);
-            isContactInfoExpanded = false;
-        } else {
-            // Expand
-            contactInfoContent.setVisibility(View.VISIBLE);
-            rotateArrow(contactInfoToggle, 0f, 180f);
-            contactInfoToggle.setImageResource(R.drawable.ic_arrow_up);
-            isContactInfoExpanded = true;
-        }
-    }
-
-    private void rotateArrow(ImageView imageView, float fromDegrees, float toDegrees) {
-        RotateAnimation rotate = new RotateAnimation(
-                fromDegrees,
-                toDegrees,
-                RotateAnimation.RELATIVE_TO_SELF, 0.5f,
-                RotateAnimation.RELATIVE_TO_SELF, 0.5f
-        );
-        rotate.setDuration(300);
-        rotate.setFillAfter(true);
-        imageView.startAnimation(rotate);
-    }
-
+    // Show confirmation dialog before reassigning the task
     private void showReassignConfirmationDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(TaskInfoActivity.this);
         builder.setTitle(R.string.reassign_task);
@@ -636,36 +787,7 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
         builder.show();
     }
 
-    private void initializeSpinner(List<Customer.CustomerContactPerson> contactPersons) {
-        Spinner contactPersonSpinner = findViewById(R.id.contact_person_spinner);
-        List<String> contactPersonNames = new ArrayList<>();
-        for (Customer.CustomerContactPerson contactPerson : contactPersons) {
-            String nameWithType = contactPerson.getContactPersonName() + " " + contactPerson.getContactPersonSurname() +
-                    " (" + getContactPersonTypeShortForm(contactPerson.getContactPersonType()) + ")";
-            contactPersonNames.add(nameWithType);
-        }
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.item_spinner, contactPersonNames);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        contactPersonSpinner.setAdapter(adapter);
-        contactPersonSpinner.setSelection(selectedRepIndex);
-
-        contactPersonSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedRepIndex = position;
-                Customer.CustomerContactPerson selectedPerson = contactPersons.get(position);
-                setRepresentativeInfo(selectedPerson);
-                updateContactInfo();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // Do nothing
-            }
-        });
-    }
-
+    // Show employee selection popup for reassignment
     private void showEmployeeSelectionPopup(List<Employe> employees) {
         List<String> employeeNames = new ArrayList<>();
         for (Employe employee : employees) {
@@ -682,6 +804,7 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
         builder.show();
     }
 
+    // Reassign the task to a selected employee
     private void reassignTask(Employe selectedEmployee) {
         String newAssigneeId = String.valueOf(selectedEmployee.getEmployeID());
         String newAssigneeName = String.valueOf(selectedEmployee.getEmployeName()+" "+selectedEmployee.getEmploeerSurname());
@@ -690,7 +813,7 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
         String userId = UserSessionManager.getUserId(TaskInfoActivity.this);
 
         if (apiKey == null || apiKey.isEmpty() || userId == null || userId.isEmpty()) {
-            Toast.makeText(TaskInfoActivity.this, getString(R.string.please_login_again), Toast.LENGTH_LONG).show();
+            showCustomToast(getString(R.string.please_login_again), false);
             return;
         }
 
@@ -730,7 +853,8 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
             @Override
             public void onResponse(Call<ApiResponseUpdate> call, Response<ApiResponseUpdate> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(TaskInfoActivity.this, getString(R.string.task_reassigned_successfully), Toast.LENGTH_SHORT).show();
+                    showCustomToast(getString(R.string.task_reassigned_successfully), true);
+
                     // Update the task object with new assignee details
                     task.setReactionWorkDoneByID(newAssigneeId);
                     task.setReactionWorkDoneByName(selectedEmployee.getEmployeName() + " " + selectedEmployee.getEmploeerSurname());
@@ -738,245 +862,20 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
                     // Update the UI
                     taskAssignee.setText("Assigned to: " + task.getReactionWorkDoneByName());
                 } else {
-                    Toast.makeText(TaskInfoActivity.this, getString(R.string.failed_to_reassign_task), Toast.LENGTH_SHORT).show();
+                    showCustomToast(getString(R.string.failed_to_reassign_task), false);
                 }
             }
 
             @Override
             public void onFailure(Call<ApiResponseUpdate> call, Throwable t) {
-                Toast.makeText(TaskInfoActivity.this, getString(R.string.network_error) + t.getMessage(), Toast.LENGTH_SHORT).show();
+                showCustomToast(getString(R.string.network_error) + t.getMessage(), false);
+
             }
         });
     }
 
-    private void showNewTaskDialog() {
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        NewTaskDialogFragment newTaskDialogFragment = NewTaskDialogFragment.newInstance(this, contactPersons, selectedRepIndex);
-        newTaskDialogFragment.show(fragmentManager, "NewTaskDialogFragment");
-    }
 
-    private void showTaskTypeSelectionDialog() {
-        // List of task types
-        String[] taskTypes = {
-                getString(R.string.task_type_1),
-                getString(R.string.task_type_2),
-                getString(R.string.task_type_3)
-        };
-        AlertDialog.Builder builder = new AlertDialog.Builder(TaskInfoActivity.this);
-        builder.setTitle(R.string.select_task_type);
-        builder.setItems(taskTypes, (dialogInterface, i) -> {
-            String selectedTaskType = taskTypes[i];
-            showDateTimeSelectionDialog(selectedTaskType);
-        });
-        builder.show();
-    }
-
-    private void showDateTimeSelectionDialog(String taskType) {
-        // Check if the task type requires date or date+time
-        boolean isDateOnly = taskType.equals(getString(R.string.task_type_1)); // Use localized string
-        if (isDateOnly) {
-            showDatePickerDialog(isDateOnly);
-        } else {
-            showDateTimePickerDialog();
-        }
-    }
-
-    private void showDatePickerDialog(boolean isDateOnly) {
-        Calendar calendar = Calendar.getInstance();
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH);
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-
-        DatePickerDialog datePickerDialog = new DatePickerDialog(TaskInfoActivity.this, (view, year1, monthOfYear, dayOfMonth) -> {
-            String dateString = String.format(Locale.getDefault(), "%04d-%02d-%02d", year1, monthOfYear + 1, dayOfMonth);
-            dueDateTextView.setText(dateString);
-
-            if (isDateOnly) {
-                // Directly proceed without time
-                // Optionally, prompt for a comment or confirmation
-                //showCommentDialog(null);
-            } else {
-                // Proceed to pick time
-                showTimePickerDialog();
-            }
-        }, year, month, day);
-        datePickerDialog.show();
-    }
-
-    private void showTimePickerDialog() {
-        Calendar calendar = Calendar.getInstance();
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(Calendar.MINUTE);
-
-        TimePickerDialog timePickerDialog = new TimePickerDialog(TaskInfoActivity.this, (view, hourOfDay, minute1) -> {
-            String timeString = String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute1);
-            // Combine with existing date
-            String existingDate = dueDateTextView.getText().toString();
-            String dateTimeString = existingDate + " " + timeString;
-            dueDateTextView.setText(dateTimeString);
-
-            // Optionally, prompt for a comment or confirmation
-            //showCommentDialog(timeString);
-        }, hour, minute, true);
-        timePickerDialog.show();
-    }
-
-    private void showDateTimePickerDialog() {
-        Calendar calendar = Calendar.getInstance();
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH);
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(Calendar.MINUTE);
-
-        DatePickerDialog datePickerDialog = new DatePickerDialog(TaskInfoActivity.this, (view, year1, monthOfYear, dayOfMonth) -> {
-            TimePickerDialog timePickerDialog = new TimePickerDialog(TaskInfoActivity.this, (view1, hourOfDay, minute1) -> {
-                String dateString = year1 + "-" + (monthOfYear + 1) + "-" + dayOfMonth + " " + hourOfDay + ":" + minute1;
-                //showCommentDialog(dateString, null);
-            }, hour, minute, true);
-            timePickerDialog.show();
-        }, year, month, day);
-        datePickerDialog.show();
-    }
-
-    private void showDateTimePicker() {
-        Calendar calendar = Calendar.getInstance();
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH);
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(Calendar.MINUTE);
-
-        DatePickerDialog datePickerDialog = new DatePickerDialog(TaskInfoActivity.this, (view, year1, monthOfYear, dayOfMonth) -> {
-            TimePickerDialog timePickerDialog = new TimePickerDialog(TaskInfoActivity.this, (view1, hourOfDay, minute1) -> {
-                String dateString = year1 + "-" + (monthOfYear + 1) + "-" + dayOfMonth + " " + hourOfDay + ":" + minute1;
-                dueDateTextView.setText(dateString);
-            }, hour, minute, true);
-            timePickerDialog.show();
-        }, year, month, day);
-        datePickerDialog.show();
-    }
-
-
-
-    // Helper method to parse date strings into Timestamps
-    private Timestamp parseTimestamp(String dateString) {
-        if (dateString == null || dateString.isEmpty()) {
-            return null;
-        }
-        try {
-            return Timestamp.valueOf(dateString);
-        } catch (IllegalArgumentException e) {
-            Log.e("parseTimestamp", "Failed to parse timestamp: " + dateString, e);
-            return null;
-        }
-    }
-
-
-
-    public interface EventCreationCallback {
-        void onEventCreated(String eventId, Date startDate, Date endDate);
-    }
-
-    // Separate method to handle sending an invite if requested
-    private void handleSendInviteIfRequired() {
-        boolean sendInvite = getIntent().getBooleanExtra("SendInvite", false);
-        if (sendInvite) {
-            String actionName = getIntent().getStringExtra("ActionName");
-            String comment = getIntent().getStringExtra("Comment");
-            long startDateMillis = getIntent().getLongExtra("StartDate", -1);
-            long endDateMillis = getIntent().getLongExtra("EndDate", -1);
-            if (startDateMillis != -1 && endDateMillis != -1) {
-                Date startDate = new Date(startDateMillis);
-                Date endDate = new Date(endDateMillis);
-                sendEmailInvite(actionName, comment, startDate, endDate);
-            }
-        }
-    }
-
-
-
-
-
-
-    // Method to fetch employee's email from UserSessionManager
-    private String getEmployeeEmail() {
-        // Assuming you have stored the employee's email in UserSessionManager
-        // Modify this according to your actual implementation
-        return UserSessionManager.getEmployeeMail(this);
-    }
-
-
-
-    private void deleteTask() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(TaskInfoActivity.this);
-        builder.setTitle(R.string.delete_task)
-                .setMessage(R.string.delete_task_confirmation)
-                .setPositiveButton(R.string.yes, (dialog, which) -> {
-                    String apiKey = UserSessionManager.getApiKey(TaskInfoActivity.this);
-                    String userId = UserSessionManager.getUserId(TaskInfoActivity.this);
-
-                    if (apiKey == null || apiKey.isEmpty() || userId == null || userId.isEmpty()) {
-                        Toast.makeText(TaskInfoActivity.this, getString(R.string.please_login_again), Toast.LENGTH_LONG).show();
-                        return;
-                    }
-
-                    ManagerReactionUpdateRequest taskUpdateRequest = new ManagerReactionUpdateRequest();
-                    taskUpdateRequest.setUserId(userId);
-                    taskUpdateRequest.setApiKey(apiKey);
-                    taskUpdateRequest.setAction("update");
-                    taskUpdateRequest.setLanguageCode("lt");
-
-                    ManagerReactionWorkInPlan.ManagerReactionInPlanHeader header = new ManagerReactionWorkInPlan.ManagerReactionInPlanHeader();
-                    header.setReactionHeaderID(reactionHeaderId);
-                    header.setReactionManagerID(reactionHeaderManagerId);
-                    header.setReactionForCustomerID(taskCustomerId);
-
-                    List<ManagerReactionWorkInPlan.ManagerReactionWork> works = new ArrayList<>();
-                    ManagerReactionWorkInPlan.ManagerReactionWork work = new ManagerReactionWorkInPlan.ManagerReactionWork();
-                    work.setReactionWorkID(String.valueOf(taskId));
-                    works.add(work);
-
-                    taskUpdateRequest.setManagerReactionInPlanHeaderReg(header);
-                    taskUpdateRequest.setManagerReactionWorkReg(works);
-
-                    updateWorkPlan(TaskInfoActivity.this, taskUpdateRequest, new Callback<ApiResponseUpdate>() {
-                        @Override
-                        public void onResponse(Call<ApiResponseUpdate> call, Response<ApiResponseUpdate> response) {
-                            if (response.isSuccessful()) {
-                                Toast.makeText(TaskInfoActivity.this, getString(R.string.task_deleted_successfully), Toast.LENGTH_SHORT).show();
-                                Log.d("UpdateWorkPlan", "Task deleted successfully") ;
-                                setResult(RESULT_OK);
-                                deleteGoogleCalendarEvent();
-                                finish();
-                            } else {
-                                Toast.makeText(TaskInfoActivity.this, getString(R.string.failed_to_delete_task), Toast.LENGTH_SHORT).show();
-                                Log.e("UpdateWorkPlan", "Failed to delete task: " + response.code());
-                                finish();
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(Call<ApiResponseUpdate> call, Throwable t) {
-                            Log.e("UpdateWorkPlan", "Network error: " + t.getMessage());
-                            Toast.makeText(TaskInfoActivity.this, getString(R.string.network_error) + t.getMessage(), Toast.LENGTH_SHORT).show();
-                            finish();
-                        }
-                    });
-                    finish();
-                })
-                .setNegativeButton(R.string.no, null)
-                .show();
-    }
-
-
-
-
-
-    private CRMWork getCRMWorkById(String crmWorkId) {
-        return crmWorkMap.get(crmWorkId);
-    }
-
+    // Show confirmation dialog before changing task status
     private void showStatusConfirmationDialog(String title, boolean willBeCompleted) {
         AlertDialog.Builder builder = new AlertDialog.Builder(TaskInfoActivity.this);
         builder.setTitle(title);
@@ -991,6 +890,7 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
         builder.show();
     }
 
+    // Update the UI based on task completion status
     private void updateStatusUI(boolean isCompleted) {
         if (isCompleted) {
             // Update Status Icon to Completed
@@ -1000,7 +900,7 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
             // Update Button to "Mark as Uncompleted" with Close Icon
             statusButton.setText(getString(R.string.mark_as_uncompleted));
             statusButton.setContentDescription(getString(R.string.mark_as_uncompleted));
-            statusButton.setTextColor(ContextCompat.getColor(this, R.color.red_A200));
+            statusButton.setTextColor(ContextCompat.getColor(this, R.color.colorError));
 
             statusTextView.setText(getString(R.string.completed));
             //statusTextView.setTextColor(ContextCompat.getColor(this, android.R.color.white));
@@ -1017,7 +917,7 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
             // Update Button to "Mark as Completed" with Check Icon
             statusButton.setText(getString(R.string.mark_as_completed));
             statusButton.setContentDescription(getString(R.string.mark_as_completed));
-            statusButton.setTextColor(ContextCompat.getColor(this, R.color.green_800));
+            statusButton.setTextColor(ContextCompat.getColor(this, R.color.colorAccent));
 
             statusTextView.setText(getString(R.string.not_completed));
             statusTextView.setTextColor(ContextCompat.getColor(this, R.color.grey_60));
@@ -1028,6 +928,7 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
         }
     }
 
+    // Handle the status change logic
     private void handleStatusChange(boolean isCompleted) {
         String workDone = isCompleted ? "1" : "0";
         String workDoneDate = isCompleted ? getCurrentTimestamp() : null;
@@ -1041,7 +942,7 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
             Log.d("TaskInfoActivity", "Canceled notification for task ID: " + taskId);
 
             // Delete Google Calendar event if exists
-            deleteGoogleCalendarEvent();
+            deleteGoogleCalendarEvent(false);
             Log.d("TaskInfoActivity", "Deleted Google Calendar event for task ID: " + taskId);
         } else {
             // Task is marked as not completed
@@ -1064,106 +965,9 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
     }
 
 
-
-    private void scheduleTaskNotification(Task task) {
-    // Skip scheduling if the task is already completed
-    if ("1".equals(task.getWorkInPlanDone())) {
-        return;
-    }
-
-    // Get the CRMWorkRemindTime from the CRMWork associated with this task
-    CRMWork crmWork = getCRMWorkById(task.getReactionWorkActionID());
-    if (crmWork == null) {
-        Log.d("TaskInfoActivity", "CRMWork not found for action ID: " + task.getReactionWorkActionID());
-        return;
-    }
-
-    long remindTimeInMillis = crmWork.getRemindTimeInMillis();
-
-    // Calculate the trigger time
-    long taskTimeInMillis = task.getWorkInPlanTerm().getTime();
-    long currentTimeInMillis = System.currentTimeMillis();
-    long delay = taskTimeInMillis - remindTimeInMillis - currentTimeInMillis;
-
-    if (delay <= 0) {
-        // If the delay is negative or zero, skip scheduling
-        Log.d("TaskInfoActivity", "Notification time has already passed for task ID: " + task.getWorkInPlanID());
-        return;
-    }
-
-    // Prepare input data for the worker
-    Data inputData = new Data.Builder()
-            .putString(NotificationWorker.TASK_NAME_KEY, task.getWorkInPlanName())
-            .putInt(NotificationWorker.TASK_ID_KEY, task.getWorkInPlanID())
-            .build();
-
-    // Create a OneTimeWorkRequest
-    OneTimeWorkRequest notificationWork = new OneTimeWorkRequest.Builder(NotificationWorker.class)
-            .setInitialDelay(delay, TimeUnit.MILLISECONDS)
-            .setInputData(inputData)
-            .build();
-
-    // Enqueue the work
-    WorkManager.getInstance(this).enqueueUniqueWork(
-            "task_notification_" + task.getWorkInPlanID(),
-            ExistingWorkPolicy.REPLACE,
-            notificationWork
-    );
-
-    Log.d("TaskInfoActivity", "Scheduled notification for task ID: " + task.getWorkInPlanID());
-}
-
-
-
-
-
-
-
-
-
-
-    //helper methods
-
-    // Helper method to set representative info
-    private void setRepresentativeInfo(Customer.CustomerContactPerson contactPerson) {
-        repName = contactPerson.getContactPersonName();
-        repSurname = contactPerson.getContactPersonSurname();
-        repEmail = contactPerson.getContactPersonMail();
-        repPhone = contactPerson.getContactPersonMobPhone();
-        if (repPhone == null || repPhone.isEmpty()) {
-            repPhone = contactPerson.getContactPersonPhone();
-        }
-    }
-
-    private String getContactPersonTypeShortForm(String contactPersonType) {
-        switch (contactPersonType) {
-            case "1000": return "M";
-            case "0100": return "CEO";
-            case "0010": return "<A>";
-            case "0001": return "P";
-            case "1100": return "M/CEO";
-            case "1010": return "<A>/M";
-            case "1001": return "M/P";
-            case "0110": return "<A>/CEO";
-            case "0101": return "CEO/P";
-            case "0011": return "<A>/P";
-            case "1110": return "<A>/M/CEO";
-            case "1101": return "M/CEO/P";
-            case "1011": return "<A>/M/P";
-            case "0111": return "<A>/CEO/P";
-            case "1111": return "All";
-            default: return "";
-        }
-    }
-
-    private String getCurrentTimestamp() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        return sdf.format(new Date());
-    }
-
-    //New task creation methods
-
+    // Create a new task and navigate to TaskInfoActivity
     private void openNewTaskInfoActivity(Task newTask, boolean sendInvite, String actionName, String comment, Date startDate, Date endDate) {
+        showCustomToast(getString(R.string.task_created), true);
         Intent intent = new Intent(TaskInfoActivity.this, TaskInfoActivity.class);
         intent.putExtra("Task", newTask);
         intent.putExtra("SendInvite", sendInvite);
@@ -1179,6 +983,7 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
         finish();
     }
 
+    // Extract task data from the Task object
     private void extractTaskData(Task task) {
         taskCustomerId = task.getWorkInPlanForCustomerID();
         taskId = task.getWorkInPlanID();
@@ -1199,16 +1004,31 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
         reactionWorkActionId = task.getReactionWorkActionID();
     }
 
+    // Populate the UI with task information
     public void setTaskInfo(Task task) {
         clientNameTextView.setText(task.getWorkInPlanForCustomerName());
         actionTextView.setText(task.getWorkInPlanName());
 
-        // Format the due date
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
-        String formattedDate = dateFormat.format(task.getWorkInPlanTerm());
+
+
+        boolean isDateOnly = isDateOnlyTask(task);
+        String formattedDate;
+        if (isDateOnly) {
+            // Format date-only
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            formattedDate = dateFormat.format(task.getWorkInPlanTerm());
+        } else {
+            // Format date and time
+            SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+            formattedDate = dateTimeFormat.format(task.getWorkInPlanTerm());
+        }
         dueDateTextView.setText(formattedDate);
 
-        commentTextView.setText(task.getWorkInPlanNote());
+        String comment = task.getWorkInPlanNote();
+        commentTextView.setText(comment);
+        updateCommentSectionVisibility(comment);
+
+
         phoneTextView.setText(repPhone);
         emailTextView.setText(repEmail);
         //orderTextView.setText(order);
@@ -1230,25 +1050,29 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
 
         taskAssignee.setText(getString(R.string.assigned_to, assignedEmployeeName));
 
-        if (reactionHeaderManagerId != null && !reactionHeaderManagerId.isEmpty() &&
-                !reactionHeaderManagerId.equals(task.getReactionWorkDoneByID())) {
+        if (reactionWorkManagerId != null && !reactionWorkManagerId.isEmpty() &&
+                !reactionWorkManagerId.equals(task.getReactionWorkDoneByID())) {
             // doneById does not match managerId, show client_manager
+            clientManagerNameTextView.setVisibility(View.VISIBLE);
             clientManagerTextView.setVisibility(View.VISIBLE);
             String clientManagerLabel = getString(R.string.client_manager_name);
-            String separator = getString(R.string.separator_colon); // Optional
-            clientManagerTextView.setText(clientManagerLabel + separator + " " + managerName);
+            clientManagerNameTextView.setText(clientManagerLabel);
+            clientManagerTextView.setText(managerName);
         } else {
             // doneById matches managerId, hide client_manager
+            clientManagerNameTextView.setVisibility(View.GONE);
             clientManagerTextView.setVisibility(View.GONE);
         }
     }
 
-
+    // Handle creation of a new task from the dialog
     @Override
     public void onNewTaskCreated(CRMWork action, String date, String time, String comment, boolean addToCalendar, boolean sendInvite, Customer.CustomerContactPerson selectedRep) {
         createNewTask(action, date, time, comment, addToCalendar, sendInvite, selectedRep);
+
     }
 
+    // Create a new task with given parameters
     private void createNewTask(CRMWork action, String date, String time, String comment, boolean addToCalendar, boolean sendInvite, Customer.CustomerContactPerson selectedRep) {
         String apiKey = UserSessionManager.getApiKey(this);
         String userId = UserSessionManager.getUserId(this);
@@ -1258,7 +1082,7 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
         Log.d("TaskInfoActivity", "Creating new task with workInPlanID: " + task.getWorkInPlanID());
 
         if (apiKey == null || apiKey.isEmpty() || userId == null || userId.isEmpty()) {
-            Toast.makeText(this, getString(R.string.please_login_again), Toast.LENGTH_LONG).show();
+            showCustomToast(getString(R.string.please_login_again), false);
             return;
         }
 
@@ -1308,10 +1132,14 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
                     // Fetch details of the newly created task
                     fetchNewTaskDetails(newHeaderId, addToCalendar, action, date, time, comment, sendInvite);
 
+                    // Update the comment section visibility based on the new comment
+                    runOnUiThread(() -> updateCommentSectionVisibility(comment));
+
                 } else {
                     Log.e("UpdateWorkPlan", "New task creation failed: " + response.code());
                     runOnUiThread(() ->
-                            Toast.makeText(TaskInfoActivity.this, getString(R.string.failed_to_create_new_task), Toast.LENGTH_SHORT).show());
+                            showCustomToast(getString(R.string.failed_to_create_new_task), false)
+                    );
                 }
             }
 
@@ -1319,11 +1147,14 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
             public void onFailure(Call<ApiResponseUpdate> call, Throwable t) {
                 Log.e("UpdateWorkPlan", "Network error: " + t.getMessage());
                 runOnUiThread(() ->
-                        Toast.makeText(TaskInfoActivity.this, getString(R.string.network_error) + t.getMessage(), Toast.LENGTH_SHORT).show());
+                        showCustomToast(getString(R.string.network_error) + t.getMessage(), false)
+                );
+
             }
         });
     }
 
+    // Fetch details of the newly created task
     private void fetchNewTaskDetails(int headerId, boolean addToCalendar, CRMWork action, String date, String time, String comment, boolean sendInvite) {
         ApiService apiService = RetrofitClientInstance.getRetrofitInstance().create(ApiService.class);
         String apiKey = UserSessionManager.getApiKey(this);
@@ -1394,24 +1225,375 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
                                 openNewTaskInfoActivity(newTask, false, null, null, null, null);
                             }
                         } else {
-                            Toast.makeText(TaskInfoActivity.this, "No task details found under the specified header ID.", Toast.LENGTH_SHORT).show();
+                            showCustomToast(getString(R.string.no_task_details_found), false);
                         }
                     } else {
-                        Toast.makeText(TaskInfoActivity.this, "No data found in response.", Toast.LENGTH_SHORT).show();
+                        showCustomToast(getString(R.string.no_data_found_in_response), false);
                     }
                 } else {
-                    Toast.makeText(TaskInfoActivity.this, "Error retrieving task details.", Toast.LENGTH_SHORT).show();
+                    showCustomToast(getString(R.string.error_retrieving_task_details), false);
                 }
             }
 
             @Override
             public void onFailure(Call<ApiResponseReactionPlan> call, Throwable t) {
-                Toast.makeText(TaskInfoActivity.this, "Network error while fetching task details.", Toast.LENGTH_SHORT).show();
+                showCustomToast(getString(R.string.network_error) + t.getMessage(), false);
+            }
+        });
+    }
+
+    // Show the dialog fragment to create a new task
+    private void showNewTaskDialog() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        NewTaskDialogFragment newTaskDialogFragment = NewTaskDialogFragment.newInstance(this, contactPersons, selectedRepIndex);
+        newTaskDialogFragment.show(fragmentManager, "NewTaskDialogFragment");
+    }
+
+
+    // Delete the current task after confirmation
+    private void deleteTask() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(TaskInfoActivity.this);
+        builder.setTitle(R.string.delete_task)
+                .setMessage(R.string.delete_task_confirmation)
+                .setPositiveButton(R.string.yes, (dialog, which) -> {
+                    String apiKey = UserSessionManager.getApiKey(TaskInfoActivity.this);
+                    String userId = UserSessionManager.getUserId(TaskInfoActivity.this);
+
+                    if (apiKey == null || apiKey.isEmpty() || userId == null || userId.isEmpty()) {
+                        showCustomToast(getString(R.string.please_login_again), false);
+                        return;
+                    }
+
+                    ManagerReactionUpdateRequest taskUpdateRequest = new ManagerReactionUpdateRequest();
+                    taskUpdateRequest.setUserId(userId);
+                    taskUpdateRequest.setApiKey(apiKey);
+                    taskUpdateRequest.setAction("update");
+                    taskUpdateRequest.setLanguageCode("lt");
+
+                    ManagerReactionWorkInPlan.ManagerReactionInPlanHeader header = new ManagerReactionWorkInPlan.ManagerReactionInPlanHeader();
+                    header.setReactionHeaderID(reactionHeaderId);
+                    header.setReactionManagerID(reactionHeaderManagerId);
+                    header.setReactionForCustomerID(taskCustomerId);
+
+                    List<ManagerReactionWorkInPlan.ManagerReactionWork> works = new ArrayList<>();
+                    ManagerReactionWorkInPlan.ManagerReactionWork work = new ManagerReactionWorkInPlan.ManagerReactionWork();
+                    work.setReactionWorkID(String.valueOf(taskId));
+                    works.add(work);
+
+                    taskUpdateRequest.setManagerReactionInPlanHeaderReg(header);
+                    taskUpdateRequest.setManagerReactionWorkReg(works);
+
+                    updateWorkPlan(TaskInfoActivity.this, taskUpdateRequest, new Callback<ApiResponseUpdate>() {
+                        @Override
+                        public void onResponse(Call<ApiResponseUpdate> call, Response<ApiResponseUpdate> response) {
+                            if (response.isSuccessful()) {
+                                showCustomToast(getString(R.string.task_deleted_successfully), true);
+                                Log.d("UpdateWorkPlan", "Task deleted successfully") ;
+                                setResult(RESULT_OK);
+                                deleteGoogleCalendarEvent(true);
+                                finish();
+                            } else {
+                                showCustomToast(getString(R.string.failed_to_delete_task), false);
+                                Log.e("UpdateWorkPlan", "Failed to delete task: " + response.code());
+                                finish();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ApiResponseUpdate> call, Throwable t) {
+                            Log.e("UpdateWorkPlan", "Network error: " + t.getMessage());
+                            showCustomToast(getString(R.string.network_error) + t.getMessage(), false);
+                            finish();
+                        }
+                    });
+                    finish();
+                })
+                .setNegativeButton(R.string.no, null)
+                .show();
+    }
+
+
+
+    private void initializeSpinner(List<Customer.CustomerContactPerson> contactPersons) {
+        Spinner contactPersonSpinner = findViewById(R.id.contact_person_spinner);
+        List<String> contactPersonNames = new ArrayList<>();
+
+        // Define the contactPersonType codes that require the <Atstovas> marker
+        Set<String> atstovasTypeCodes = new HashSet<>(Arrays.asList(
+                "0010", "0011", "0111", "1111", "1011", "1110", "1010"
+        ));
+
+        // Iterate through contactPersons to populate Spinner names
+        for (Customer.CustomerContactPerson contactPerson : contactPersons) {
+            // Construct the full name
+            String name = contactPerson.getContactPersonName() + " " + contactPerson.getContactPersonSurname();
+
+            // Check if the contactPersonType requires the <Atstovas> marker
+            if (atstovasTypeCodes.contains(contactPerson.getContactPersonType())) {
+                // Append the <Atstovas> marker
+                String atstovasMarker = getString(R.string.marker_atstovas);
+                name += " " + atstovasMarker;
+            }
+
+            // Add the name (with or without marker) to the list
+            contactPersonNames.add(name);
+        }
+
+        // Create and set the ArrayAdapter for the Spinner
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.item_spinner, contactPersonNames);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        contactPersonSpinner.setAdapter(adapter);
+
+        // Set the initially selected item
+        contactPersonSpinner.setSelection(selectedRepIndex);
+
+        // Set the OnItemSelectedListener to handle selection events
+        contactPersonSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                selectedRepIndex = position;
+                Customer.CustomerContactPerson selectedPerson = contactPersons.get(position);
+                setRepresentativeInfo(selectedPerson);
+
+                // Update the representativeStatus TextView with the type/title
+                String repStatus = getContactPersonTypeShortForm(TaskInfoActivity.this, selectedPerson.getContactPersonType());
+                representativeStatus.setText(repStatus);
+
+                // Update other contact info as needed
+                updateContactInfo();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Optionally, set a default status or clear the TextView
+                representativeStatus.setText(R.string.rep_status_default);
             }
         });
     }
 
 
+    //Edit task
+
+
+
+
+
+
+
+
+
+
+
+    private void showDateTimeSelectionDialog(String taskType) {
+        // Check if the task type requires date or date+time
+        boolean isDateOnly = taskType.equals(getString(R.string.task_type_1)); // Use localized string
+        if (isDateOnly) {
+            showDatePickerDialog(isDateOnly);
+        } else {
+            showDateTimePickerDialog();
+        }
+    }
+
+
+
+    private void showTimePickerDialog() {
+        Calendar calendar = Calendar.getInstance();
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+
+        TimePickerDialog timePickerDialog = new TimePickerDialog(TaskInfoActivity.this, (view, hourOfDay, minute1) -> {
+            String timeString = String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute1);
+            // Combine with existing date
+            String existingDate = dueDateTextView.getText().toString();
+            String dateTimeString = String.format(Locale.getDefault(), "%s %s", existingDate, timeString);
+            dueDateTextView.setText(dateTimeString);
+
+            // Optionally, prompt for a comment or confirmation
+            //showCommentDialog(timeString);
+        }, hour, minute, true);
+        timePickerDialog.show();
+    }
+
+    private void showDateTimePickerDialog() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(TaskInfoActivity.this, (view, year1, monthOfYear, dayOfMonth) -> {
+            TimePickerDialog timePickerDialog = new TimePickerDialog(TaskInfoActivity.this, (view1, hourOfDay, minute1) -> {
+                String dateString = String.format(Locale.getDefault(), "%04d-%02d-%02d %02d:%02d", year1, monthOfYear + 1, dayOfMonth, hourOfDay, minute1);                //showCommentDialog(dateString, null);
+            }, hour, minute, true);
+            timePickerDialog.show();
+        }, year, month, day);
+        datePickerDialog.show();
+    }
+
+    private void showDateTimePicker() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(TaskInfoActivity.this, (view, year1, monthOfYear, dayOfMonth) -> {
+            TimePickerDialog timePickerDialog = new TimePickerDialog(TaskInfoActivity.this, (view1, hourOfDay, minute1) -> {
+                String dateString = String.format(Locale.getDefault(), "%04d-%02d-%02d %02d:%02d", year1, monthOfYear + 1, dayOfMonth, hourOfDay, minute1);                dueDateTextView.setText(dateString);
+            }, hour, minute, true);
+            timePickerDialog.show();
+        }, year, month, day);
+        datePickerDialog.show();
+    }
+
+
+
+
+    //helper methods
+
+    private void scheduleTaskNotification(Task task) {
+        // Skip scheduling if the task is already completed
+        if ("1".equals(task.getWorkInPlanDone())) {
+            return;
+        }
+
+        // Get the CRMWorkRemindTime from the CRMWork associated with this task
+        CRMWork crmWork = getCRMWorkById(task.getReactionWorkActionID());
+        if (crmWork == null) {
+            Log.d("TaskInfoActivity", "CRMWork not found for action ID: " + task.getReactionWorkActionID());
+            return;
+        }
+
+        long remindTimeInMillis = crmWork.getRemindTimeInMillis();
+
+        // Calculate the trigger time
+        long taskTimeInMillis = task.getWorkInPlanTerm().getTime();
+        long currentTimeInMillis = System.currentTimeMillis();
+        long delay = taskTimeInMillis - remindTimeInMillis - currentTimeInMillis;
+
+        if (delay <= 0) {
+            // If the delay is negative or zero, skip scheduling
+            Log.d("TaskInfoActivity", "Notification time has already passed for task ID: " + task.getWorkInPlanID());
+            return;
+        }
+
+        // Prepare input data for the worker
+        Data inputData = new Data.Builder()
+                .putString(NotificationWorker.TASK_NAME_KEY, task.getWorkInPlanName())
+                .putInt(NotificationWorker.TASK_ID_KEY, task.getWorkInPlanID())
+                .build();
+
+        // Create a OneTimeWorkRequest
+        OneTimeWorkRequest notificationWork = new OneTimeWorkRequest.Builder(NotificationWorker.class)
+                .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+                .setInputData(inputData)
+                .build();
+
+        // Enqueue the work
+        WorkManager.getInstance(this).enqueueUniqueWork(
+                "task_notification_" + task.getWorkInPlanID(),
+                ExistingWorkPolicy.REPLACE,
+                notificationWork
+        );
+
+        Log.d("TaskInfoActivity", "Scheduled notification for task ID: " + task.getWorkInPlanID());
+    }
+
+    private CRMWork getCRMWorkById(String crmWorkId) {
+        return crmWorkMap.get(crmWorkId);
+    }
+    // Helper method to set representative info
+    private void setRepresentativeInfo(Customer.CustomerContactPerson contactPerson) {
+        repName = contactPerson.getContactPersonName();
+        repSurname = contactPerson.getContactPersonSurname();
+        repEmail = contactPerson.getContactPersonMail();
+        repPhone = contactPerson.getContactPersonMobPhone();
+        if (repPhone == null || repPhone.isEmpty()) {
+            repPhone = contactPerson.getContactPersonPhone();
+        }
+    }
+
+    private String getContactPersonTypeShortForm(Context context, String contactPersonType) {
+        switch (contactPersonType) {
+            case "1000":
+                return context.getString(R.string.contact_person_type_1000);
+            case "0100":
+                return context.getString(R.string.contact_person_type_0100);
+            case "0010":
+                return context.getString(R.string.contact_person_type_0010);
+            case "0001":
+                return context.getString(R.string.contact_person_type_0001);
+            case "1100":
+                return context.getString(R.string.contact_person_type_1100);
+            case "1010":
+                return context.getString(R.string.contact_person_type_1010);
+            case "1001":
+                return context.getString(R.string.contact_person_type_1001);
+            case "0110":
+                return context.getString(R.string.contact_person_type_0110);
+            case "0101":
+                return context.getString(R.string.contact_person_type_0101);
+            case "0011":
+                return context.getString(R.string.contact_person_type_0011);
+            case "1110":
+                return context.getString(R.string.contact_person_type_1110);
+            case "1101":
+                return context.getString(R.string.contact_person_type_1101);
+            case "1011":
+                return context.getString(R.string.contact_person_type_1011);
+            case "0111":
+                return context.getString(R.string.contact_person_type_0111);
+            case "1111":
+                return context.getString(R.string.contact_person_type_1111);
+            default:
+                // Return a default string or an empty string
+                return context.getString(R.string.rep_status_default);
+            // Alternatively, use a string indicating an unknown type
+            // return context.getString(R.string.contact_person_type_unknown);
+        }
+    }
+
+    private String getCurrentTimestamp() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        return sdf.format(new Date());
+    }
+
+    private void rotateArrow(ImageView imageView, float fromDegrees, float toDegrees) {
+        RotateAnimation rotate = new RotateAnimation(
+                fromDegrees,
+                toDegrees,
+                RotateAnimation.RELATIVE_TO_SELF, 0.5f,
+                RotateAnimation.RELATIVE_TO_SELF, 0.5f
+        );
+        rotate.setDuration(300);
+        rotate.setFillAfter(true);
+        imageView.startAnimation(rotate);
+    }
+
+
+    // Method to fetch employee's email from UserSessionManager
+    private String getEmployeeEmail() {
+        // Assuming you have stored the employee's email in UserSessionManager
+        // Modify this according to your actual implementation
+        return UserSessionManager.getEmployeeMail(this);
+    }
+
+
+
+    // Helper method to parse date strings into Timestamps
+    private Timestamp parseTimestamp(String dateString) {
+        if (dateString == null || dateString.isEmpty()) {
+            return null;
+        }
+        try {
+            return Timestamp.valueOf(dateString);
+        } catch (IllegalArgumentException e) {
+            Log.e("parseTimestamp", "Failed to parse timestamp: " + dateString, e);
+            return null;
+        }
+    }
 
 
 
@@ -1463,12 +1645,53 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
         }).start();
     }
 
+    private void addTaskToGoogleCalendar() {
+        // Get task details
+        String actionName = task.getWorkInPlanName();
+        String comment = task.getWorkInPlanNote();
+
+        // Get date and time
+        Timestamp term = task.getWorkInPlanTerm();
+        // Convert Timestamp to date and time strings
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+
+        Date termDate = new Date(term.getTime());
+        String date = dateFormat.format(termDate);
+        String time = timeFormat.format(termDate);
+
+        // Check if the task is date-only
+        boolean isDateOnly = isDateOnlyTask(task);
+
+        if (isDateOnly) {
+            // Date-only task, no time
+            time = null;
+        }
+
+        // Get the CRMWork action
+        CRMWork action = getCRMWorkById(task.getReactionWorkActionID());
+        if (action == null) {
+            Log.e("TaskInfoActivity", "CRMWork not found for action ID: " + task.getReactionWorkActionID());
+            return;
+        }
+
+        // Now, create the event
+        createGoogleCalendarEvent(action, date, time, comment, false, (eventId, startDate, endDate) -> {
+            if (eventId != null) {
+                saveGoogleCalendarEventId(TaskInfoActivity.this, task.getWorkInPlanID(), eventId);
+                runOnUiThread(() -> showCustomToast(getString(R.string.event_added_to_google_calendar), true));
+            } else {
+                runOnUiThread(() -> showCustomToast(getString(R.string.failed_to_add_event_to_google_calendar), false));
+            }
+        });
+    }
+
     private void createGoogleCalendarEvent(final CRMWork action, String date, String time, final String comment, final boolean sendInvite, final EventCreationCallback callback) {
         GoogleCalendarService googleCalendarService = new GoogleCalendarService(this);
         final com.google.api.services.calendar.Calendar calendarService = googleCalendarService.getCalendarService();
 
         if (calendarService == null) {
-            Toast.makeText(this, getString(R.string.google_calendar_not_available), Toast.LENGTH_SHORT).show();
+            showCustomToast(getString(R.string.google_calendar_not_available), false);
             return;
         }
 
@@ -1526,7 +1749,7 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
                     if (createdEvent != null && createdEvent.getId() != null) {
                         String eventId = createdEvent.getId();
                         runOnUiThread(() -> {
-                            Toast.makeText(TaskInfoActivity.this, getString(R.string.event_added_to_google_calendar), Toast.LENGTH_SHORT).show();
+                            showCustomToast(getString(R.string.event_added_to_google_calendar), true);
                             if (callback != null) callback.onEventCreated(eventId, null, null);
                         });
 
@@ -1548,13 +1771,14 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
                     }
                 } catch (Exception e) {
                     Log.e("TaskInfoActivity", "Error creating event: " + e.getMessage(), e);
-                    runOnUiThread(() -> Toast.makeText(TaskInfoActivity.this, getString(R.string.failed_to_add_event_to_google_calendar), Toast.LENGTH_SHORT).show());
+                    runOnUiThread(() -> showCustomToast(getString(R.string.failed_to_add_event_to_google_calendar), false));
                     if (callback != null) callback.onEventCreated(null, null, null);
                 }
             }).start();
         } catch (ParseException | IOException e) {
             Log.e("TaskInfoActivity", "Date parsing error: " + e.getMessage(), e);
-            Toast.makeText(this, getString(R.string.failed_to_parse_date_and_time), Toast.LENGTH_SHORT).show();
+            showCustomToast(getString(R.string.failed_to_parse_date_and_time), false);
+
         }
     }
 
@@ -1669,11 +1893,13 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
         return input.replace("\\", "\\\\").replace(",", "\\,").replace(";", "\\;").replace("\n", "\\n");
     }
 
-    private void deleteGoogleCalendarEvent() {
+    private void deleteGoogleCalendarEvent(boolean showErrorToast) {
         String eventId = getGoogleCalendarEventId(this, task.getWorkInPlanID());
         if (eventId == null) {
             Log.e("TaskInfoActivity", "No Event ID found for this task.");
-            Toast.makeText(TaskInfoActivity.this, getString(R.string.event_not_found), Toast.LENGTH_SHORT).show();
+            if (showErrorToast) {
+                showCustomToast(getString(R.string.event_not_found), false);
+            }
             return;
         }
 
@@ -1687,10 +1913,10 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
                     // Remove event ID from SharedPreferences
                     removeGoogleCalendarEventId(this, task.getWorkInPlanID());
 
-                    runOnUiThread(() -> Toast.makeText(TaskInfoActivity.this, getString(R.string.event_deleted), Toast.LENGTH_SHORT).show());
+                    runOnUiThread(() -> showCustomToast(getString(R.string.event_deleted), true));
                 } catch (Exception e) {
                     Log.e("TaskInfoActivity", "Failed to delete event: " + e.getMessage(), e);
-                    runOnUiThread(() -> Toast.makeText(TaskInfoActivity.this, getString(R.string.event_delete_failed), Toast.LENGTH_SHORT).show());
+                    runOnUiThread(() -> showCustomToast(getString(R.string.event_delete_failed), false));
                 }
             }).start();
         }
@@ -1738,12 +1964,35 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
                 startActivity(Intent.createChooser(emailIntent, getString(R.string.send_email_using)));
             } catch (IOException e) {
                 e.printStackTrace();
-                Toast.makeText(this, getString(R.string.invite_send_failure), Toast.LENGTH_SHORT).show();
+                showCustomToast(getString(R.string.invite_send_failure), false);
             }
         } else {
-            Toast.makeText(this, getString(R.string.no_rep_email_available), Toast.LENGTH_SHORT).show();
+            showCustomToast(getString(R.string.no_rep_email_available), false);
         }
     }
+
+    public interface EventCreationCallback {
+        void onEventCreated(String eventId, Date startDate, Date endDate);
+    }
+
+    // Separate method to handle sending an invite if requested
+    private void handleSendInviteIfRequired() {
+        boolean sendInvite = getIntent().getBooleanExtra("SendInvite", false);
+        if (sendInvite) {
+            String actionName = getIntent().getStringExtra("ActionName");
+            String comment = getIntent().getStringExtra("Comment");
+            long startDateMillis = getIntent().getLongExtra("StartDate", -1);
+            long endDateMillis = getIntent().getLongExtra("EndDate", -1);
+            if (startDateMillis != -1 && endDateMillis != -1) {
+                Date startDate = new Date(startDateMillis);
+                Date endDate = new Date(endDateMillis);
+                sendEmailInvite(actionName, comment, startDate, endDate);
+            }
+        }
+    }
+
+
+
 
 
 
@@ -1901,7 +2150,7 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
         Log.d("TaskInfoActivity", "Updating task status with workInPlanID: " + taskId + " New Status: " + workDone);
 
         if (apiKey == null || apiKey.isEmpty() || userId == null || userId.isEmpty()) {
-            Toast.makeText(this, getString(R.string.please_login_again), Toast.LENGTH_LONG).show();
+            showCustomToast(getString(R.string.please_login_again), false);
             return;
         }
 
@@ -1930,15 +2179,16 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
             @Override
             public void onResponse(Call<ApiResponseUpdate> call, Response<ApiResponseUpdate> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(TaskInfoActivity.this, getString(R.string.task_status_updated), Toast.LENGTH_SHORT).show();
+                    showCustomToast(getString(R.string.task_status_updated), true);
                 } else {
-                    Toast.makeText(TaskInfoActivity.this, getString(R.string.failed_to_update_task_status), Toast.LENGTH_SHORT).show();
+                    showCustomToast(getString(R.string.failed_to_update_task_status), false);
                 }
             }
 
             @Override
             public void onFailure(Call<ApiResponseUpdate> call, Throwable t) {
-                Toast.makeText(TaskInfoActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                showCustomToast("Network error: " + t.getMessage(), false);
+
             }
         });
     }
@@ -1975,7 +2225,7 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
         String userId = UserSessionManager.getUserId(this);
 
         if (apiKey == null || apiKey.isEmpty() || userId == null || userId.isEmpty()) {
-            Toast.makeText(this, getString(R.string.please_login_again), Toast.LENGTH_LONG).show();
+            showCustomToast(getString(R.string.please_login_again), false);
             return;
         }
 
@@ -1991,14 +2241,15 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
                         showEmployeeSelectionPopup(employeeList);
                     }
                 } else {
-                    Toast.makeText(TaskInfoActivity.this, getString(R.string.failed_to_get_employees), Toast.LENGTH_SHORT).show();
+                    showCustomToast(getString(R.string.failed_to_get_employees), false);
 // ...
                 }
             }
 
             @Override
             public void onFailure(Call<EmployeResponse> call, Throwable t) {
-                Toast.makeText(TaskInfoActivity.this, getString(R.string.network_error) + t.getMessage(), Toast.LENGTH_SHORT).show();
+                showCustomToast(getString(R.string.network_error) + t.getMessage(), false);
+
             }
         });
     }

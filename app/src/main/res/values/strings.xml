@@ -83,7 +83,7 @@
     <string name="no_rep_email_available">Representative email is not available.</string>
     <string name="add_to_calendar">Add to my Google Calendar</string>
     <string name="send_invite">Send invite to representative</string>
-    <string name="reassign_task">Reassign Task</string>
+    <string name="reassign_task">REASSIGN TASK</string>
     <string name="reassign_confirmation_message">Do you want to reassign this task?</string>
     <string name="select_employee">Select Employee</string>
     <string name="unknown_organizer">Unknown Organizer</string>
@@ -145,5 +145,49 @@
     <string name="rep_phone">Representative Phone</string>
     <string name="edit_representative_info">Edit Representative Information</string>
     <string name="order_info">ORDER INFO </string>
+    <string name="reschedule">RESCHEDULE</string>
+    <string name="sync_with_g_calendar">Sync with Google Calendar</string>
+    <string name="rep_status_default"></string>
+    <string name="contact_person_type_1000"><u>For Marketing</u></string>
+    <string name="contact_person_type_0100"><u>CEO</u></string>
+    <string name="contact_person_type_0010"><u>&lt;Rep&gt;</u></string>
+    <string name="contact_person_type_0001"><u>Main</u></string>
+    <string name="contact_person_type_1100"><u>CEO | For Marketing</u></string>
+    <string name="contact_person_type_1010"><u>&lt;Rep&gt; | For Marketing</u></string>
+    <string name="contact_person_type_1001"><u>Main | For Marketing</u></string>
+    <string name="contact_person_type_0110"><u>&lt;Rep&gt; | CEO</u></string>
+    <string name="contact_person_type_0101"><u>CEO | Main</u></string>
+    <string name="contact_person_type_0011"><u>&lt;Rep&gt; | Main</u></string>
+    <string name="contact_person_type_1110"><u>&lt;Rep&gt; | CEO | For Marketing</u></string>
+    <string name="contact_person_type_1101"><u>CEO | Main | For Marketing</u></string>
+    <string name="contact_person_type_1011"><u>&lt;Rep&gt; | Main | For Marketing</u></string>
+    <string name="contact_person_type_0111"><u>&lt;Rep&gt; | CEO | Main</u></string>
+    <string name="contact_person_type_1111"><u>&lt;Rep&gt; | CEO | Main | For Marketing</u></string>
+    <string name="marker_atstovas">&lt;Rep&gt;</string>
+    <string name="action_prompt">Select Action</string>
+    <string name="send_invite_to_representative">Send email invite to representative</string>
+    <string name="select_representative">Select Representative</string>
+    <string name="error_select_action">Please select a valid action</string>
+    <string name="error_select_date">Please select a date</string>
+    <string name="error_select_time">Please select a time</string>
+    <string name="error_select_representative">Please select a representative</string>
+    <string name="add_to_calendar_description">Checkbox to add task to calendar</string>
+    <string name="send_invite_description">Checkbox to send invite to representative</string>
+    <string name="confirm_task_creation_title">Confirm Task Creation</string>
+    <string name="confirm_task_creation_message">Are you sure you want to create this task?</string>
+    <string name="new_task_created">New Task Created</string>
+    <string name="error_email_empty">Representative email not found</string>
+    <string name="error_address_empty">Address not assigned</string>
+    <string name="invalid_date_format">Invalid date format. Please enter date as yyyy-MM-dd HH:mm.</string>
+    <string name="no_task_details_found">No task details found under the specified header ID.</string>
+    <string name="no_data_found_in_response">No data found in response.</string>
+    <string name="error_retrieving_task_details">Error retrieving task details.</string>
+    <string name="task_updated_successfully">Task updated</string>
+    <string name="task_created">Task created</string>
+    <string name="failed_to_update_task">Failed to update task. Please try again.</string>
+    <string name="customer_updated_successfully">Customer updated successfully.</string>
+    <string name="failed_to_update_customer">Failed to update customer. Please try again.</string>
+
+
 
 </resources>
