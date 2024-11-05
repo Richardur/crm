@@ -102,8 +102,8 @@
     <string name="task_deleted_successfully">Užduotis sėkmingai ištrinta</string>
     <string name="failed_to_delete_task">Nepavyko ištrinti užduoties</string>
     <string name="google_calendar_not_available">Google Calendar paslauga nėra prieinama.</string>
-    <string name="failed_to_add_event_to_google_calendar">Nepavyko pridėti įvykio į Google Calendar.</string>
-    <string name="failed_to_parse_date_and_time">Nepavyko išanalizuoti datos ir laiko.</string>
+    <string name="failed_to_add_event_to_google_calendar">Nepavyko pridėti įvykio į Google Kalendorių</string>
+    <string name="failed_to_parse_date_and_time">Nepavyko išanalizuoti datos ir laiko</string>
     <string name="edit_confirmation_title">Redaguoti?</string>
     <string name="create_new_task">Sukurti naują užduotį?</string>
     <string name="create_same_task_confirmation">Ar norite sukurti tą pačią užduotį pasirinktam klientui?</string>
@@ -118,11 +118,11 @@
     <string name="failed_to_create_new_task">Nepavyko sukurti naujos užduoties</string>
     <string name="assigned_to">Priskirta: %1$s</string>
     <string name="unknown">Nežinomas</string>
-    <string name="event_added_to_google_calendar">Įvykis pridėtas prie Google Calendar</string>
+    <string name="event_added_to_google_calendar">Įvykis pridėtas prie Google Kalendoriaus</string>
     <string name="add_comment">Pridėti komentarą</string>
     <string name="optional_comment">Pasirinktinis komentaras</string>
-    <string name="event_not_found">Įvykis nerastas Google kalendoriuje.</string>
-    <string name="event_deleted">Įvykis ištrintas iš Google kalendoriaus.</string>
+    <string name="event_not_found">Įvykis nerastas Google Kalendoriuje.</string>
+    <string name="event_deleted">Įvykis ištrintas iš Google Kalendoriaus.</string>
     <string name="event_delete_failed">Nepavyko ištrinti įvykio.</string>
     <string name="client_manager_name">Vadybininkas: </string>
     <string name="due_date_icon">Due date icon</string>
@@ -164,8 +164,39 @@
     <string name="contact_person_type_1111"><u>&lt;Atstovas&gt; | Vadovas | Pagrindinis | Marketingui</u></string>
 
     <string name="marker_atstovas">&lt;Atstovas&gt;</string>
+    <string name="error_select_action">Prašome pasirinkti galiojantį veiksmą</string>
+    <string name="error_select_date">Prašome pasirinkti datą</string>
+    <string name="error_select_time">Prašome pasirinkti laiką</string>
+    <string name="error_select_representative">Prašome pasirinkti atstovą</string>
+    <string name="add_to_calendar_description">Žymimasis langelis užduoties pridėjimui į kalendorių</string>
+    <string name="send_invite_description">Žymimasis langelis kvietimo išsiuntimui atstovui</string>
+    <string name="confirm_task_creation_title">Patvirtinti užduoties kūrimą</string>
+    <string name="confirm_task_creation_message">Ar tikrai norite sukurti šią užduotį?</string>
+    <string name="new_task_created">Sukurta nauja užduotis</string>
+    <string name="error_email_empty">Atstovo el. paštas nerastas</string>
+    <string name="error_address_empty">Adresas nepriskirtas</string>
+    <string name="invalid_date_format">Neteisingas datos formatas. Prašome įvesti datą formatu yyyy-MM-dd HH:mm.</string>
+    <string name="no_task_details_found">Nerasta užduoties detalių pagal nurodytą antraštės ID.</string>
+    <string name="no_data_found_in_response">Atsakyme nerasta duomenų.</string>
+    <string name="error_retrieving_task_details">Klaida gaunant užduoties detales.</string>
+    <string name="task_updated_successfully">Užduotis atnaujinta</string>
+    <string name="task_created">Užduotis sukurta</string>
+    <string name="failed_to_update_task">Nepavyko atnaujinti užduoties. Prašome bandyti dar kartą.</string>
+    <string name="customer_updated_successfully">Klientas sėkmingai atnaujintas.</string>
+    <string name="failed_to_update_customer">Nepavyko atnaujinti kliento. Prašome bandyti dar kartą.</string>
+
 
     <string name="action_prompt">Pasirinkti Darbą</string>
     <string name="send_invite_to_representative">Išsiųsti pakvietimą atstovui</string>
     <string name="select_representative">Pasirinkti atstovą</string>
+    <string name="today">Šiandien</string>
+    <string name="status_filter">Atlikimo filtras</string>
+    <string name="assignment_filter">Priskyrimų filtras</string>
+    <string name="assigned_to_me">Priskirta man</string>
+    <string name="assigned_by_me">Mano priskirti</string>
+    <string name="all_assignments">Bendri</string>
+    <string name="all_status">Visi darbai</string>
+    <string name="pending">Laukiama</string>
+    <string name="error_feature_coming_soon">Netrukus bus pasiekiama</string>
+
 </resources>

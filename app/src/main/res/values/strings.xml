@@ -187,7 +187,15 @@
     <string name="failed_to_update_task">Failed to update task. Please try again.</string>
     <string name="customer_updated_successfully">Customer updated successfully.</string>
     <string name="failed_to_update_customer">Failed to update customer. Please try again.</string>
-
+    <string name="today">Today</string>
+    <string name="status_filter">Status Filter</string>
+    <string name="assignment_filter">Assignment Filter</string>
+    <string name="assigned_to_me">Assigned to Me</string>
+    <string name="assigned_by_me">Assigned by Me</string>
+    <string name="all_assignments">All Assignments</string>
+    <string name="all_status">All Status</string>
+    <string name="pending">Pending</string>
+    <string name="error_feature_coming_soon">Feature coming soon</string>
 
 
 </resources>

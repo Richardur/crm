@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_multi_selection"
+        style="@style/Theme.AivaCRM.NoActionBar"
         android:padding="10dp">
 
         <RelativeLayout
@@ -32,6 +33,7 @@
                     android:id="@+id/hours"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    style="@style/TextAppearance.AppCompat.Body2"
                     android:textColor="?attr/colorPrimary"
                     android:textSize="@dimen/text_size_xlarge"
                     android:gravity="center" />

@@ -235,7 +235,7 @@ public class NewTaskDialogFragment extends DialogFragment {
     // Show DatePickerDialog for selecting the date
     private void showDatePickerDialog() {
         Calendar calendar = Calendar.getInstance();
-        DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(),
+        DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(), R.style.CustomDatePickerDialogTheme,
                 (view, year, month, dayOfMonth) -> {
                     String date = String.format("%04d-%02d-%02d", year, month + 1, dayOfMonth);
                     dateEditText.setText(date);
@@ -249,7 +249,7 @@ public class NewTaskDialogFragment extends DialogFragment {
     // Show TimePickerDialog for selecting the time
     private void showTimePickerDialog() {
         Calendar calendar = Calendar.getInstance();
-        TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(),
+        TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(), R.style.CustomDatePickerDialogTheme,
                 (view, hourOfDay, minute) -> {
                     String time = String.format("%02d:%02d", hourOfDay, minute);
                     timeEditText.setText(time);

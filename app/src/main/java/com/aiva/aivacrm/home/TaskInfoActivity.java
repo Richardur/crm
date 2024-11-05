@@ -338,11 +338,15 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
             }
         });
         orderButton.setOnClickListener(v -> {
-            Intent intent = new Intent(TaskInfoActivity.this, TaskListActivity.class);
+         /*   Intent intent = new Intent(TaskInfoActivity.this, TaskListActivity.class);
             intent.putExtra("selectedTaskId", taskId);
             intent.putExtra("clientId", taskCustomerId);
             intent.putExtra("orderId", order);
             startActivity(intent);
+            */
+          //add error toast coming soon message
+            showCustomToast(getString(R.string.error_feature_coming_soon), false);
+
         });
 
 
@@ -767,7 +771,7 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
 
-        DatePickerDialog datePickerDialog = new DatePickerDialog(TaskInfoActivity.this, (view, year1, monthOfYear, dayOfMonth) -> {
+        DatePickerDialog datePickerDialog = new DatePickerDialog(TaskInfoActivity.this, R.style.CustomDatePickerDialogTheme, (view, year1, monthOfYear, dayOfMonth) -> {
             String dateString = String.format(Locale.getDefault(), "%04d-%02d-%02d", year1, monthOfYear + 1, dayOfMonth);
             dueDateTextView.setText(dateString);
         }, year, month, day);
@@ -1422,8 +1426,8 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
 
-        DatePickerDialog datePickerDialog = new DatePickerDialog(TaskInfoActivity.this, (view, year1, monthOfYear, dayOfMonth) -> {
-            TimePickerDialog timePickerDialog = new TimePickerDialog(TaskInfoActivity.this, (view1, hourOfDay, minute1) -> {
+        DatePickerDialog datePickerDialog = new DatePickerDialog(TaskInfoActivity.this, R.style.CustomDatePickerDialogTheme, (view, year1, monthOfYear, dayOfMonth) -> {
+            TimePickerDialog timePickerDialog = new TimePickerDialog(TaskInfoActivity.this, R.style.CustomDatePickerDialogTheme, (view1, hourOfDay, minute1) -> {
                 String dateString = String.format(Locale.getDefault(), "%04d-%02d-%02d %02d:%02d", year1, monthOfYear + 1, dayOfMonth, hourOfDay, minute1);                //showCommentDialog(dateString, null);
             }, hour, minute, true);
             timePickerDialog.show();
@@ -1439,8 +1443,8 @@ public class TaskInfoActivity extends AppCompatActivity implements NewTaskDialog
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
 
-        DatePickerDialog datePickerDialog = new DatePickerDialog(TaskInfoActivity.this, (view, year1, monthOfYear, dayOfMonth) -> {
-            TimePickerDialog timePickerDialog = new TimePickerDialog(TaskInfoActivity.this, (view1, hourOfDay, minute1) -> {
+        DatePickerDialog datePickerDialog = new DatePickerDialog(TaskInfoActivity.this, R.style.CustomDatePickerDialogTheme, (view, year1, monthOfYear, dayOfMonth) -> {
+            TimePickerDialog timePickerDialog = new TimePickerDialog(TaskInfoActivity.this, R.style.CustomDatePickerDialogTheme, (view1, hourOfDay, minute1) -> {
                 String dateString = String.format(Locale.getDefault(), "%04d-%02d-%02d %02d:%02d", year1, monthOfYear + 1, dayOfMonth, hourOfDay, minute1);                dueDateTextView.setText(dateString);
             }, hour, minute, true);
             timePickerDialog.show();

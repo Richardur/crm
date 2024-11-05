@@ -72,6 +72,13 @@
         <item name="android:paddingStart">0dp</item>
         <item name="android:paddingEnd">0dp</item>
     </style>
+    <!-- Custom DatePickerDialog Theme -->
+    <style name="CustomDatePickerDialogTheme" parent="Theme.MaterialComponents.Light.Dialog">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
+        <item name="colorOnPrimary">@color/colorAccent</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
 
     <!-- Custom CheckBox Style -->
     <style name="Widget.AivaCRM.CheckBox" parent="Widget.MaterialComponents.CompoundButton.CheckBox">

@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.aiva.aivacrm.R;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 
@@ -41,6 +42,10 @@ public class DailyTasks extends AppCompatActivity {
     private AssignmentFilter assignmentFilter = AssignmentFilter.ASSIGNED_TO_ME; // Default
     private StatusFilter statusFilter = StatusFilter.ALL_STATUS; // Default
 
+    private MaterialButton buttonToday;
+    private MaterialButton buttonStatusFilter;
+    private MaterialButton buttonAssignmentFilter;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,10 +63,32 @@ public class DailyTasks extends AppCompatActivity {
         setMonthView();
         setTabDate(selectedDate);
 
-        FloatingActionButton menuFab = findViewById(R.id.menu_fab);
+
         ImageButton menuButton = findViewById(R.id.menu_button);
 
-        menuFab.setOnClickListener(v -> openCurrentMenuFunctionality());
+        buttonToday = findViewById(R.id.button_today);
+        buttonStatusFilter = findViewById(R.id.button_status_filter);
+        buttonAssignmentFilter = findViewById(R.id.button_assignment_filter);
+
+        // Set initial text for the filter buttons
+        buttonAssignmentFilter.setText(getAssignmentFilterText(assignmentFilter));
+        buttonStatusFilter.setText(getStatusFilterText(statusFilter));
+
+        // Set click listeners for the buttons
+        buttonToday.setOnClickListener(v -> {
+            selectedDate = LocalDate.now();
+            setMonthView();
+            setTabDate(selectedDate);
+            // Update the fragment
+            getTimestamps();
+            getSupportFragmentManager().beginTransaction().detach(fragment).commit();
+            fragment = TasksTab.newInstance(t1, t2, selectedDate, assignmentFilter, statusFilter);
+            getSupportFragmentManager().beginTransaction().replace(R.id.tabFragment, fragment).commit();
+        });
+
+        buttonStatusFilter.setOnClickListener(v -> showStatusFilterPopup());
+
+        buttonAssignmentFilter.setOnClickListener(v -> showAssignmentFilterPopup());
 
         menuButton.setOnClickListener(view -> {
             PopupMenu popup = new PopupMenu(DailyTasks.this, view);
@@ -92,42 +119,56 @@ public class DailyTasks extends AppCompatActivity {
         });
     }
 
-
-
-    private void openCurrentMenuFunctionality() {
-        PopupMenu popup = new PopupMenu(DailyTasks.this, findViewById(R.id.menu_fab));
-        popup.inflate(R.menu.menu_options);  // Load the updated menu with two options
-        popup.setOnMenuItemClickListener(item -> {
-            switch (item.getItemId()) {
-                case R.id.action_filter_assignment:
-                    showAssignmentFilterPopup();  // Show the assignment filtering menu
-                    return true;
-                case R.id.action_filter_status:
-                    showStatusFilterPopup();  // Show the completion status filtering menu
-                    return true;
-                default:
-                    return false;
-            }
-        });
-        popup.show();
+    // Helper methods to get filter text
+    private String getAssignmentFilterText(AssignmentFilter filter) {
+        switch (filter) {
+            case ASSIGNED_TO_ME:
+                return getString(R.string.assigned_to_me);
+            case ASSIGNED_BY_ME:
+                return getString(R.string.assigned_by_me);
+            case ALL_ASSIGNMENT:
+                return getString(R.string.all_assignments);
+            default:
+                return "";
+        }
+    }
+    private String getStatusFilterText(StatusFilter filter) {
+        switch (filter) {
+            case ALL_STATUS:
+                return getString(R.string.all_status);
+            case COMPLETED:
+                return getString(R.string.completed);
+            case PENDING:
+                return getString(R.string.pending);
+            default:
+                return "";
+        }
     }
 
-    // Popup menu for filtering by assignment type
+
+
+    
+    // Update showAssignmentFilterPopup method
     private void showAssignmentFilterPopup() {
-        PopupMenu popup = new PopupMenu(DailyTasks.this, findViewById(R.id.menu_fab));
-        popup.getMenu().add("Tasks Assigned to Me");
-        popup.getMenu().add("Tasks Assigned by Me");
-        popup.getMenu().add("All Tasks");
+        PopupMenu popup = new PopupMenu(DailyTasks.this, buttonAssignmentFilter);
+        popup.getMenu().add(getString(R.string.assigned_to_me));
+        popup.getMenu().add(getString(R.string.assigned_by_me));
+        popup.getMenu().add(getString(R.string.all_assignments));
 
         popup.setOnMenuItemClickListener(item -> {
-            if (item.getTitle().equals("Tasks Assigned to Me")) {
+            String title = item.getTitle().toString();
+            if (title.equals(getString(R.string.assigned_to_me))) {
                 assignmentFilter = AssignmentFilter.ASSIGNED_TO_ME;
-            } else if (item.getTitle().equals("Tasks Assigned by Me")) {
+            } else if (title.equals(getString(R.string.assigned_by_me))) {
                 assignmentFilter = AssignmentFilter.ASSIGNED_BY_ME;
             } else {
                 assignmentFilter = AssignmentFilter.ALL_ASSIGNMENT;
             }
 
+            // Update the button text
+            buttonAssignmentFilter.setText(title);
+
+            // Update the fragment
             TasksTab tasksTabFragment = (TasksTab) getSupportFragmentManager().findFragmentById(R.id.tabFragment);
             if (tasksTabFragment != null) {
                 tasksTabFragment.setAssignmentFilter(assignmentFilter);
@@ -140,22 +181,28 @@ public class DailyTasks extends AppCompatActivity {
         popup.show();
     }
 
-    // Popup menu for filtering by task completion status
+
+    // Update showStatusFilterPopup method
     private void showStatusFilterPopup() {
-        PopupMenu popup = new PopupMenu(DailyTasks.this, findViewById(R.id.menu_fab));
-        popup.getMenu().add("Show All Tasks");
-        popup.getMenu().add("Show Completed Tasks");
-        popup.getMenu().add("Show Pending Tasks");
+        PopupMenu popup = new PopupMenu(DailyTasks.this, buttonStatusFilter);
+        popup.getMenu().add(getString(R.string.all_status));
+        popup.getMenu().add(getString(R.string.completed));
+        popup.getMenu().add(getString(R.string.pending));
 
         popup.setOnMenuItemClickListener(item -> {
-            if (item.getTitle().equals("Show All Tasks")) {
+            String title = item.getTitle().toString();
+            if (title.equals(getString(R.string.all_status))) {
                 statusFilter = StatusFilter.ALL_STATUS;
-            } else if (item.getTitle().equals("Show Completed Tasks")) {
+            } else if (title.equals(getString(R.string.completed))) {
                 statusFilter = StatusFilter.COMPLETED;
-            } else if (item.getTitle().equals("Show Pending Tasks")) {
+            } else if (title.equals(getString(R.string.pending))) {
                 statusFilter = StatusFilter.PENDING;
             }
 
+            // Update the button text
+            buttonStatusFilter.setText(title);
+
+            // Update the fragment
             TasksTab tasksTabFragment = (TasksTab) getSupportFragmentManager().findFragmentById(R.id.tabFragment);
             if (tasksTabFragment != null) {
                 tasksTabFragment.setStatusFilter(statusFilter);
@@ -225,8 +272,30 @@ public class DailyTasks extends AppCompatActivity {
     }
 
     private String monthYearFromDate(LocalDate date) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM dd yyyy");
-        return date.format(formatter);
+        SharedPreferences prefs = getSharedPreferences("Settings", MODE_PRIVATE);
+        String language = prefs.getString("My_Lang", "lt"); // Default to "lt" if not set
+        Locale locale = language.equals("en") ? Locale.ENGLISH : Locale.forLanguageTag(language);
+
+        DateTimeFormatter formatter;
+        if (language.equals("lt")) {
+            formatter = DateTimeFormatter.ofPattern("MMMM d yyyy", locale);
+        } else {
+            formatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy", locale);
+        }
+
+        String formattedDate = date.format(formatter);
+        String[] parts = formattedDate.split(" ");
+        String day = parts[1];
+        if (day.startsWith("0")) {
+            day = day.substring(1);
+        }
+        String month = parts[0].substring(0, 1).toUpperCase(locale) + parts[0].substring(1);
+
+        if (language.equals("lt")) {
+            return month + " " + day + "d., " + parts[2];
+        } else {
+            return month + " " + day + " " + parts[2];
+        }
     }
 
     private void setTabDate(LocalDate date) {
@@ -294,7 +363,7 @@ public class DailyTasks extends AppCompatActivity {
         int mMonth = selectedDate.getMonthValue() - 1;
         int mDay = selectedDate.getDayOfMonth();
 
-        DatePickerDialog datePickerDialog = new DatePickerDialog(this,
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this, R.style.CustomDatePickerDialogTheme,
                 (view, year, monthOfYear, dayOfMonth) -> {
                     selectedDate = LocalDate.of(year, monthOfYear + 1, dayOfMonth);
                     setMonthView();

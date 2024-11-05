@@ -205,7 +205,7 @@
                             style="@style/Widget.Material3.Button.TextButton.Medium"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textColor="@color/red_A200"
+                            android:textColor="@color/colorError"
                             android:text="@string/reschedule"
                             app:iconPadding="8dp"
                             android:contentDescription="@string/reschedule"
